@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Cpu, Layers, Sliders, Zap } from 'lucide-react';
+import { Cpu, Dna, Shuffle, Sparkles } from 'lucide-react';
 import { VIDEO_MODELS } from '../../../lib/models/modelRegistry';
 
 interface ModelNodeData {
@@ -19,19 +19,24 @@ export const ModelNode: React.FC<{ data: ModelNodeData; isSelected?: boolean }> 
   data,
   isSelected,
 }) => {
-  const [modelId, setModelId] = useState(data.modelId);
-  const [resolution, setResolution] = useState(data.resolution);
-  const [cfg, setCfg] = useState(data.cfg);
-  const [steps, setSteps] = useState(data.steps);
+  const [modelId, setModelId] = useState(data.modelId || 'flux_video');
+  const [resolution, setResolution] = useState(data.resolution || '1080p');
+  const [cfg, setCfg] = useState(data.cfg || 4.5);
+  const [steps, setSteps] = useState(data.steps || 35);
+  const [seed, setSeed] = useState(4289104);
 
   const currentModel = VIDEO_MODELS[modelId] || VIDEO_MODELS.flux_video;
 
+  const handleRandomizeSeed = () => {
+    setSeed(Math.floor(Math.random() * 99999999));
+  };
+
   return (
     <div
-      className={`w-88 rounded-xl bg-[#0f131a] border transition-all text-white shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
         isSelected
-          ? 'border-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.3)]'
-          : 'border-[#1e2638] hover:border-neutral-600'
+          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
+          : 'border-[#1E2638] hover:border-zinc-700'
       }`}
     >
       {/* Input Handles for Prompt and Camera */}
@@ -39,44 +44,41 @@ export const ModelNode: React.FC<{ data: ModelNodeData; isSelected?: boolean }> 
         type="target"
         position={Position.Left}
         id="prompt-in"
-        style={{ top: '25%' }}
-        className="!bg-cyan-400 !w-3 !h-3"
+        style={{ top: '28%' }}
+        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="camera-in"
-        style={{ top: '75%' }}
-        className="!bg-pink-500 !w-3 !h-3"
+        style={{ top: '72%' }}
+        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
 
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141a24] border-b border-[#1e2638]">
+      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-cyan-500/20 text-cyan-400">
-            <Cpu className="w-3.5 h-3.5" />
-          </div>
-          <span className="font-mono text-xs font-bold text-neutral-200">
-            DIT VIDEO CORE
+          <Cpu className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="text-xs font-semibold tracking-wide text-zinc-200">
+            DiT Inference Engine
           </span>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-          ORCHESTRATOR
+        <span className="text-[10px] font-mono text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+          {currentModel.version}
         </span>
       </div>
 
       {/* Node Body */}
-      <div className="p-3.5 space-y-3 text-xs">
+      <div className="p-3 space-y-3 text-xs">
         {/* Model Selector */}
         <div>
-          <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1 flex items-center gap-1">
-            <Layers className="w-3 h-3 text-cyan-400" />
-            Diffusion Transformer Model
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+            Generation Model
           </label>
           <select
             value={modelId}
             onChange={(e) => setModelId(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2.5 py-1.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-400"
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-500 font-medium"
           >
             {Object.values(VIDEO_MODELS).map((m) => (
               <option key={m.id} value={m.id}>
@@ -86,98 +88,85 @@ export const ModelNode: React.FC<{ data: ModelNodeData; isSelected?: boolean }> 
           </select>
         </div>
 
-        {/* Model Spec Badge */}
-        <div className="p-2.5 rounded bg-[#090a0f] border border-[#1e2638] text-[11px] space-y-1">
-          <div className="flex justify-between items-center text-neutral-400">
-            <span>Context / Attention:</span>
-            <span className="text-cyan-400 font-mono text-[10px]">{currentModel.contextWindow}</span>
+        {/* Quality Selector Pills */}
+        <div>
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
+            Render Resolution
+          </label>
+          <div className="grid grid-cols-3 gap-1.5">
+            {['720p', '1080p', '4K-Cinema'].map((res) => (
+              <button
+                key={res}
+                type="button"
+                onClick={() => setResolution(res)}
+                className={`py-1 text-center rounded border transition-colors text-[11px] font-mono ${
+                  resolution === res
+                    ? 'bg-zinc-800 border-zinc-500 text-zinc-100 font-medium'
+                    : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {res}
+              </button>
+            ))}
           </div>
-          <div className="flex justify-between items-center text-neutral-400">
-            <span>Camera Guidance:</span>
-            <span className="text-pink-400 font-mono text-[10px] uppercase">
-              {currentModel.cameraPromptSupport}
+        </div>
+
+        {/* Denoising Steps Slider */}
+        <div>
+          <div className="flex justify-between items-center text-[11px] font-medium text-zinc-400 mb-1">
+            <span>Denoising Steps</span>
+            <span className="font-mono text-zinc-300 font-bold">{steps}</span>
+          </div>
+          <input
+            type="range"
+            min="20"
+            max="60"
+            step="5"
+            value={steps}
+            onChange={(e) => setSteps(parseInt(e.target.value))}
+            className="w-full accent-cyan-400 bg-[#0D1119] rounded h-1 cursor-pointer"
+          />
+        </div>
+
+        {/* CFG Slider */}
+        <div>
+          <div className="flex justify-between items-center text-[11px] font-medium text-zinc-400 mb-1">
+            <span>Guidance Scale (CFG)</span>
+            <span className="font-mono text-zinc-300 font-bold">{cfg.toFixed(1)}</span>
+          </div>
+          <input
+            type="range"
+            min="2.0"
+            max="8.0"
+            step="0.5"
+            value={cfg}
+            onChange={(e) => setCfg(parseFloat(e.target.value))}
+            className="w-full accent-cyan-400 bg-[#0D1119] rounded h-1 cursor-pointer"
+          />
+        </div>
+
+        {/* Seed Randomizer */}
+        <div className="pt-1 border-t border-[#1E2638]">
+          <div className="flex items-center justify-between text-[11px] font-medium text-zinc-400 mb-1">
+            <span className="flex items-center gap-1.5">
+              <Dna className="w-3 h-3 text-zinc-500" />
+              Inference Seed
             </span>
-          </div>
-          <div className="flex justify-between items-center text-neutral-400">
-            <span>Native Frame Rate:</span>
-            <span className="text-white font-mono text-[10px]">{currentModel.nativeFps} FPS</span>
-          </div>
-        </div>
-
-        {/* Resolution & Aspect Ratio Grid */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1">
-              Render Quality
-            </label>
-            <select
-              value={resolution}
-              onChange={(e) => setResolution(e.target.value)}
-              className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2 py-1 text-xs text-neutral-300 focus:outline-none"
+            <button
+              type="button"
+              onClick={handleRandomizeSeed}
+              className="flex items-center gap-1 text-[10px] text-zinc-400 hover:text-cyan-400 font-mono transition-colors"
             >
-              {currentModel.supportedResolutions.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
+              <Shuffle className="w-3 h-3" />
+              Randomize
+            </button>
           </div>
-          <div>
-            <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1">
-              Frame Aspect
-            </label>
-            <select
-              defaultValue={data.aspectRatio}
-              className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2 py-1 text-xs text-neutral-300 focus:outline-none"
-            >
-              {currentModel.supportedAspectRatios.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* CFG & Step Sliders */}
-        <div className="space-y-2 pt-1">
-          <div>
-            <div className="flex justify-between items-center text-[10px] font-mono text-neutral-400 mb-1">
-              <span className="flex items-center gap-1">
-                <Sliders className="w-3 h-3 text-cyan-400" />
-                Classifier-Free Guidance (CFG)
-              </span>
-              <span className="text-cyan-400 font-bold">{cfg.toFixed(1)}</span>
-            </div>
-            <input
-              type="range"
-              min="2.0"
-              max="9.0"
-              step="0.5"
-              value={cfg}
-              onChange={(e) => setCfg(parseFloat(e.target.value))}
-              className="w-full accent-cyan-400 bg-[#1e2638] rounded h-1.5"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center text-[10px] font-mono text-neutral-400 mb-1">
-              <span className="flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-400" />
-                Denoising Steps
-              </span>
-              <span className="text-amber-400 font-bold">{steps}</span>
-            </div>
-            <input
-              type="range"
-              min="20"
-              max="60"
-              step="5"
-              value={steps}
-              onChange={(e) => setSteps(parseInt(e.target.value))}
-              className="w-full accent-amber-400 bg-[#1e2638] rounded h-1.5"
-            />
-          </div>
+          <input
+            type="number"
+            value={seed}
+            onChange={(e) => setSeed(parseInt(e.target.value) || 0)}
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1 text-xs font-mono text-zinc-300 focus:outline-none focus:border-zinc-500"
+          />
         </div>
       </div>
 
@@ -186,7 +175,7 @@ export const ModelNode: React.FC<{ data: ModelNodeData; isSelected?: boolean }> 
         type="source"
         position={Position.Right}
         id="model-out"
-        className="!bg-cyan-400 !w-3 !h-3"
+        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   ReactFlow,
   Background,
@@ -42,7 +42,7 @@ export const StudioCanvas: React.FC = () => {
           {
             ...params,
             animated: true,
-            style: { stroke: '#00f0ff', strokeWidth: 2.5 },
+            style: { stroke: '#3E4D6D', strokeWidth: 2 },
           },
           eds
         )
@@ -52,8 +52,8 @@ export const StudioCanvas: React.FC = () => {
 
   const handleAddNode = (type: 'promptNode' | 'cameraNode' | 'modelNode' | 'audioNode' | 'timelineNode') => {
     const id = `node-${type}-${Date.now()}`;
-    const xPos = 200 + Math.random() * 200;
-    const yPos = 150 + Math.random() * 200;
+    const xPos = 180 + Math.random() * 200;
+    const yPos = 120 + Math.random() * 200;
 
     const newNode: Node = {
       id,
@@ -62,32 +62,32 @@ export const StudioCanvas: React.FC = () => {
       data: {
         label: type.toUpperCase(),
         ...(type === 'promptNode' && {
-          subject: 'Cybernetic explorer entering an ancient quantum archive',
-          action: 'interfacing with luminous floating data crystals',
-          look: '35mm Anamorphic, ARRI Alexa LF, Kodak Vision3 500T',
+          subject: 'Architectural interior of an obsidian brutalist gallery with diffused volumetric skylight',
+          action: 'camera smoothly tracking past floating kinetic sculptures',
+          look: '35mm Anamorphic, ARRI Alexa LF',
           soulId: 'EX-900',
           negativePrompt: 'blurry, distorted, watermarks',
         }),
         ...(type === 'cameraNode' && {
-          presetId: 'fpv_dive',
-          name: 'FPV Acro Dive',
-          category: 'FPV',
-          speedRamp: 1.5,
-          focalLength: '24mm Ultra-Wide',
+          presetId: 'orbital_drift',
+          name: '360° Orbital Drift',
+          category: 'Arc / Orbit',
+          speedRamp: 1.0,
+          focalLength: '35mm',
         }),
         ...(type === 'modelNode' && {
-          modelId: 'kling_1_5',
+          modelId: 'flux_video',
           resolution: '1080p',
           aspectRatio: '16:9',
           fps: 30,
-          cfg: 5.0,
-          steps: 40,
+          cfg: 4.5,
+          steps: 35,
         }),
         ...(type === 'audioNode' && {
-          trackId: 'tokyo-drift-kinetic',
-          title: 'Shibuya Speedrun',
-          bpm: 140,
-          energy: 0.95,
+          trackId: 'cyberpunk-neon-drift',
+          title: 'Neon Drift 2088',
+          bpm: 120,
+          energy: 0.90,
           isSynthesizing: false,
         }),
         ...(type === 'timelineNode' && {
@@ -109,11 +109,11 @@ export const StudioCanvas: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full h-full bg-[#090a0f]">
-      {/* Top Floating Node Toolbar */}
+    <div className="relative w-full h-full bg-[#0B0E14]">
+      {/* Sleek Top Toolbar */}
       <NodeToolbar onAddNode={handleAddNode} onLoadPreset={handleLoadPreset} />
 
-      {/* React Flow Infinite Canvas */}
+      {/* React Flow Canvas */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -124,26 +124,20 @@ export const StudioCanvas: React.FC = () => {
         fitView
         colorMode="dark"
         proOptions={{ hideAttribution: true }}
-        defaultViewport={{ x: 50, y: 50, zoom: 0.85 }}
+        defaultViewport={{ x: 60, y: 50, zoom: 0.85 }}
       >
         <Background
           variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1.5}
-          color="#1e2638"
+          gap={20}
+          size={1}
+          color="#161B26"
         />
         <Controls position="bottom-left" showInteractive={false} />
         <MiniMap
-          nodeColor={(n) => {
-            if (n.type === 'promptNode') return '#00f0ff';
-            if (n.type === 'cameraNode') return '#ff007f';
-            if (n.type === 'modelNode') return '#38bdf8';
-            if (n.type === 'audioNode') return '#f59e0b';
-            return '#a855f7';
-          }}
-          maskColor="rgba(9, 10, 15, 0.7)"
+          nodeColor={() => '#1E2638'}
+          maskColor="rgba(11, 14, 20, 0.8)"
           position="bottom-right"
-          style={{ width: 140, height: 90 }}
+          style={{ width: 130, height: 80, backgroundColor: '#0B0E14' }}
         />
       </ReactFlow>
     </div>

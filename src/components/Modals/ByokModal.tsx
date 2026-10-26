@@ -33,42 +33,42 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
     setTimeout(() => {
       setIsSaved(false);
       onClose();
-    }, 800);
+    }, 600);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-md rounded-2xl bg-[#0f131a] border border-[#1e2638] shadow-2xl overflow-hidden text-white font-mono">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-xl bg-[#12161F] border border-[#1E2638] shadow-2xl overflow-hidden text-zinc-100 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2638] bg-[#141a24]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#161B26]">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-400">
+            <div className="p-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200">
               <Key className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold">BRING YOUR OWN KEYS (BYOK)</h2>
-              <p className="text-[10px] text-neutral-400">Stored strictly in browser localStorage</p>
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Inference API Keys (BYOK)</h2>
+              <p className="text-[11px] text-zinc-400">Stored locally in your browser sandbox</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1e2638]"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Security Banner */}
-        <div className="px-5 py-3 bg-[#090a0f] border-b border-[#1e2638] flex items-center gap-2 text-[10px] text-emerald-400">
-          <Shield className="w-4 h-4 shrink-0" />
-          <span>Zero Server Storage: keys execute direct inference via client-side endpoints.</span>
+        {/* Security Notice */}
+        <div className="px-5 py-2.5 bg-[#0D1119] border-b border-[#1E2638] flex items-center gap-2 text-[11px] text-zinc-400">
+          <Shield className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
+          <span>Zero Server Relay: API keys are used directly for client-side inference requests.</span>
         </div>
 
         {/* Body */}
-        <div className="p-5 space-y-4 text-xs">
+        <div className="p-5 space-y-3.5 text-xs">
           <div>
-            <label className="block text-[10px] text-neutral-400 uppercase mb-1">
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
               Fal.ai API Key (Flux / Kling / Wan)
             </label>
             <input
@@ -76,41 +76,41 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
               value={falKey}
               onChange={(e) => setFalKey(e.target.value)}
               placeholder="fal_key_..."
-              className="w-full bg-[#090a0f] border border-[#1e2638] rounded-lg p-2.5 text-xs text-cyan-300 focus:outline-none focus:border-cyan-400"
+              className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md p-2 text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-500"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] text-neutral-400 uppercase mb-1">
-              Higgsfield AI API Key (Camera Curves)
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Higgsfield AI Key (Director of Photography)
             </label>
             <input
               type={showKeys ? 'text' : 'password'}
               value={higgsfieldKey}
               onChange={(e) => setHiggsfieldKey(e.target.value)}
               placeholder="hf_..."
-              className="w-full bg-[#090a0f] border border-[#1e2638] rounded-lg p-2.5 text-xs text-pink-300 focus:outline-none focus:border-pink-400"
+              className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md p-2 text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-500"
             />
           </div>
 
           <div>
-            <label className="block text-[10px] text-neutral-400 uppercase mb-1">
-              Replicate API Token (LTX-Video / Wan)
+            <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+              Replicate API Token (LTX-Video)
             </label>
             <input
               type={showKeys ? 'text' : 'password'}
               value={replicateKey}
               onChange={(e) => setReplicateKey(e.target.value)}
               placeholder="r8_..."
-              className="w-full bg-[#090a0f] border border-[#1e2638] rounded-lg p-2.5 text-xs text-amber-300 focus:outline-none focus:border-amber-400"
+              className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md p-2 text-xs text-zinc-200 font-mono focus:outline-none focus:border-zinc-500"
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-end pt-1">
             <button
               type="button"
               onClick={() => setShowKeys(!showKeys)}
-              className="flex items-center gap-1.5 text-[10px] text-neutral-400 hover:text-neutral-200"
+              className="flex items-center gap-1.5 text-[11px] text-zinc-400 hover:text-zinc-200"
             >
               {showKeys ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
               <span>{showKeys ? 'Hide Keys' : 'Show Keys'}</span>
@@ -119,21 +119,21 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#141a24] border-t border-[#1e2638] flex justify-end gap-2">
+        <div className="px-5 py-3.5 bg-[#161B26] border-t border-[#1E2638] flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg border border-[#1e2638] hover:bg-[#1e2638] text-neutral-300 text-xs"
+            className="px-3 py-1.5 rounded-md border border-[#1E2638] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs transition-colors"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="px-4 py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs flex items-center gap-1.5"
+            className="px-4 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-xs flex items-center gap-1.5 transition-colors"
           >
-            {isSaved ? <Check className="w-3.5 h-3.5" /> : <Key className="w-3.5 h-3.5" />}
-            <span>{isSaved ? 'Saved Locally!' : 'Save Keys'}</span>
+            {isSaved ? <Check className="w-3.5 h-3.5" /> : null}
+            <span>{isSaved ? 'Saved Locally' : 'Save Keys'}</span>
           </button>
         </div>
       </div>

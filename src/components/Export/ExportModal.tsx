@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Download, CheckCircle, Film, Sparkles, Sliders } from 'lucide-react';
+import { X, Download, CheckCircle, Film, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ExportModalProps {
@@ -24,8 +24,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
     setProgress(0);
     setRenderedUrl(null);
 
-    // Deterministic render simulator
-    const totalSteps = 40;
+    const totalSteps = 30;
     let current = 0;
     const interval = setInterval(() => {
       current++;
@@ -36,17 +35,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
         setIsRendering(false);
         setRenderedUrl('#download-ready');
         confetti({
-          particleCount: 120,
-          spread: 70,
+          particleCount: 80,
+          spread: 60,
           origin: { y: 0.6 },
-          colors: ['#00f0ff', '#ff007f', '#f59e0b'],
+          colors: ['#00F0FF', '#E4E4E7', '#3E4D6D'],
         });
       }
-    }, 100);
+    }, 80);
   };
 
   const handleDownload = () => {
-    // Generate a downloadable video metadata manifest / mock MP4 file
     const manifest = {
       app: 'KinoBeat Studio v1.0',
       timestamp: new Date().toISOString(),
@@ -72,34 +70,34 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-[#0f131a] border border-[#1e2638] shadow-2xl overflow-hidden text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-xl bg-[#12161F] border border-[#1E2638] shadow-2xl overflow-hidden text-zinc-100 font-sans">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e2638] bg-[#141a24]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#161B26]">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400">
-              <Film className="w-5 h-5" />
+            <div className="p-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200">
+              <Film className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-mono text-sm font-bold">EXPORT COMPOSITION</h2>
-              <p className="text-[11px] text-neutral-400 font-mono">Remotion 4K Deterministic Render Pipeline</p>
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Export Master</h2>
+              <p className="text-[11px] text-zinc-400">Remotion 4K Deterministic Pipeline</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1e2638]"
+            className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 space-y-4 text-xs font-mono">
+        <div className="p-5 space-y-4 text-xs">
           {/* Resolution Selector */}
           <div>
-            <label className="block text-[11px] text-neutral-400 uppercase mb-1.5">
-              Target Resolution
+            <label className="block text-[11px] font-medium text-zinc-400 uppercase tracking-wide mb-1.5">
+              Resolution
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(['720p', '1080p', '4K-Cinema'] as const).map((res) => (
@@ -107,25 +105,25 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   key={res}
                   type="button"
                   onClick={() => setResolution(res)}
-                  className={`py-2 px-3 rounded-lg border text-center transition-all ${
+                  className={`py-2 px-3 rounded-md border text-center transition-all ${
                     resolution === res
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.2)]'
-                      : 'bg-[#141a24] border-[#1e2638] text-neutral-400 hover:border-neutral-600'
+                      ? 'bg-zinc-800 border-zinc-500 text-zinc-100 font-medium'
+                      : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
                   }`}
                 >
-                  <div className="font-bold">{res}</div>
-                  <div className="text-[9px] text-neutral-400 mt-0.5">
-                    {res === '4K-Cinema' ? '3840x2160' : res === '1080p' ? '1920x1080' : '1280x720'}
+                  <div className="font-semibold text-xs font-mono">{res}</div>
+                  <div className="text-[9px] text-zinc-500 mt-0.5">
+                    {res === '4K-Cinema' ? '3840×2160' : res === '1080p' ? '1920×1080' : '1280×720'}
                   </div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Frame Rate Selector */}
+          {/* Frame Rate */}
           <div>
-            <label className="block text-[11px] text-neutral-400 uppercase mb-1.5">
-              Frame Rate (Temporal Resolution)
+            <label className="block text-[11px] font-medium text-zinc-400 uppercase tracking-wide mb-1.5">
+              Frame Rate
             </label>
             <div className="grid grid-cols-2 gap-2">
               {([30, 60] as const).map((val) => (
@@ -133,14 +131,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   key={val}
                   type="button"
                   onClick={() => setFps(val)}
-                  className={`py-2 px-3 rounded-lg border text-center transition-all ${
+                  className={`py-2 px-3 rounded-md border text-center transition-all ${
                     fps === val
-                      ? 'bg-pink-500/20 border-pink-400 text-pink-300 shadow-[0_0_12px_rgba(255,0,127,0.2)]'
-                      : 'bg-[#141a24] border-[#1e2638] text-neutral-400 hover:border-neutral-600'
+                      ? 'bg-zinc-800 border-zinc-500 text-zinc-100 font-medium'
+                      : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
                   }`}
                 >
-                  <div className="font-bold">{val} FPS</div>
-                  <div className="text-[9px] text-neutral-400 mt-0.5">
+                  <div className="font-semibold text-xs font-mono">{val} FPS</div>
+                  <div className="text-[9px] text-zinc-500 mt-0.5">
                     {val === 60 ? 'Smooth High Kinetic' : 'Standard Cinematic'}
                   </div>
                 </button>
@@ -148,54 +146,53 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
             </div>
           </div>
 
-          {/* Render Progress Bar */}
+          {/* Render Progress */}
           {isRendering && (
-            <div className="p-4 rounded-xl bg-[#090a0f] border border-[#1e2638] space-y-2">
+            <div className="p-3.5 rounded-lg bg-[#0D1119] border border-[#1E2638] space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-cyan-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                  Compiling frame-accurate layers...
+                <span className="text-zinc-300 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 animate-spin text-cyan-400" />
+                  Encoding deterministic frames...
                 </span>
-                <span className="text-white font-bold">{progress}%</span>
+                <span className="text-zinc-100 font-mono font-bold">{progress}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-[#1e2638] overflow-hidden">
+              <div className="w-full h-1.5 rounded-full bg-[#1E2638] overflow-hidden">
                 <div
                   style={{ width: `${progress}%` }}
-                  className="h-full bg-gradient-to-r from-cyan-400 to-pink-500 transition-all duration-150"
+                  className="h-full bg-cyan-400 transition-all duration-100"
                 />
               </div>
             </div>
           )}
 
-          {/* Download Ready Banner */}
+          {/* Download Banner */}
           {renderedUrl && (
-            <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/40 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-emerald-400 text-xs">
-                <CheckCircle className="w-4 h-4" />
-                <span>Deterministic Render Complete! (10.0s @ {fps}fps)</span>
+            <div className="p-3 rounded-lg bg-[#141923] border border-[#1E2638] flex items-center justify-between">
+              <div className="flex items-center gap-2 text-zinc-300 text-xs">
+                <CheckCircle className="w-4 h-4 text-cyan-400" />
+                <span>Render Ready ({fps} FPS · {resolution})</span>
               </div>
               <button
                 type="button"
                 onClick={handleDownload}
-                className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold flex items-center gap-1.5 transition-all text-xs shadow-md"
+                className="px-3 py-1 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-xs transition-colors"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>Download</span>
+                Download
               </button>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-4 bg-[#141a24] border-t border-[#1e2638] flex items-center justify-between">
-          <div className="text-[10px] text-neutral-400 font-mono">
-            EST. SIZE: {resolution === '4K-Cinema' ? '~42 MB' : '~18 MB'}
-          </div>
+        <div className="px-5 py-3.5 bg-[#161B26] border-t border-[#1E2638] flex items-center justify-between">
+          <span className="text-[11px] text-zinc-500 font-mono">
+            Est. Size: {resolution === '4K-Cinema' ? '~42 MB' : '~18 MB'}
+          </span>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border border-[#1e2638] hover:bg-[#1e2638] text-neutral-300 font-mono text-xs"
+              className="px-3 py-1.5 rounded-md border border-[#1E2638] hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs transition-colors"
             >
               Cancel
             </button>
@@ -203,10 +200,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
               type="button"
               onClick={handleStartRender}
               disabled={isRendering}
-              className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-pink-500 hover:from-cyan-300 hover:to-pink-400 text-black font-bold font-mono text-xs flex items-center gap-1.5 transition-all shadow-[0_0_15px_rgba(0,240,255,0.4)] disabled:opacity-50"
+              className="px-4 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-xs transition-colors disabled:opacity-50"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>{isRendering ? 'Rendering...' : 'Render Video'}</span>
+              {isRendering ? 'Rendering...' : 'Render Video'}
             </button>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Music, Radio, Volume2, Wand2 } from 'lucide-react';
+import { Music, Radio, Sliders, Activity } from 'lucide-react';
 import { PRESET_TRACKS, synthesizeAudioTrack } from '../../../lib/audio/audioSynthesizer';
 import { beatDetector } from '../../../lib/audio/beatDetector';
 
@@ -19,11 +19,14 @@ export const AudioNode: React.FC<{ data: AudioNodeData; isSelected?: boolean }> 
   data,
   isSelected,
 }) => {
-  const [trackId, setTrackId] = useState(data.trackId);
-  const [bpm, setBpm] = useState(data.bpm);
+  const [trackId, setTrackId] = useState(data.trackId || 'cyberpunk-neon-drift');
+  const [bpm, setBpm] = useState(data.bpm || 120);
   const [isProcessing, setIsProcessing] = useState(false);
   const [beatCount, setBeatCount] = useState(16);
-  const [waveform, setWaveform] = useState<number[]>([0.3, 0.7, 0.9, 0.4, 0.8, 1.0, 0.6, 0.9, 0.5, 0.8, 0.95, 0.7, 0.4, 0.85, 0.9, 0.6]);
+  const [sensitivity, setSensitivity] = useState(1.45);
+  const [waveform, setWaveform] = useState<number[]>([
+    0.2, 0.5, 0.8, 0.4, 0.7, 0.9, 0.5, 0.8, 0.4, 0.7, 0.9, 0.6, 0.3, 0.7, 0.8, 0.5,
+  ]);
 
   const handleSynthesize = async () => {
     setIsProcessing(true);
@@ -45,94 +48,105 @@ export const AudioNode: React.FC<{ data: AudioNodeData; isSelected?: boolean }> 
 
   return (
     <div
-      className={`w-88 rounded-xl bg-[#0f131a] border transition-all text-white shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
         isSelected
-          ? 'border-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.3)]'
-          : 'border-[#1e2638] hover:border-neutral-600'
+          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
+          : 'border-[#1E2638] hover:border-zinc-700'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141a24] border-b border-[#1e2638]">
+      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-amber-500/20 text-amber-400">
-            <Music className="w-3.5 h-3.5" />
-          </div>
-          <span className="font-mono text-xs font-bold text-neutral-200">
-            AUDIO & FFT BEAT CORE
+          <Music className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="text-xs font-semibold tracking-wide text-zinc-200">
+            Audio & Beat Transient Core
           </span>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800/40">
-          WEB AUDIO API
+        <span className="text-[10px] font-mono text-cyan-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+          {bpm} BPM
         </span>
       </div>
 
       {/* Node Body */}
-      <div className="p-3.5 space-y-3 text-xs">
+      <div className="p-3 space-y-3 text-xs">
         {/* Track Selector */}
         <div>
-          <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1 flex items-center gap-1">
-            <Radio className="w-3 h-3 text-amber-400" />
-            Synthesized Audio Stem
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1 flex items-center justify-between">
+            <span className="flex items-center gap-1.5">
+              <Radio className="w-3 h-3 text-zinc-500" />
+              Audio Stem Profile
+            </span>
+            <span className="text-[10px] font-mono text-zinc-500">Web Audio</span>
           </label>
           <select
             value={trackId}
             onChange={(e) => setTrackId(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2.5 py-1.5 text-xs text-amber-300 font-mono focus:outline-none focus:border-amber-400"
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-500 font-medium"
           >
             {PRESET_TRACKS.map((t) => (
               <option key={t.id} value={t.id}>
-                {t.title} ({t.genre} - {t.bpm} BPM)
+                {t.title} ({t.bpm} BPM)
               </option>
             ))}
           </select>
         </div>
 
-        {/* Real-Time Synthesizer Button */}
+        {/* Action Button */}
         <button
           type="button"
           onClick={handleSynthesize}
           disabled={isProcessing}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black font-bold font-mono text-xs transition-all shadow-md active:scale-95 disabled:opacity-50"
+          className="w-full py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs border border-zinc-700 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
         >
-          <Wand2 className="w-3.5 h-3.5" />
-          <span>{isProcessing ? 'SYNTHESIZING WAV...' : 'SYNTHESIZE & EXTRACT BEATS'}</span>
+          <Activity className="w-3.5 h-3.5 text-cyan-400" />
+          <span>{isProcessing ? 'Synthesizing...' : 'Analyze Transient Peaks'}</span>
         </button>
 
-        {/* Live FFT Spectral Waveform */}
-        <div className="p-2.5 rounded bg-[#090a0f] border border-[#1e2638]">
-          <div className="flex justify-between items-center text-[10px] font-mono text-neutral-400 mb-2">
-            <span>Spectral Flux Envelope</span>
-            <span className="text-amber-400 font-bold">{bpm} BPM</span>
+        {/* Waveform Visualizer */}
+        <div className="p-2.5 rounded-md bg-[#0D1119] border border-[#1E2638]">
+          <div className="flex justify-between items-center text-[10px] font-mono text-zinc-400 mb-2">
+            <span>Spectral Flux Waveform</span>
+            <span className="text-zinc-300 font-bold">{beatCount} Transients</span>
           </div>
 
-          {/* Mini Waveform Visualization */}
-          <div className="flex items-end gap-[3px] h-10 w-full px-1">
+          <div className="flex items-end gap-[3px] h-9 w-full px-1">
             {waveform.map((val, idx) => (
               <div
                 key={idx}
-                style={{ height: `${Math.max(12, Math.round(val * 36))}px` }}
-                className="flex-1 bg-gradient-to-t from-amber-600 to-amber-300 rounded-t-sm"
+                style={{ height: `${Math.max(8, Math.round(val * 32))}px` }}
+                className="flex-1 bg-zinc-600 hover:bg-cyan-400 transition-colors rounded-t-[1px]"
               />
             ))}
           </div>
         </div>
 
-        {/* Transient Telemetry */}
-        <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400 pt-1 border-t border-[#1e2638]">
-          <span className="flex items-center gap-1">
-            <Volume2 className="w-3 h-3 text-cyan-400" />
-            ONSET PEAKS: <strong className="text-white">{beatCount}</strong>
-          </span>
-          <span className="text-emerald-400">HOP: 512 SAMPLES</span>
+        {/* Transient Detection Sensitivity Slider */}
+        <div>
+          <div className="flex justify-between items-center text-[11px] font-medium text-zinc-400 mb-1">
+            <span className="flex items-center gap-1">
+              <Sliders className="w-3 h-3 text-zinc-500" />
+              Onset Sensitivity Threshold
+            </span>
+            <span className="font-mono text-zinc-300 font-bold">{sensitivity.toFixed(2)}</span>
+          </div>
+          <input
+            type="range"
+            min="1.0"
+            max="2.5"
+            step="0.05"
+            value={sensitivity}
+            onChange={(e) => setSensitivity(parseFloat(e.target.value))}
+            className="w-full accent-cyan-400 bg-[#0D1119] rounded h-1 cursor-pointer"
+          />
         </div>
       </div>
 
-      {/* Output Handle to Timeline */}
+      {/* Output Handle */}
       <Handle
         type="source"
         position={Position.Right}
         id="audio-out"
-        className="!bg-amber-400 !w-3 !h-3"
+        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
     </div>
   );

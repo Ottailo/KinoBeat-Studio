@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Sparkles, UserCheck, ShieldAlert } from 'lucide-react';
+import { Type, Shield, SlidersHorizontal } from 'lucide-react';
 import { LOOK_PRESETS } from '../../../lib/models/promptEngine';
 
 interface PromptNodeData {
@@ -14,6 +14,8 @@ interface PromptNodeData {
   negativePrompt: string;
 }
 
+const ASPECT_RATIOS = ['16:9', '9:16', '1:1', '21:9'];
+
 export const PromptNode: React.FC<{ data: PromptNodeData; isSelected?: boolean }> = ({
   data,
   isSelected,
@@ -21,85 +23,73 @@ export const PromptNode: React.FC<{ data: PromptNodeData; isSelected?: boolean }
   const [subject, setSubject] = useState(data.subject);
   const [action, setAction] = useState(data.action);
   const [look, setLook] = useState(data.look);
-  const [soulId, setSoulId] = useState(data.soulId);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState('16:9');
+  const [showNegative, setShowNegative] = useState(false);
+  const [negativePrompt, setNegativePrompt] = useState(data.negativePrompt);
+
+  const fullPromptText = `${subject} ${action} ${look}`;
+  const estimatedTokens = Math.max(1, Math.round(fullPromptText.split(/\s+/).length * 1.3));
 
   return (
     <div
-      className={`w-80 rounded-xl bg-[#0f131a] border transition-all text-white shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
         isSelected
-          ? 'border-cyan-400 shadow-[0_0_20px_rgba(0,240,255,0.3)]'
-          : 'border-[#1e2638] hover:border-neutral-600'
+          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
+          : 'border-[#1E2638] hover:border-zinc-700'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141a24] border-b border-[#1e2638]">
+      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-cyan-500/20 text-cyan-400">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
-          <span className="font-mono text-xs font-bold text-neutral-200">MCSLA PROMPT</span>
+          <Type className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="text-xs font-semibold tracking-wide text-zinc-200">
+            Prompt Core
+          </span>
         </div>
-        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-          CORE
+        <span className="text-[10px] font-mono text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+          {estimatedTokens} / 250 tokens
         </span>
       </div>
 
       {/* Node Body */}
-      <div className="p-3.5 space-y-3 text-xs">
-        {/* Character / Soul Lock */}
+      <div className="p-3 space-y-2.5 text-xs">
+        {/* Subject & Scene */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-[10px] font-mono uppercase text-neutral-400 flex items-center gap-1">
-              <UserCheck className="w-3 h-3 text-cyan-400" />
-              Soul ID (Character Consistency)
-            </label>
-            <span className="text-[9px] text-cyan-400 font-mono">LOCKED</span>
-          </div>
-          <input
-            type="text"
-            value={soulId}
-            onChange={(e) => setSoulId(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2.5 py-1.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-400"
-            placeholder="e.g. OP-V2088"
-          />
-        </div>
-
-        {/* Subject */}
-        <div>
-          <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1">
-            Subject & Wardrobe
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+            Subject & Visual Focus
           </label>
           <textarea
             rows={2}
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded p-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-400 resize-none"
+            placeholder="Describe subject, wardrobe, and primary elements..."
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors resize-none leading-relaxed"
           />
         </div>
 
-        {/* Action & Choreography */}
+        {/* Dynamic Action */}
         <div>
-          <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1">
-            Action & Kinetic Dynamics
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+            Motion & Choreography
           </label>
           <textarea
             rows={2}
             value={action}
             onChange={(e) => setAction(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded p-2 text-xs text-neutral-200 focus:outline-none focus:border-cyan-400 resize-none"
+            placeholder="Describe kinetic movements and physical actions..."
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 transition-colors resize-none leading-relaxed"
           />
         </div>
 
-        {/* Look & Lighting Preset */}
+        {/* Cinematic Look / Film Stock */}
         <div>
-          <label className="block text-[10px] font-mono uppercase text-neutral-400 mb-1">
-            Look & Film Color Science
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+            Optics & Color Grade
           </label>
           <select
             value={look}
             onChange={(e) => setLook(e.target.value)}
-            className="w-full bg-[#090a0f] border border-[#1e2638] rounded px-2 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-cyan-400"
+            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-zinc-500"
           >
             {LOOK_PRESETS.map((p) => (
               <option key={p.id} value={p.prompt}>
@@ -109,21 +99,50 @@ export const PromptNode: React.FC<{ data: PromptNodeData; isSelected?: boolean }
           </select>
         </div>
 
-        {/* Collapsible Negative Prompt */}
+        {/* Aspect Ratio Selector Pills */}
         <div>
+          <label className="block text-[11px] font-medium text-zinc-400 mb-1.5">
+            Aspect Ratio
+          </label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {ASPECT_RATIOS.map((ratio) => (
+              <button
+                key={ratio}
+                type="button"
+                onClick={() => setAspectRatio(ratio)}
+                className={`py-1 text-[11px] font-mono rounded border transition-colors ${
+                  aspectRatio === ratio
+                    ? 'bg-zinc-800 border-zinc-500 text-zinc-100 font-medium'
+                    : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {ratio}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Negative Prompt Collapsible */}
+        <div className="pt-1 border-t border-[#1E2638]">
           <button
             type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-400 hover:text-neutral-200"
+            onClick={() => setShowNegative(!showNegative)}
+            className="flex items-center justify-between w-full text-[11px] text-zinc-400 hover:text-zinc-200 py-0.5"
           >
-            <ShieldAlert className="w-3 h-3 text-red-400" />
-            <span>{isExpanded ? 'Hide Negative Invariants' : 'Show Negative Invariants'}</span>
+            <span className="flex items-center gap-1.5">
+              <Shield className="w-3 h-3 text-zinc-500" />
+              Negative Prompt
+            </span>
+            <span className="font-mono text-[10px] text-zinc-500">
+              {showNegative ? 'Hide' : 'Configure'}
+            </span>
           </button>
-          {isExpanded && (
+          {showNegative && (
             <textarea
               rows={2}
-              defaultValue={data.negativePrompt}
-              className="mt-1.5 w-full bg-[#090a0f] border border-[#1e2638] rounded p-1.5 text-[11px] text-neutral-400 focus:outline-none resize-none"
+              value={negativePrompt}
+              onChange={(e) => setNegativePrompt(e.target.value)}
+              className="mt-1.5 w-full bg-[#0D1119] border border-[#1E2638] rounded-md p-2 text-[11px] text-zinc-300 placeholder-zinc-600 focus:outline-none focus:border-zinc-500 resize-none"
             />
           )}
         </div>
@@ -134,7 +153,7 @@ export const PromptNode: React.FC<{ data: PromptNodeData; isSelected?: boolean }
         type="source"
         position={Position.Right}
         id="prompt-out"
-        className="!bg-cyan-400 !w-3 !h-3"
+        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
     </div>
   );

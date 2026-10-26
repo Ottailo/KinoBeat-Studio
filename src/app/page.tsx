@@ -6,9 +6,10 @@ import { StudioCanvas } from '../components/Canvas/StudioCanvas';
 import { MultiTrackTimeline } from '../components/Timeline/MultiTrackTimeline';
 import { ExportModal } from '../components/Export/ExportModal';
 import { ByokModal } from '../components/Modals/ByokModal';
+import { WalkthroughModal } from '../components/Modals/WalkthroughModal';
 import { INITIAL_SCENES, INITIAL_CAPTIONS } from '../lib/store/studioStore';
 import { BeatMarker, beatDetector } from '../lib/audio/beatDetector';
-import { PRESET_TRACKS, synthesizeAudioTrack } from '../lib/audio/audioSynthesizer';
+import { synthesizeAudioTrack } from '../lib/audio/audioSynthesizer';
 
 export default function StudioPage() {
   // Playback & Timeline State
@@ -40,6 +41,17 @@ export default function StudioPage() {
   // Modals
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isByokOpen, setIsByokOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+
+  // Check first-run onboarding
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const dismissed = localStorage.getItem('kinobeat_walkthrough_dismissed');
+      if (!dismissed) {
+        setIsGuideOpen(true);
+      }
+    }
+  }, []);
 
   // Initialize Audio Synthesis on first load
   useEffect(() => {
@@ -147,6 +159,8 @@ export default function StudioPage() {
         setCurrentTime(0);
       } else if (e.code === 'KeyE') {
         setIsExportOpen(true);
+      } else if (e.key === '?') {
+        setIsGuideOpen(true);
       }
     };
 
@@ -155,11 +169,12 @@ export default function StudioPage() {
   }, [duration]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#090a0f] text-white">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0B0E14] text-zinc-100 font-sans">
       {/* Top Header */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
         onOpenByok={() => setIsByokOpen(true)}
+        onOpenGuide={() => setIsGuideOpen(true)}
         isMuted={isMuted}
         onToggleMute={() => setIsMuted(!isMuted)}
       />
@@ -202,6 +217,14 @@ export default function StudioPage() {
       <ByokModal
         isOpen={isByokOpen}
         onClose={() => setIsByokOpen(false)}
+      />
+
+      {/* Interactive Onboarding Walkthrough */}
+      <WalkthroughModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onOpenByok={() => setIsByokOpen(true)}
+        onOpenExport={() => setIsExportOpen(true)}
       />
     </div>
   );

@@ -25,7 +25,6 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  // Find active caption
   const activeCaption = captions.find(
     (c) => currentTime >= c.startTime && currentTime <= c.endTime
   );
@@ -40,28 +39,28 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
     frame: localFrame,
     fps,
     config: {
-      damping: 12,
-      mass: 0.5,
-      stiffness: 180,
+      damping: 14,
+      mass: 0.6,
+      stiffness: 160,
     },
   });
 
-  const scale = interpolate(entrance, [0, 1], [1.8, 1.0], {
+  const scale = interpolate(entrance, [0, 1], [1.3, 1.0], {
     extrapolateRight: 'clamp',
   });
 
-  const opacity = interpolate(localFrame, [0, 4], [0, 1], {
+  const opacity = interpolate(localFrame, [0, 3], [0, 1], {
     extrapolateRight: 'clamp',
   });
 
-  const beatBump = isBeatHit ? 1.08 : 1.0;
+  const beatBump = isBeatHit ? 1.04 : 1.0;
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-end pb-16 pointer-events-none select-none z-30">
+    <div className="absolute inset-0 flex flex-col items-center justify-end pb-14 pointer-events-none select-none z-30">
       {/* HUD Chapter Eyebrow */}
-      <div className="flex items-center gap-2 mb-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded border border-cyan-500/30 text-[11px] font-mono tracking-widest text-cyan-400">
-        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-        <span>KINOBEAT CUE // {(currentTime).toFixed(2)}s</span>
+      <div className="flex items-center gap-2 mb-2 px-2.5 py-0.5 bg-black/70 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest text-zinc-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+        <span>CUE // {(currentTime).toFixed(2)}s</span>
       </div>
 
       {/* Main Kinetic Headline */}
@@ -73,19 +72,11 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
         className="text-center px-8 transition-transform duration-75"
       >
         <h1
-          className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]"
-          style={{
-            letterSpacing: '-0.03em',
-            textShadow: isBeatHit
-              ? '0 0 25px rgba(0, 240, 255, 0.9), 0 0 50px rgba(255, 0, 127, 0.6)'
-              : '0 4px 15px rgba(0, 0, 0, 0.8)',
-          }}
+          className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+          style={{ letterSpacing: '-0.02em' }}
         >
           {activeCaption.text}
         </h1>
-
-        {/* Dynamic sub-accent underline */}
-        <div className="mx-auto mt-2 h-[3px] w-24 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#00f0ff]" />
       </div>
     </div>
   );

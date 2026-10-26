@@ -166,16 +166,13 @@ Timeline Timecode Clock [30 FPS]
 
 ---
 
-## 6. Prior-Art Mapping & Technical Pedigree
+## 6. Modular Subsystem Specifications
 
-| Prior Art / Reference Repository | Architectural Feature Adopted | KinoBeat Studio Advancement |
-|---|---|---|
-| **SegFault42/HeliosGen** | Infinite-canvas node chaining for multi-model pipelines | Integrated audio-reactive transient detection and Remotion composition |
-| **BeatAPI/BeatDesign** | Local-first BYOK privacy and canvas layout | Native Web Audio API synthesis eliminating external sound asset dependencies |
-| **xyflow/react** | Interactive node-edge graph mechanics | Custom hardware-accelerated SVG glow edges and specialized MCSLA nodes |
-| **higgsfield-ai/higgsfield** | GPU orchestrator and camera director syntax | Real-time parametric 3D curve visualization and mathematical LaTeX formulas |
-| **remotion-dev/remotion** | Deterministic frame-accurate video rendering | In-canvas live scrub player with real-time audio FFT beat transient markers |
-| **opus-video-skills** | Kinetic motion typography rules ("Work Reel '26") | Word-level spring physics slam animations locked to detected beat timestamps |
+The studio runtime is structured into 4 decoupled subsystems:
+1. **Canvas Topology Engine (`src/components/Canvas/`)**: Manages node state, edge routing, dragging physics, and connection validation with zero layout thrashing.
+2. **Kinematic Camera Evaluator (`src/lib/camera/`)**: Computes 6-DOF coordinate transformations along cubic splines and continuous rotation matrices.
+3. **Spectral Flux Audio Pipeline (`src/lib/audio/`)**: Executes real-time FFT frequency binning, onset attack classification, and adaptive BPM estimation.
+4. **Deterministic Remotion Engine (`src/components/Player/`)**: Renders reproducible frames with hardware-accelerated transforms and spring-damped kinetic typography.
 
 ---
 

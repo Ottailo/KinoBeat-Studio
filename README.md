@@ -1,125 +1,105 @@
 # KinoBeat Studio
 
 <p align="center">
-  <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80" alt="KinoBeat Studio Hero" width="100%" style="border-radius: 12px;" />
+  <strong>Industrial Generative AI Video & Infinite Canvas Studio</strong><br>
+  <em>Chaining Diffusion Transformers, 3D Parametric Camera Kinematics, and Frame-Accurate Audio-Reactive Timelines.</em>
 </p>
 
 <p align="center">
-  <strong>Autonomous Generative AI Video & Infinite Canvas Platform</strong><br>
-  <em>Uniting multi-model video orchestration, mathematical camera kinematics, and Remotion audio-reactive timelines.</em>
-</p>
-
-<p align="center">
-  <a href="#core-architecture"><img src="https://img.shields.io/badge/Architecture-Infinite%20Node%20DAG-00f0ff?style=flat-square" alt="Architecture"></a>
-  <a href="#supported-models"><img src="https://img.shields.io/badge/Models-Flux%20%7C%20Kling%20%7C%20Wan%20%7C%20LTX-ff007f?style=flat-square" alt="Models"></a>
-  <a href="#camera-kinetics"><img src="https://img.shields.io/badge/Camera-3D%20Spline%20Math-f59e0b?style=flat-square" alt="Camera"></a>
-  <a href="#audio-engine"><img src="https://img.shields.io/badge/Audio-Web%20Audio%20FFT%20Transients-10b981?style=flat-square" alt="Audio"></a>
-  <a href="#license"><img src="https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square" alt="License"></a>
+  <img src="https://img.shields.io/badge/Architecture-Infinite%20Node%20DAG-zinc?style=flat-square" alt="Architecture">
+  <img src="https://img.shields.io/badge/Engine-Remotion%204.x%20%7C%20React%20Flow-zinc?style=flat-square" alt="Engine">
+  <img src="https://img.shields.io/badge/Inference-FLUX%20%7C%20Kling%20%7C%20Wan%20%7C%20LTX-zinc?style=flat-square" alt="Models">
+  <img src="https://img.shields.io/badge/Audio-Web%20Audio%20FFT%20Transients-zinc?style=flat-square" alt="Audio">
+  <img src="https://img.shields.io/badge/License-Apache%202.0-zinc?style=flat-square" alt="License">
 </p>
 
 ---
 
-## 1. Executive Summary & Identity
+## Overview
 
-**KinoBeat Studio** is an open-source, local-first **Generative AI Video & Infinite Canvas Platform**. 
+**KinoBeat Studio** is an open-source, local-first professional creative platform designed for precision generative AI video production. 
 
-Modern generative video creation suffers from deep fragmentation: prompt engineers craft ideas in Discord, camera motions are guessed with trial-and-error text prompts, and video clips are manually spliced into third-party non-linear editors without frame-accurate beat alignment.
-
-KinoBeat Studio consolidates this entire pipeline into a single interactive visual workspace:
-1. **Infinite Visual Node Canvas**: Powered by `@xyflow/react`, allowing multi-model pipeline chaining where prompts, camera trajectories, and audio stems flow directly into video generation cores.
-2. **Mathematical Camera Kinematics**: Codified parametric 3D curves (360° Orbital Drift, FPV Acro Dive, Vertigo Contra-Zoom, Rack Focus, Whip-Pan, Handheld Jitter) using the **MCSLA Formula** (*Model, Camera, Subject, Look, Action*).
-3. **Multi-Model DiT Orchestrator**: Uniform abstraction layer over modern video models—**FLUX.1 Video Pro**, **Kling 1.5 Cinematic**, **Wan 2.1 Flash**, **LTX-Video Ultra**, and **Higgsfield DoP**.
-4. **Deterministic Audio-Reactive Timeline**: Powered by **Remotion 4.x**, providing sub-millisecond audio beat transient detection, real-time Web Audio API FFT analysis, and word-level kinetic typography slam animations.
-5. **Local-First & BYOK (Bring Your Own Keys)**: Zero cloud lock-in. Credentials stay secured in browser `localStorage`, and video generation can run entirely against local or dedicated endpoints.
+It replaces disconnected web forms and trial-and-error prompting with an integrated, visual node graph and non-linear editing timeline. Creators can design complex multi-model pipelines, choreograph camera trajectories using mathematical optics, detect rhythmic audio transients in real time, and compile frame-accurate 4K cinematic masters.
 
 ---
 
-## 2. Redundancy Elimination
+## Key Capabilities
 
-KinoBeat Studio deprecates and replaces 6 fragmented open-source repositories into a unified stack:
+### 1. Infinite Visual Node Graph
+* **Directed Acyclic Pipeline Architecture**: Construct generative workflows by interconnecting specialized functional nodes on an infinite canvas.
+* **Hardware-Accelerated Canvas**: Smooth panning, zooming, and sub-pixel alignment powered by a high-performance vector rendering engine.
+* **Modular Pipeline Chaining**: Route prompt tokens and 3D camera vectors into diffusion transformer models, and sequence outputs directly into multi-track video compositions.
 
-| Deprecated Repository | Historical Role | KinoBeat Studio Replacement |
-|---|---|---|
-| **`OpenCut`** | Web video editor UI | Interactive React Flow infinite node canvas with live scrubbing |
-| **`OpenMontage`** | Timeline clip stitching | Remotion 4.x deterministic frame-accurate multi-track sequencer |
-| **`MoneyPrinterTurbo`** | Automated short video creation | Dynamic AI prompt choreography & parametric scene generation |
-| **`VoxCPM`** & **`voicebox`** | Disconnected TTS audio generation | Native Web Audio API synthesis with real-time FFT beat transient detection |
-| **`opus-video-skills`** | Static prompt text rules | Interactive camera kinetic nodes with live 3D spline math preview |
+### 2. Professional Cinematography Controls
+* **Parametric Camera Kinematics**: Choose from recognized directorial movements:
+  * **360° Orbital Drift**: Continuous circular arcs maintaining locked focal center.
+  * **FPV Dive & Acro**: High-velocity aerial descents with horizon banking.
+  * **Dolly Zoom (Vertigo)**: Optical contra-zoom distorting background perspective while preserving foreground scale.
+  * **540° Dynamic Roll**: Continuous roll axis rotation for kinetic disorientation.
+  * **Overhead Crane Shot**: Sweeping vertical revelations and top-down perspectives.
+  * **Rack Focus & Push**: Forward tracking shots transitioning between depth-of-field planes.
+* **Optical Prime Lenses**: Calibrate focal lengths (24mm Wide, 35mm Standard Anamorphic, 50mm Natural Cine, 85mm Prime Portrait).
+* **Speed Ramping & Easing**: Precision velocity curves (Smoothstep, Exponential, Linear, Elastic).
+
+### 3. Multi-Model Inference Orchestrator
+* **Unified Model Gateway**: Native adapters for state-of-the-art video generation architectures:
+  * **FLUX.1 Video Pro** (High photorealism and temporal lighting fidelity)
+  * **Kling 1.5 Cinematic** (Fluid dynamics and character motion physics)
+  * **Wan 2.1 Flash** (Spatiotemporal attention and rapid iteration)
+  * **LTX-Video Ultra** (Linear latent DiT with low-latency motion vector guidance)
+* **Production Controls**: Resolution targeting (720p, 1080p, 4K-Cinema), aspect ratio framing (16:9, 9:16, 1:1, 21:9), classifier-free guidance (CFG), and seed randomizers.
+
+### 4. Real-Time Audio & Transient Beat Detection
+* **In-Browser Web Audio API FFT**: Sub-second spectral flux analysis calculates exact tempo (BPM) and flags transient energy peaks (kicks, claps, snares).
+* **Deterministic Audio Synthesis**: Built-in cinematic backing track synthesizers generate analog rhythmic beds directly in browser memory without requiring external audio assets.
+* **Dynamic Beat Markers**: Time-aligned transient ticks display directly on the timeline ruler for rhythmic cutting.
+
+### 5. Remotion Multi-Track Sequencer
+* **Frame-Accurate Video Scrubbing**: 60 FPS playback with sub-frame timecode readouts (`MM:SS.ff`).
+* **Word-Level Kinetic Typography**: Animated headlines and subtitles locked to audio beat hits using damped spring physics.
+* **Deterministic 4K Export**: Zero-latency local compilation and client-side high-fidelity master downloads.
+
+### 6. Local-First Privacy (BYOK)
+* **Bring Your Own Keys**: Connect directly to inference providers (Fal.ai, Replicate, Higgsfield).
+* **Zero Telemetry**: All API tokens remain stored strictly in browser local sandboxes. No intermediary telemetry or proxy relays.
 
 ---
 
-## 3. Core Architecture & Pipeline Flow
+## Studio Workflow Architecture
 
 ```
-┌─────────────────────────────────┐       ┌─────────────────────────────────┐
-│     MCSLA Prompt Node [M,S,L,A] │       │    Kinetic Camera Curve Node    │
-│  - Character / Soul ID Lock     │       │  - 3D Splines & Speed Ramping   │
-│  - Film Color Science           │       │  - Parametric Easing Formulas   │
-└────────────────┬────────────────┘       └────────────────┬────────────────┘
-                 │                                         │
-                 └────────────────────┬────────────────────┘
-                                      │
-                                      ▼
-                      ┌─────────────────────────────────┐
-                      │    Multi-Model DiT Core Node    │
-                      │  - FLUX.1 / Kling / Wan / LTX   │
-                      │  - Resolution / CFG / Steps     │
-                      └───────────────┬─────────────────┘
-                                      │
- ┌──────────────────────────────┐     │
- │  Audio & FFT Beat Core Node  │     │
- │  - Real-time Web Audio API   ├─────┘
- │  - Spectral Flux Transients  │
- └──────────────┬───────────────┘
-                │
-                ▼
+┌────────────────────────┐       ┌────────────────────────┐
+│      Prompt Core       │       │    Cinematic Camera    │
+│  - Subject & Action    │       │  - Trajectory & Lenses │
+│  - Film Color Science  │       │  - Speed Ramping       │
+└───────────┬────────────┘       └───────────┬────────────┘
+            │                                │
+            └───────────────┬────────────────┘
+                            │
+                            ▼
+              ┌───────────────────────────┐
+              │    DiT Video Inference    │
+              │  - FLUX / Kling / Wan     │
+              │  - CFG & Denoise Steps    │
+              └─────────────┬─────────────┘
+                            │
+┌───────────────────────┐   │
+│ Audio & FFT Transient ├───┘
+│  - Spectral Flux      │
+└───────────┬───────────┘
+            │
+            ▼
 ┌────────────────────────────────────────────────────────┐
-│     Remotion Deterministic Sequencer & Player Node     │
-│  - Multi-track timeline (Video, Typography, Beats)     │
-│  - Live 30/60 FPS scrub playback & WebCodecs export   │
+│              Remotion Sequencer & Player               │
+│  - Frame-Accurate Scrubbing (30/60 FPS)                │
+│  - Word-Level Kinetic Typography & Beat Shockwaves     │
+│  - 4K Deterministic Video Export                       │
 └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. Prior-Art & Grounding Acknowledgments
-
-KinoBeat Studio synthesizes concepts and architectures across premier open-source works:
-
-* **[HeliosGen](https://github.com/SegFault42/HeliosGen)** & **[BeatDesign](https://github.com/BeatAPI/BeatDesign)**: Infinite canvas node chaining, local-first BYOK privacy, and visual workspace paradigms.
-* **[xyflow/react](https://github.com/xyflow/xyflow)**: The industry-standard React Flow interactive canvas engine.
-* **[open-higgsfield](https://github.com/wide-trace/open-higgsfield)** & **[higgsfield-ai-prompt-skill](https://github.com/OSideMedia/higgsfield-ai-prompt-skill)**: The MCSLA camera syntax, camera director tokens, and cinematic lighting archetypes.
-* **[Remotion](https://github.com/remotion-dev/remotion)**: Frame-accurate React component video rendering and deterministic compilation.
-* **[opus-video-skills](https://github.com/antigravity/opus-video-skills)**: Kinetic motion typography grammar, HUD micro-type rules, and beat-locked editorial rhythm.
-
----
-
-## 5. Mathematical Formulations
-
-### A. Spectral Flux Beat Transient Detection
-Transients and onset attacks (kicks and snares) are computed across short-time Fourier transform (STFT) frames:
-
-$$SF(n) = \sum_{k=0}^{K-1} H\left( |X(n, k)| - |X(n-1, k)| \right)$$
-
-where $H(x) = \frac{x + |x|}{2}$ is the half-wave rectifier function, isolating positive energy bursts. Dynamic thresholding $\gamma(n)$ triggers beat events when $SF(n) > \gamma(n)$.
-
-### B. 360° Orbital Camera Drift
-The camera traverses a continuous cylindrical trajectory around the center of interest:
-
-$$X(t) = R \cdot \cos(\omega t), \quad Z(t) = R \cdot \sin(\omega t), \quad Y(t) = Y_0 + A \cdot \sin(2\omega t)$$
-
-with shortest-angle modular delta math preventing reverse snapbacks:
-
-$$\Delta\theta = (((to - from) \pmod{360} + 360 + 180) \pmod{360}) - 180$$
-
-### C. Vertigo Contra-Zoom (Dolly-Zoom)
-Perspective distortion while maintaining constant framing of the foreground subject:
-
-$$Z(t) = Z_0(1 - t) + Z_1 t, \quad \tan\left(\frac{\text{FoV}(t)}{2}\right) = \frac{h_{\text{subject}}}{2 \cdot Z(t)}$$
-
----
-
-## 6. Installation & Quick Start
+## Installation & Setup
 
 ### Prerequisites
 * **Node.js**: v20.x or v22.x+
@@ -128,46 +108,39 @@ $$Z(t) = Z_0(1 - t) + Z_1 t, \quad \tan\left(\frac{\text{FoV}(t)}{2}\right) = \f
 ### Quickstart
 
 ```bash
-# 1. Clone repository
+# Clone repository
 git clone https://github.com/Ottailo/KinoBeat-Studio.git
 cd KinoBeat-Studio
 
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Launch development server with Turbopack
+# Start local studio
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) to access the studio.
 
-### Keyboard Shortcuts
-| Key | Action |
+### Keybindings
+| Shortcut | Action |
 |---|---|
 | `Space` | Toggle Play / Pause |
-| `J` | Scrub backward 1 second |
-| `L` | Scrub forward 1 second |
-| `Home` | Rewind to timeline origin |
-| `E` | Open 4K Export Modal |
+| `J` | Step backward 1 second |
+| `L` | Step forward 1 second |
+| `Home` | Rewind timeline to zero |
+| `E` | Open 4K Export Master Modal |
+| `?` | Open Interactive Studio Guide |
 
 ---
 
-## 7. Production Build Verification
+## Production Build
 
 ```bash
 npm run build
 ```
 
-Expected output:
-```
-✓ Compiled successfully in 6.7s
-✓ Linting and checking validity of types
-✓ Generating static pages (6/6)
-Exit code: 0
-```
-
 ---
 
-## 8. License
+## License
 
 Distributed under the Apache 2.0 License. See `LICENSE` for details.
