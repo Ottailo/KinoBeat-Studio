@@ -62,7 +62,44 @@ async function runPersonaTestSuite() {
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  // 2. Click a scene clip to open the new Shot Inspector
+  // 2. Click a scene clip to open the new Shot Inspector and test timeline zoom
+  console.log('Testing Zoom In/Out and Timecode Ruler scrubbing...');
+  await page.evaluate(() => {
+    const zoomInBtn = document.querySelector('button[title="Zoom In"]');
+    if (zoomInBtn) zoomInBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+  await page.evaluate(() => {
+    const zoomInBtn = document.querySelector('button[title="Zoom In"]');
+    if (zoomInBtn) zoomInBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+
+  // Test Track V1 mute and lock buttons
+  console.log('Testing Track V1 Video Mute & Lock controls...');
+  await page.evaluate(() => {
+    const muteBtn = document.querySelector('button[title="Mute Video Layer"]');
+    if (muteBtn) muteBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 300));
+  await page.evaluate(() => {
+    const muteBtn = document.querySelector('button[title="Show Video Layer"]');
+    if (muteBtn) muteBtn.click();
+  });
+
+  // Test Timecode ruler scrubbing
+  await page.evaluate(() => {
+    const ruler = document.querySelector('.bg-\\[\\#0E121B\\].border-b');
+    if (ruler) {
+      const rect = ruler.getBoundingClientRect();
+      const down = new PointerEvent('pointerdown', { clientX: rect.left + 150, clientY: rect.top + 10, bubbles: true });
+      ruler.dispatchEvent(down);
+      const up = new PointerEvent('pointerup', { clientX: rect.left + 150, clientY: rect.top + 10, bubbles: true });
+      ruler.dispatchEvent(up);
+    }
+  });
+  await new Promise((r) => setTimeout(r, 400));
+
   console.log('Clicking scene clip to test Shot Inspector drawer...');
   await page.evaluate(() => {
     const clips = document.querySelectorAll('.h-full.rounded-md.border');
@@ -169,6 +206,56 @@ async function runPersonaTestSuite() {
   // PERSONA 3: Music Producer (Real FFT Waveform, Volume Slider & Beat-Snap)
   // ==========================================
   console.log('\n[Persona 3] Testing Real Web Audio FFT Waveform, Volume Slider & Beat-Snap...');
+
+  // Test TTS voice tab and custom caption generation
+  console.log('Testing TTS Voice tab & custom caption generation...');
+  await page.evaluate(() => {
+    const tabs = Array.from(document.querySelectorAll('button')).filter(
+      (b) => b.textContent?.trim() === 'TTS Voice'
+    );
+    if (tabs[0]) tabs[0].click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+
+  await page.evaluate(() => {
+    const ttsBtn = Array.from(document.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Synthesize & Add Caption')
+    );
+    if (ttsBtn) ttsBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+
+  // Test Local Engine Diagnostics Modal in Header
+  console.log('Testing Local Engine Diagnostics Modal & Benchmark...');
+  await page.evaluate(() => {
+    const diagBtn = document.querySelector('button[title*="Local Engine Diagnostics"]');
+    if (diagBtn) diagBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+
+  await page.evaluate(() => {
+    const benchBtn = Array.from(document.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Run Diagnostics Benchmark')
+    );
+    if (benchBtn) benchBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 800));
+
+  // Close diagnostics modal
+  await page.evaluate(() => {
+    const closeBtn = document.querySelector('.fixed.inset-0 button');
+    if (closeBtn) closeBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+
+  // Switch back to stem mode
+  await page.evaluate(() => {
+    const tabs = Array.from(document.querySelectorAll('button')).filter(
+      (b) => b.textContent?.trim() === 'Preset Stems'
+    );
+    if (tabs[0]) tabs[0].click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
 
   // Click Analyze Stem in Audio node
   await page.evaluate(() => {

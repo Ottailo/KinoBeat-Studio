@@ -7,7 +7,8 @@ import {
   Controls,
   MiniMap,
   BackgroundVariant,
-  Node,
+  ReactFlowProvider,
+  useReactFlow,
 } from '@xyflow/react';
 
 import { PromptNode } from './nodes/PromptNode';
@@ -26,7 +27,7 @@ const nodeTypes = {
   timelineNode: RemotionTimelineNode,
 };
 
-export const StudioCanvas: React.FC = () => {
+const StudioCanvasInner: React.FC = () => {
   const nodes = useStudioStore((s) => s.nodes);
   const edges = useStudioStore((s) => s.edges);
   const onNodesChange = useStudioStore((s) => s.onNodesChange);
@@ -37,12 +38,26 @@ export const StudioCanvas: React.FC = () => {
   const setSelectedNodeId = useStudioStore((s) => s.setSelectedNodeId);
   const loadPresetWorkflow = useStudioStore((s) => s.loadPresetWorkflow);
 
-  const handleAddNode = useCallback(
+  const { setCenter, fitView, getNodes } = useReactFlow();
+
+  const handleFocusOrAddNode = useCallback(
     (type: 'promptNode' | 'cameraNode' | 'modelNode' | 'audioNode' | 'timelineNode') => {
-      addNode(type);
+      const existing = getNodes().find((n) => n.type === type);
+      if (existing) {
+        setSelectedNodeId(existing.id);
+        const w = 170;
+        const h = 130;
+        setCenter(existing.position.x + w, existing.position.y + h, { zoom: 0.95, duration: 450 });
+      } else {
+        addNode(type);
+      }
     },
-    [addNode]
+    [getNodes, setCenter, setSelectedNodeId, addNode]
   );
+
+  const handleFitView = useCallback(() => {
+    fitView({ duration: 450 });
+  }, [fitView]);
 
   const handleLoadPreset = useCallback(
     (presetKey: string) => {
@@ -54,7 +69,11 @@ export const StudioCanvas: React.FC = () => {
   return (
     <div className="relative w-full h-full bg-[#0B0E14]">
       {/* Sleek Top Studio Toolbar */}
-      <NodeToolbar onAddNode={handleAddNode} onLoadPreset={handleLoadPreset} />
+      <NodeToolbar
+        onAddNode={handleFocusOrAddNode}
+        onLoadPreset={handleLoadPreset}
+        onFitView={handleFitView}
+      />
 
       {/* Fully Reactive React Flow Canvas */}
       <ReactFlow
@@ -103,5 +122,13 @@ export const StudioCanvas: React.FC = () => {
         />
       </ReactFlow>
     </div>
+  );
+};
+
+export const StudioCanvas: React.FC = () => {
+  return (
+    <ReactFlowProvider>
+      <StudioCanvasInner />
+    </ReactFlowProvider>
   );
 };

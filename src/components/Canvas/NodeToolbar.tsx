@@ -1,15 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Type, Video, Cpu, Music, Film, Layers, Sparkles, Wand2 } from 'lucide-react';
+import { Type, Video, Cpu, Music, Film, Layers, Sparkles, Wand2, Maximize } from 'lucide-react';
 import { useStudioStore } from '../../lib/store/studioStore';
 
 interface NodeToolbarProps {
   onAddNode: (type: 'promptNode' | 'cameraNode' | 'modelNode' | 'audioNode' | 'timelineNode') => void;
   onLoadPreset: (presetKey: string) => void;
+  onFitView?: () => void;
 }
 
-export const NodeToolbar: React.FC<NodeToolbarProps> = ({ onAddNode, onLoadPreset }) => {
+export const NodeToolbar: React.FC<NodeToolbarProps> = ({ onAddNode, onLoadPreset, onFitView }) => {
   const generateAutoStoryboard = useStudioStore((s) => s.generateAutoStoryboard);
   const [isAutoDirectorOpen, setIsAutoDirectorOpen] = useState(false);
 
@@ -129,6 +130,17 @@ export const NodeToolbar: React.FC<NodeToolbarProps> = ({ onAddNode, onLoadPrese
           <option value="tiktok_speedrun">Dynamic Short (140 BPM)</option>
         </select>
       </div>
+
+      {onFitView && (
+        <button
+          type="button"
+          onClick={onFitView}
+          className="p-1 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-100 transition-colors"
+          title="Fit Canvas to View"
+        >
+          <Maximize className="w-3.5 h-3.5" />
+        </button>
+      )}
     </div>
   );
 };

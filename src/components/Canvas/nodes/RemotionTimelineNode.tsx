@@ -30,6 +30,8 @@ export const RemotionTimelineNode: React.FC<{
   const togglePlay = useStudioStore((s) => s.togglePlay);
   const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
   const aspectRatio = useStudioStore((s) => s.aspectRatio);
+  const isVideoMuted = useStudioStore((s) => s.isVideoMuted);
+  const isCaptionsMuted = useStudioStore((s) => s.isCaptionsMuted);
 
   const playerRef = useRef<PlayerRef>(null);
 
@@ -115,7 +117,11 @@ export const RemotionTimelineNode: React.FC<{
       </div>
 
       {/* Embedded Live Remotion Player with Dynamic Aspect Ratio */}
-      <div className={`relative bg-black overflow-hidden border-b border-[#1E2638] ${aspectClass}`}>
+      <div
+        onClick={togglePlay}
+        className={`relative bg-black overflow-hidden border-b border-[#1E2638] cursor-pointer group ${aspectClass}`}
+        title={isPlaying ? 'Click to Pause' : 'Click to Play'}
+      >
         <Player
           ref={playerRef}
           component={KinoComposition}
@@ -125,6 +131,8 @@ export const RemotionTimelineNode: React.FC<{
             bpm,
             beats,
             captions,
+            isVideoMuted,
+            isCaptionsMuted,
           }}
           durationInFrames={totalFrames}
           fps={fps}

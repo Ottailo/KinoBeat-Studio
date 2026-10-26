@@ -14,6 +14,8 @@ export interface KinoCompositionProps {
   bpm: number;
   beats: BeatMarker[];
   captions: CaptionItem[];
+  isVideoMuted?: boolean;
+  isCaptionsMuted?: boolean;
 }
 
 export const KinoComposition: React.FC<KinoCompositionProps> = ({
@@ -22,6 +24,8 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
   bpm,
   beats,
   captions,
+  isVideoMuted = false,
+  isCaptionsMuted = false,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -108,26 +112,37 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
   return (
     <div className="relative w-full h-full overflow-hidden bg-black select-none font-sans">
       {/* 3D Viewport Scene Layer (Video or High-Res Image) */}
-      <div className="absolute inset-0 w-full h-full" style={transformStyle}>
-        {isVideo ? (
-          <video
-            ref={videoRef}
-            src={currentScene.videoUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
-          />
-        ) : (
-          <img
-            src={currentScene.thumbnailUrl}
-            alt={currentScene.title}
-            className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 pointer-events-none" />
-      </div>
+      {!isVideoMuted && (
+        <div className="absolute inset-0 w-full h-full" style={transformStyle}>
+          {isVideo ? (
+            <video
+              ref={videoRef}
+              src={currentScene.videoUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
+            />
+          ) : (
+            <img
+              src={currentScene.thumbnailUrl}
+              alt={currentScene.title}
+              className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 pointer-events-none" />
+        </div>
+      )}
+
+      {isVideoMuted && (
+        <div className="absolute inset-0 w-full h-full bg-[#080B10] flex flex-col items-center justify-center font-mono text-zinc-500 text-xs">
+          <div className="p-3 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 mb-2">
+            Track V1 Video Muted
+          </div>
+          <span className="text-[10px]">Audio & Typography Playback Active</span>
+        </div>
+      )}
 
       {/* Cinematic Letterbox Bars */}
       <div className="absolute top-0 left-0 right-0 h-8 bg-black/95 z-20 border-b border-white/5" />
@@ -170,11 +185,13 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
       />
 
       {/* Word-Level Kinetic Typography */}
-      <KineticTypography
-        captions={captions}
-        currentTime={currentTime}
-        isBeatHit={isBeatHit}
-      />
+      {!isCaptionsMuted && (
+        <KineticTypography
+          captions={captions}
+          currentTime={currentTime}
+          isBeatHit={isBeatHit}
+        />
+      )}
     </div>
   );
 };

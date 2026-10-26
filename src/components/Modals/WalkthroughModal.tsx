@@ -56,6 +56,11 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       title: '1. Custom Media Import (MP4/PNG)',
       desc: 'Import your own video files or images via "+ Add Shot" -> "Upload Custom Media" with real timeline scrubbing and zero AI dependencies.',
       icon: <Upload className="w-4 h-4 text-cyan-400" />,
+      actionText: 'Add Shot',
+      onAction: () => {
+        useStudioStore.getState().addScene();
+        onClose();
+      },
     },
     {
       id: 'step-2',
@@ -75,6 +80,16 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       title: '3. Real Web Audio FFT Beat Detection',
       desc: 'Upload an MP3/WAV backing track. The Web Audio FFT engine decodes true RMS energy and kick transients, auto-snapping cuts to the beat.',
       icon: <Music className="w-4 h-4 text-pink-400" />,
+      actionText: 'Load Audio Stem',
+      onAction: () => {
+        useStudioStore.getState().setBeatsAndBpm(
+          useStudioStore.getState().beats,
+          120,
+          'cyberpunk-neon-drift',
+          'Neon Drift 2088'
+        );
+        onClose();
+      },
     },
     {
       id: 'step-4',
@@ -181,6 +196,10 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
               >
                 <button
                   type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStep(s.id);
+                  }}
                   className="mt-0.5 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
                 >
                   {isDone ? (

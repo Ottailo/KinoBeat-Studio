@@ -49,6 +49,7 @@ export const CameraNode: React.FC<{
   const setCameraOptions = useStudioStore((s) => s.setCameraOptions);
   const currentTime = useStudioStore((s) => s.currentTime);
   const duration = useStudioStore((s) => s.duration);
+  const seekTo = useStudioStore((s) => s.seekTo);
 
   const [selectedPreset, setSelectedPreset] = useState(data.presetId || 'orbital_drift');
   const [focalLength, setFocalLength] = useState(data.focalLength || '35mm');
@@ -217,7 +218,13 @@ export const CameraNode: React.FC<{
             ref={canvasRef}
             width={240}
             height={60}
-            className="w-full h-15 rounded bg-[#090C12]"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+              seekTo(Number((ratio * Math.min(3.5, duration)).toFixed(2)));
+            }}
+            className="w-full h-15 rounded bg-[#090C12] cursor-crosshair hover:ring-1 hover:ring-cyan-400/50 transition-all"
+            title="Click to scrub camera path trajectory"
           />
         </div>
 

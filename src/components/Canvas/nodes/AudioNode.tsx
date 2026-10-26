@@ -114,8 +114,8 @@ export const AudioNode: React.FC<{
       setBeatCount(analysis.beats.length);
       setBeatsAndBpm(analysis.beats, analysis.bpm, 'tts-stem', 'TTS Voiceover Stem', analysis.waveform);
 
-      // Auto-create matching kinetic caption
-      addCaption();
+      // Auto-create matching kinetic caption with user's narration text
+      addCaption(ttsText || 'Autonomous cinema synchronized to frequency.', 'slam');
     } catch (err) {
       console.error('TTS synthesis failed:', err);
     } finally {
@@ -232,7 +232,7 @@ export const AudioNode: React.FC<{
         )}
 
         {mode === 'upload' && (
-          <div>
+          <div className="space-y-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -243,7 +243,7 @@ export const AudioNode: React.FC<{
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-4 rounded-md border-2 border-dashed border-[#1E2638] hover:border-cyan-500 bg-[#0D1119] flex flex-col items-center justify-center gap-1.5 text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="w-full py-3.5 rounded-md border-2 border-dashed border-[#1E2638] hover:border-cyan-500 bg-[#0D1119] flex flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-200 transition-colors"
             >
               <Upload className="w-4 h-4 text-cyan-400" />
               <span className="text-xs font-medium">
@@ -251,6 +251,17 @@ export const AudioNode: React.FC<{
               </span>
               <span className="text-[10px] text-zinc-500">Auto-detects kicks & transients</span>
             </button>
+
+            {customAudioName && (
+              <button
+                type="button"
+                onClick={handleTogglePreview}
+                className="w-full py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+              >
+                {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5 text-cyan-400" />}
+                <span>{isPlayingPreview ? 'Pause Uploaded Audio' : 'Play Uploaded Audio'}</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -265,15 +276,25 @@ export const AudioNode: React.FC<{
               onChange={(e) => setTtsText(e.target.value)}
               className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 resize-none"
             />
-            <button
-              type="button"
-              onClick={handleSynthesizeTts}
-              disabled={isProcessing}
-              className="w-full py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-cyan-300 font-medium text-xs border border-zinc-700 flex items-center justify-center gap-1.5"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Synthesize & Detect Syllable Beats</span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSynthesizeTts}
+                disabled={isProcessing}
+                className="flex-1 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-cyan-300 font-medium text-xs border border-zinc-700 flex items-center justify-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Synthesize & Add Caption</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleTogglePreview}
+                className="px-3 py-1.5 rounded-md bg-[#0D1119] hover:bg-zinc-800 border border-[#1E2638] text-zinc-300 hover:text-white transition-colors flex items-center gap-1"
+                title="Play Preview"
+              >
+                {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5" />}
+              </button>
+            </div>
           </div>
         )}
 

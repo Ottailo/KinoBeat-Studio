@@ -93,6 +93,11 @@ export interface StudioStore {
   beats: BeatMarker[];
   audioWaveform: number[]; // Real 64-bar RMS waveform
   isMuted: boolean;
+  isVideoMuted: boolean;
+  isCaptionsMuted: boolean;
+  isV1Locked: boolean;
+  isT1Locked: boolean;
+  isA1Locked: boolean;
   audioVolume: number; // 0 to 1.5, default 1.0
 
   // Media Asset Bin
@@ -121,7 +126,7 @@ export interface StudioStore {
   addMediaAsset: (asset: MediaAsset) => void;
   removeMediaAsset: (id: string) => void;
   setAudioVolume: (volume: number) => void;
-  addCaption: () => void;
+  addCaption: (text?: string, style?: CaptionItem['style']) => void;
   updateCaption: (id: string, partial: Partial<CaptionItem>) => void;
   trimCaption: (id: string, newStartTime: number, newEndTime: number) => void;
   removeCaption: (id: string) => void;
@@ -133,6 +138,11 @@ export interface StudioStore {
   setCameraOptions: (options: { presetId?: string; focalLength?: string; speedRamp?: number; easing?: string }) => void;
   setAspectRatio: (ratio: '16:9' | '9:16' | '1:1' | '21:9') => void;
   toggleMute: () => void;
+  toggleVideoMute: () => void;
+  toggleCaptionsMute: () => void;
+  toggleV1Lock: () => void;
+  toggleT1Lock: () => void;
+  toggleA1Lock: () => void;
   toggleBeatSnap: () => void;
   generateActiveScene: () => Promise<void>;
   generateAutoStoryboard: (theme: string) => void;
@@ -396,6 +406,11 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   beats: INITIAL_BEATS,
   audioWaveform: INITIAL_WAVEFORM,
   isMuted: false,
+  isVideoMuted: false,
+  isCaptionsMuted: false,
+  isV1Locked: false,
+  isT1Locked: false,
+  isA1Locked: false,
   audioVolume: 1.0,
   mediaAssets: INITIAL_ASSETS,
 
@@ -647,7 +662,11 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     set({
       scenes: updatedScenes,
       duration: newTotalDuration,
+      activeSceneIndex: updatedScenes.length - 1,
+      activeCameraCurveId: newScene.cameraPresetId,
     });
+
+    get().seekTo(newStartAt);
 
     get().updateNodeData('node-timeline', {
       duration: newTotalDuration,
@@ -767,12 +786,19 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
 
   splitSceneAtPlayhead: () => {
     const state = get();
-    const { currentTime, scenes, activeSceneIndex } = state;
-    const targetScene = scenes[activeSceneIndex];
+    const { currentTime, scenes } = state;
+    // Find scene currently positioned under the playhead timestamp
+    let targetIndex = scenes.findIndex(
+      (sc) => currentTime >= sc.startAt && currentTime < sc.startAt + sc.duration
+    );
+    if (targetIndex < 0) {
+      targetIndex = state.activeSceneIndex;
+    }
+    const targetScene = scenes[targetIndex];
     if (!targetScene) return;
 
     const offset = currentTime - targetScene.startAt;
-    if (offset < 0.3 || targetScene.duration - offset < 0.3) {
+    if (offset < 0.2 || targetScene.duration - offset < 0.2) {
       return;
     }
 
@@ -793,10 +819,10 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     };
 
     const newScenes = [
-      ...scenes.slice(0, activeSceneIndex),
+      ...scenes.slice(0, targetIndex),
       firstScene,
       secondScene,
-      ...scenes.slice(activeSceneIndex + 1),
+      ...scenes.slice(targetIndex + 1),
     ];
 
     let currentOffset = 0;
@@ -809,7 +835,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     set({
       scenes: recalculated,
       duration: currentOffset,
-      activeSceneIndex: activeSceneIndex + 1,
+      activeSceneIndex: targetIndex + 1,
     });
 
     get().updateNodeData('node-timeline', {
@@ -880,14 +906,14 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     set({ mediaAssets: get().mediaAssets.filter((a) => a.id !== id) });
   },
 
-  addCaption: () => {
+  addCaption: (text?: string, style?: CaptionItem['style']) => {
     const state = get();
     const newCap: CaptionItem = {
       id: `cap-${Date.now()}`,
-      text: 'NEW KINETIC TITLE',
+      text: text || 'NEW KINETIC TITLE',
       startTime: Math.max(0, state.currentTime),
       endTime: Math.min(state.duration, state.currentTime + 2.0),
-      style: 'slam',
+      style: style || 'slam',
       fontSize: 28,
       color: '#00F0FF',
     };
@@ -1005,6 +1031,26 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
 
   toggleMute: () => {
     set({ isMuted: !get().isMuted });
+  },
+
+  toggleVideoMute: () => {
+    set({ isVideoMuted: !get().isVideoMuted });
+  },
+
+  toggleCaptionsMute: () => {
+    set({ isCaptionsMuted: !get().isCaptionsMuted });
+  },
+
+  toggleV1Lock: () => {
+    set({ isV1Locked: !get().isV1Locked });
+  },
+
+  toggleT1Lock: () => {
+    set({ isT1Locked: !get().isT1Locked });
+  },
+
+  toggleA1Lock: () => {
+    set({ isA1Locked: !get().isA1Locked });
   },
 
   toggleBeatSnap: () => {
@@ -1282,11 +1328,13 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
         activeSceneIndex: 0,
         activeCameraCurveId: 'crane_shot',
         aspectRatio: '21:9',
-        bpm: 90,
+        activeTrackId: 'cinematic-trailer-impact',
+        bpm: 100,
       });
 
       get().updateNodeData('node-prompt', { subject: trailerScenes[0].prompt, aspectRatio: '21:9' });
       get().updateNodeData('node-camera', { presetId: 'crane_shot' });
+      get().updateNodeData('node-audio', { trackId: 'cinematic-trailer-impact', title: 'Sub-Bass Monolith', bpm: 100 });
       get().updateNodeData('node-timeline', { duration: 14.0, sceneCount: 4 });
     } else if (presetKey === 'tiktok_speedrun') {
       const tiktokScenes: SceneClip[] = [
@@ -1345,11 +1393,13 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
         activeSceneIndex: 0,
         activeCameraCurveId: 'fpv_dive',
         aspectRatio: '9:16',
+        activeTrackId: 'tokyo-drift-kinetic',
         bpm: 140,
       });
 
       get().updateNodeData('node-prompt', { subject: tiktokScenes[0].prompt, aspectRatio: '9:16' });
       get().updateNodeData('node-camera', { presetId: 'fpv_dive' });
+      get().updateNodeData('node-audio', { trackId: 'tokyo-drift-kinetic', title: 'Shibuya Speedrun', bpm: 140 });
       get().updateNodeData('node-timeline', { duration: 9.0, sceneCount: 3 });
     }
   },

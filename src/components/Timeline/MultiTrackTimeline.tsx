@@ -35,6 +35,11 @@ import {
   Camera,
   Layers,
   Sparkle,
+  Eye,
+  EyeOff,
+  Lock,
+  Unlock,
+  Clock,
 } from 'lucide-react';
 import {
   useStudioStore,
@@ -84,6 +89,11 @@ export const MultiTrackTimeline: React.FC = () => {
   const selectedCaptionId = useStudioStore((s) => s.selectedCaptionId);
   const audioVolume = useStudioStore((s) => s.audioVolume);
   const isMuted = useStudioStore((s) => s.isMuted);
+  const isVideoMuted = useStudioStore((s) => s.isVideoMuted);
+  const isCaptionsMuted = useStudioStore((s) => s.isCaptionsMuted);
+  const isV1Locked = useStudioStore((s) => s.isV1Locked);
+  const isT1Locked = useStudioStore((s) => s.isT1Locked);
+  const isA1Locked = useStudioStore((s) => s.isA1Locked);
   const mediaAssets = useStudioStore((s) => s.mediaAssets);
   const isGeneratingVideo = useStudioStore((s) => s.isGeneratingVideo);
 
@@ -108,6 +118,11 @@ export const MultiTrackTimeline: React.FC = () => {
   const toggleBeatSnap = useStudioStore((s) => s.toggleBeatSnap);
   const setAudioVolume = useStudioStore((s) => s.setAudioVolume);
   const toggleMute = useStudioStore((s) => s.toggleMute);
+  const toggleVideoMute = useStudioStore((s) => s.toggleVideoMute);
+  const toggleCaptionsMute = useStudioStore((s) => s.toggleCaptionsMute);
+  const toggleV1Lock = useStudioStore((s) => s.toggleV1Lock);
+  const toggleT1Lock = useStudioStore((s) => s.toggleT1Lock);
+  const toggleA1Lock = useStudioStore((s) => s.toggleA1Lock);
   const addMediaAsset = useStudioStore((s) => s.addMediaAsset);
   const setBeatsAndBpm = useStudioStore((s) => s.setBeatsAndBpm);
   const setCustomAudio = useStudioStore((s) => s.setCustomAudio);
@@ -115,6 +130,7 @@ export const MultiTrackTimeline: React.FC = () => {
   const generateActiveScene = useStudioStore((s) => s.generateActiveScene);
 
   const [zoom, setZoom] = useState(1);
+  const timelineScrollRef = useRef<HTMLDivElement | null>(null);
   const [isAddShotMenuOpen, setIsAddShotMenuOpen] = useState(false);
   const [isAssetBinOpen, setIsAssetBinOpen] = useState(false);
   const [isShotInspectorOpen, setIsShotInspectorOpen] = useState(true);
@@ -152,6 +168,20 @@ export const MultiTrackTimeline: React.FC = () => {
   };
 
   const playheadPercent = Math.min(100, (currentTime / Math.max(0.1, duration)) * 100);
+
+  // Auto-scroll timeline to follow playhead when playing while zoomed in
+  useEffect(() => {
+    if (isPlaying && timelineScrollRef.current && timelineTrackRef.current) {
+      const scrollEl = timelineScrollRef.current;
+      const trackWidth = timelineTrackRef.current.clientWidth;
+      const playheadPx = (currentTime / Math.max(0.1, duration)) * trackWidth;
+      const visibleLeft = scrollEl.scrollLeft;
+      const visibleRight = visibleLeft + scrollEl.clientWidth;
+      if (playheadPx > visibleRight - 40 || playheadPx < visibleLeft) {
+        scrollEl.scrollLeft = Math.max(0, playheadPx - 80);
+      }
+    }
+  }, [currentTime, isPlaying, duration]);
 
   // Continuous Pointer Scrubbing across timeline
   const getTimeFromClientX = useCallback(
@@ -509,7 +539,10 @@ export const MultiTrackTimeline: React.FC = () => {
               <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#12161F] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-150">
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    fileInputRef.current?.click();
+                    setIsAddShotMenuOpen(false);
+                  }}
                   className="w-full text-left px-2.5 py-2 rounded hover:bg-[#161B26] text-zinc-200 transition-colors flex items-center gap-2"
                 >
                   <Upload className="w-3.5 h-3.5 text-cyan-400" />
@@ -540,7 +573,7 @@ export const MultiTrackTimeline: React.FC = () => {
           {/* Add Title Button */}
           <button
             type="button"
-            onClick={addCaption}
+            onClick={() => addCaption()}
             className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
           >
             <Type className="w-3.5 h-3.5 text-pink-400" />
@@ -665,45 +698,99 @@ export const MultiTrackTimeline: React.FC = () => {
         )}
 
         {/* Track Headers (Left Column) */}
-        <div className="w-40 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-between py-1 shrink-0 text-xs text-zinc-400 font-mono">
+        <div className="w-40 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-start shrink-0 text-xs text-zinc-400 font-mono select-none">
+          {/* Top Ruler Align Header */}
+          <div className="h-6 px-3 bg-[#0E121B] border-b border-[#1E2638] flex items-center justify-between text-[10px] text-zinc-400 font-mono">
+            <div className="flex items-center gap-1.5 text-cyan-400">
+              <Clock className="w-3 h-3" />
+              <span className="font-semibold">{formatTimecode(currentTime)}</span>
+            </div>
+            <span className="text-[9px] text-zinc-500">{zoom.toFixed(1)}x</span>
+          </div>
+
           {/* V1 Video Track Header */}
-          <div className="h-20 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
+          <div className={`h-20 px-3 flex flex-col justify-center border-b border-[#1E2638]/60 transition-opacity ${isVideoMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-300">
               <div className="flex items-center gap-1.5">
                 <Video className="w-3.5 h-3.5 text-cyan-400" />
                 <span>V1 Video</span>
               </div>
-              <span className="text-[9px] text-zinc-500 font-mono">{scenes.length} Clips</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleVideoMute}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isVideoMuted ? 'Show Video Layer' : 'Mute Video Layer'}
+                >
+                  {isVideoMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-cyan-400" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleV1Lock}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isV1Locked ? 'Unlock Video Track' : 'Lock Video Track'}
+                >
+                  {isV1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
+                </button>
+              </div>
             </div>
-            <span className="text-[10px] text-zinc-500 mt-1">4K Deterministic</span>
+            <span className="text-[9px] text-zinc-500 mt-1">{scenes.length} Clips · 4K Deterministic</span>
           </div>
 
           {/* T1 Title Track Header */}
-          <div className="h-12 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
+          <div className={`h-12 px-3 flex flex-col justify-center border-b border-[#1E2638]/60 transition-opacity ${isCaptionsMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-300">
               <div className="flex items-center gap-1.5">
                 <Type className="w-3.5 h-3.5 text-pink-400" />
                 <span>T1 Titles</span>
               </div>
-              <span className="text-[9px] text-zinc-500 font-mono">{captions.length} Cues</span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleCaptionsMute}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isCaptionsMuted ? 'Show Titles' : 'Hide Titles'}
+                >
+                  {isCaptionsMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-pink-400" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleT1Lock}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isT1Locked ? 'Unlock Titles Track' : 'Lock Titles Track'}
+                >
+                  {isT1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
+                </button>
+              </div>
             </div>
+            <span className="text-[9px] text-zinc-500">{captions.length} Cues · Kinetic Spring</span>
           </div>
 
           {/* A1 Audio Track Header with Volume Slider */}
-          <div className="h-16 px-3 flex flex-col justify-center">
+          <div className={`h-16 px-3 flex flex-col justify-center transition-opacity ${isMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-300">
               <div className="flex items-center gap-1.5">
                 <Music className="w-3.5 h-3.5 text-emerald-400" />
                 <span>A1 Audio</span>
               </div>
-              <button
-                type="button"
-                onClick={toggleMute}
-                className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
-                title={isMuted ? 'Unmute' : 'Mute'}
-              >
-                {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+                >
+                  {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleA1Lock}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  title={isA1Locked ? 'Unlock Audio Track' : 'Lock Audio Track'}
+                >
+                  {isA1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
+                </button>
+              </div>
             </div>
 
             {/* Volume Fader Slider */}
@@ -726,19 +813,43 @@ export const MultiTrackTimeline: React.FC = () => {
 
         {/* Track Timeline Area (Right Scrollable / Interactive Canvas with Drag-and-Drop) */}
         <div
-          ref={timelineTrackRef}
-          className="flex-1 relative bg-[#0B0E14] overflow-hidden cursor-crosshair touch-none"
-          onPointerDown={handlePointerDownTimeline}
-          onPointerMove={handlePointerMoveTimeline}
-          onPointerUp={handlePointerUpTimeline}
-          onDragOver={(e) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-          }}
-          onDrop={handleTimelineDrop}
+          ref={timelineScrollRef}
+          className="flex-1 relative bg-[#0B0E14] overflow-x-auto overflow-y-hidden cursor-crosshair touch-none select-none"
         >
-          {/* Subtle Vertical Time Tick Marks */}
-          <div className="absolute inset-0 flex justify-between pointer-events-none opacity-20">
+          <div
+            ref={timelineTrackRef}
+            style={{ width: `${Math.max(100, zoom * 100)}%`, minWidth: '100%' }}
+            className="relative h-full flex flex-col justify-start"
+            onPointerDown={handlePointerDownTimeline}
+            onPointerMove={handlePointerMoveTimeline}
+            onPointerUp={handlePointerUpTimeline}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'copy';
+            }}
+            onDrop={handleTimelineDrop}
+          >
+            {/* Interactive Timecode Ruler Header */}
+            <div className="h-6 bg-[#0E121B] border-b border-[#1E2638] relative flex items-center select-none overflow-hidden shrink-0">
+              {Array.from({ length: Math.ceil(duration) + 1 }).map((_, sec) => {
+                const posPct = (sec / duration) * 100;
+                return (
+                  <div
+                    key={sec}
+                    style={{ left: `${posPct}%` }}
+                    className="absolute top-0 bottom-0 flex flex-col justify-between pointer-events-none"
+                  >
+                    <div className="h-2 w-[1px] bg-zinc-600" />
+                    <span className="text-[8px] font-mono text-zinc-500 pl-0.5 leading-none">
+                      00:0{sec}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Subtle Vertical Time Tick Marks */}
+            <div className="absolute inset-0 flex justify-between pointer-events-none opacity-20">
             {Array.from({ length: 21 }).map((_, i) => (
               <div key={i} className="h-full border-r border-zinc-700 w-full" />
             ))}
@@ -755,10 +866,10 @@ export const MultiTrackTimeline: React.FC = () => {
                 <div
                   key={scene.id}
                   onClick={(e) => {
-                    e.stopPropagation();
                     selectScene(idx);
                     setSelectedCaptionId(null);
                     setIsShotInspectorOpen(true);
+                    seekTo(getTimeFromClientX(e.clientX));
                   }}
                   style={{ width: `${widthPct}%` }}
                   className={`h-full rounded-md border relative overflow-hidden group transition-all flex flex-col justify-between p-1.5 select-none ${
@@ -785,7 +896,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     </span>
 
                     {/* Quick Reorder & Duplicate Controls for Selected Scene */}
-                    {isSelected && (
+                    {!isV1Locked && isSelected && (
                       <div className="flex items-center gap-0.5 bg-black/60 rounded px-1 py-0.5 border border-white/10">
                         {idx > 0 && (
                           <button
@@ -850,25 +961,27 @@ export const MultiTrackTimeline: React.FC = () => {
                   </div>
 
                   {/* Draggable Trim-End Handle (Right Edge) */}
-                  <div
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setTrimmingIndex(idx);
-                      setTrimInitialDuration(scene.duration);
-                      setTrimInitialClientX(e.clientX);
-                      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-                    }}
-                    onPointerUp={(e) => {
-                      try {
-                        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-                      } catch {}
-                      setTrimmingIndex(null);
-                    }}
-                    className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
-                    title="Drag to Trim Clip Duration"
-                  >
-                    <div className="w-[2px] h-4 rounded-full bg-cyan-400/60 group-hover/trim:bg-cyan-300" />
-                  </div>
+                  {!isV1Locked && (
+                    <div
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        setTrimmingIndex(idx);
+                        setTrimInitialDuration(scene.duration);
+                        setTrimInitialClientX(e.clientX);
+                        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                      }}
+                      onPointerUp={(e) => {
+                        try {
+                          (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+                        } catch {}
+                        setTrimmingIndex(null);
+                      }}
+                      className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
+                      title="Drag to Trim Clip Duration"
+                    >
+                      <div className="w-[2px] h-4 rounded-full bg-cyan-400/60 group-hover/trim:bg-cyan-300" />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -886,16 +999,16 @@ export const MultiTrackTimeline: React.FC = () => {
                 <div
                   key={cap.id}
                   onClick={(e) => {
-                    e.stopPropagation();
                     setSelectedCaptionId(cap.id);
                     setIsShotInspectorOpen(false);
+                    seekTo(getTimeFromClientX(e.clientX));
                   }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
-                    handleStartTitleEdit(cap);
+                    if (!isT1Locked) handleStartTitleEdit(cap);
                   }}
                   onPointerDown={(e) => {
-                    if (isEditing) return;
+                    if (isEditing || isT1Locked) return;
                     e.stopPropagation();
                     setSelectedCaptionId(cap.id);
                     setDragCaptionId(cap.id);
@@ -939,20 +1052,22 @@ export const MultiTrackTimeline: React.FC = () => {
                   </div>
 
                   {/* Caption Trim-End Handle */}
-                  <div
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      setDragCaptionId(cap.id);
-                      setDragCaptionMode('trim-end');
-                      setDragCaptionStartX(e.clientX);
-                      setDragCaptionInitialStart(cap.startTime);
-                      setDragCaptionInitialEnd(cap.endTime);
-                    }}
-                    className="w-2 h-full cursor-ew-resize hover:bg-white/20 rounded-r flex items-center justify-center shrink-0"
-                    title="Drag to Extend/Shorten Duration"
-                  >
-                    <div className="w-[1.5px] h-3 bg-white/40" />
-                  </div>
+                  {!isT1Locked && (
+                    <div
+                      onPointerDown={(e) => {
+                        e.stopPropagation();
+                        setDragCaptionId(cap.id);
+                        setDragCaptionMode('trim-end');
+                        setDragCaptionStartX(e.clientX);
+                        setDragCaptionInitialStart(cap.startTime);
+                        setDragCaptionInitialEnd(cap.endTime);
+                      }}
+                      className="w-2 h-full cursor-ew-resize hover:bg-white/20 rounded-r flex items-center justify-center shrink-0"
+                      title="Drag to Extend/Shorten Duration"
+                    >
+                      <div className="w-[1.5px] h-3 bg-white/40" />
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -996,6 +1111,7 @@ export const MultiTrackTimeline: React.FC = () => {
             <div className="w-3.5 h-3.5 bg-cyan-400 -ml-[6px] -mt-1 rotate-45 rounded-[1px] shadow-lg shadow-cyan-400/60 border border-white" />
           </div>
         </div>
+      </div>
 
         {/* Title Properties Inspector Drawer (Opens when caption is selected) */}
         {selectedCaption && (

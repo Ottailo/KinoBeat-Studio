@@ -134,3 +134,41 @@
   - Created high-resolution SVG and ICO favicon assets in `public/favicon.ico` and `public/favicon.svg`.  
   *Proof*: `curl.exe -s -I http://localhost:3000/favicon.ico` returns `HTTP/1.1 200 OK`.
 
+---
+
+## 9. Comprehensive Zero-Static Audit & Live Control Verification
+- [x] **9.1. Interactive Timecode Ruler & Drag-Scrubbing**:
+  - Implemented a dedicated timecode ruler header across the top of timeline tracks with sub-second tick marks and formatted timecode badges (`00:00`, `00:01`, `00:02`, etc.).
+  - Clicking or dragging anywhere on the ruler scrubs `currentTime` instantly without requiring click on empty track space.
+  - Clicking any video shot or caption block now immediately positions the playhead at the clicked frame while selecting the clip.  
+  *Proof*: Implemented in [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx); verified via E2E test.
+- [x] **9.2. Real Horizontal Timeline Zoom Engine**:
+  - Connected `zoom` state (0.5x to 3.0x) to scale the track container width from `100%` up to `300%`.
+  - Added horizontal scroll with smooth auto-scroll playhead tracking during playback.  
+  *Proof*: Tested in `scripts/test_personas.mjs` with zoom buttons and screenshot output.
+- [x] **9.3. Track Header Visibility & Lock Controls**:
+  - Track V1: Added eye button (Show/Mute Video Layer) and lock button (Lock Track V1).
+  - Track T1: Added eye button (Show/Hide Kinetic Titles) and lock button (Lock Titles Track).
+  - Track A1: Added volume mute button, lock button, and volume fader slider.
+  - Linked `isVideoMuted` and `isCaptionsMuted` directly into [`KinoComposition.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Player/KinoComposition.tsx).  
+  *Proof*: Implemented in `studioStore.ts`, `MultiTrackTimeline.tsx`, and `KinoComposition.tsx`.
+- [x] **9.4. Active Node Centering & Viewport Glide**:
+  - Wrapped `StudioCanvas` with `ReactFlowProvider` and connected `NodeToolbar` buttons (`Prompt`, `Camera`, `Model`, `Audio`, `Sequencer`).
+  - Clicking any toolbar node button smoothly flies the viewport to that node (`setCenter`, 400ms duration) and selects it.
+  - Added a "Fit Canvas" button (`Maximize` icon) to auto-fit the full node graph in view.  
+  *Proof*: Implemented in [`StudioCanvas.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/StudioCanvas.tsx) and [`NodeToolbar.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/NodeToolbar.tsx).
+- [x] **9.5. Interactive Engine Diagnostics Modal**:
+  - Replaced the static "Local Engine Ready" text with an interactive status button in [`Header.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/UI/Header.tsx).
+  - Opens a diagnostics modal displaying rendering core, audio pipeline, sandbox isolation, and an executable "Run Diagnostics Benchmark" test button.  
+  *Proof*: Implemented in `Header.tsx`; tested in `scripts/test_personas.mjs`.
+- [x] **9.6. Non-Destructive Razor Split at Current Playhead**:
+  - Fixed `splitSceneAtPlayhead` to identify the scene currently under `currentTime`, enabling splitting anywhere on the timeline regardless of prior clip selection.  
+  *Proof*: Tested in `scripts/test_personas.mjs`.
+- [x] **9.7. TTS Script Binding & Multi-Mode Audio Previews**:
+  - Wired user-typed voiceover narration scripts in `AudioNode.tsx` directly into `addCaption(ttsText, 'slam')`.
+  - Added Play/Pause preview buttons for Upload mode, TTS mode, and Preset Stems.  
+  *Proof*: Implemented in [`AudioNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/AudioNode.tsx).
+- [x] **9.8. Interactive Vector Path on Camera Node**:
+  - Added click-to-seek on the miniature 3D trajectory canvas in [`CameraNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/CameraNode.tsx).
+
+
