@@ -30,11 +30,11 @@ async function capture() {
     fullPage: false,
   });
 
-  // Dismiss Walkthrough Modal by clicking Get Started
+  // Dismiss Walkthrough Modal by clicking Enter Studio
   console.log('Dismissing Walkthrough modal...');
   await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button'));
-    const btn = buttons.find(b => b.textContent?.includes('Get Started') || b.textContent?.includes('Dismiss'));
+    const btn = buttons.find(b => b.textContent?.includes('Enter Studio') || b.textContent?.includes('Get Started') || b.textContent?.includes('Dismiss'));
     if (btn) btn.click();
   });
   await new Promise((r) => setTimeout(r, 1200));
@@ -61,7 +61,7 @@ async function capture() {
   // 4. Capture Timeline & Audio Beats
   console.log('Capturing 04_timeline_audio_beats.png ...');
   const timelineHandle = await page.evaluateHandle(() => {
-    return document.querySelector('.h-60') || document.querySelector('.bg-\\[\\#0B0E14\\].border-t');
+    return document.querySelector('.h-64') || document.querySelector('.h-60') || document.querySelector('.border-t.select-none');
   });
   if (timelineHandle.asElement()) {
     await timelineHandle.asElement().screenshot({

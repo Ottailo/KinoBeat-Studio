@@ -1,25 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Film, Download } from 'lucide-react';
-import { Player } from '@remotion/player';
+import { Film, Download, Play, Pause, Maximize2 } from 'lucide-react';
+import { Player, PlayerRef } from '@remotion/player';
 import { KinoComposition } from '../../Player/KinoComposition';
-import { INITIAL_SCENES, INITIAL_CAPTIONS } from '../../../lib/store/studioStore';
-import { BeatMarker } from '../../../lib/audio/beatDetector';
-
-const INITIAL_DEMO_BEATS: BeatMarker[] = [
-  { timestamp: 0.5, energy: 0.9, type: 'kick' },
-  { timestamp: 1.5, energy: 0.8, type: 'snare' },
-  { timestamp: 2.5, energy: 0.9, type: 'kick' },
-  { timestamp: 3.5, energy: 0.8, type: 'snare' },
-  { timestamp: 4.5, energy: 0.9, type: 'kick' },
-  { timestamp: 5.5, energy: 0.8, type: 'snare' },
-  { timestamp: 6.5, energy: 0.9, type: 'kick' },
-  { timestamp: 7.5, energy: 0.8, type: 'snare' },
-  { timestamp: 8.5, energy: 0.9, type: 'kick' },
-  { timestamp: 9.5, energy: 0.8, type: 'snare' },
-];
+import { useStudioStore } from '../../../lib/store/studioStore';
 
 interface RemotionTimelineNodeData {
   label: string;
@@ -29,15 +15,49 @@ interface RemotionTimelineNodeData {
 }
 
 export const RemotionTimelineNode: React.FC<{
+  id: string;
   data: RemotionTimelineNodeData;
-  isSelected?: boolean;
-}> = ({ isSelected }) => {
-  const totalFrames = 300; // 10s at 30fps
+  selected?: boolean;
+}> = ({ selected }) => {
+  const scenes = useStudioStore((s) => s.scenes);
+  const activeCameraCurveId = useStudioStore((s) => s.activeCameraCurveId);
+  const bpm = useStudioStore((s) => s.bpm);
+  const beats = useStudioStore((s) => s.beats);
+  const captions = useStudioStore((s) => s.captions);
+  const currentTime = useStudioStore((s) => s.currentTime);
+  const duration = useStudioStore((s) => s.duration);
+  const isPlaying = useStudioStore((s) => s.isPlaying);
+  const togglePlay = useStudioStore((s) => s.togglePlay);
+  const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
+
+  const playerRef = useRef<PlayerRef>(null);
+
+  // Sync Remotion Player to global currentTime & isPlaying
+  const fps = 30;
+  const totalFrames = Math.max(30, Math.round(duration * fps));
+
+  useEffect(() => {
+    if (!playerRef.current) return;
+    const targetFrame = Math.round(currentTime * fps);
+    // If not playing, seek accurately
+    if (!isPlaying) {
+      playerRef.current.seekTo(targetFrame);
+    }
+  }, [currentTime, isPlaying, fps]);
+
+  useEffect(() => {
+    if (!playerRef.current) return;
+    if (isPlaying) {
+      playerRef.current.play();
+    } else {
+      playerRef.current.pause();
+    }
+  }, [isPlaying]);
 
   return (
     <div
       className={`w-96 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
-        isSelected
+        selected
           ? 'border-cyan-400 ring-1 ring-cyan-400/40'
           : 'border-[#1E2638] hover:border-zinc-700'
       }`}
@@ -48,69 +68,86 @@ export const RemotionTimelineNode: React.FC<{
         position={Position.Left}
         id="model-in"
         style={{ top: '35%' }}
-        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-emerald-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="audio-in"
         style={{ top: '65%' }}
-        className="!bg-zinc-400 hover:!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-pink-400 !w-2.5 !h-2.5 !border-[#12161F]"
       />
 
       {/* Node Header */}
       <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
         <div className="flex items-center gap-2">
-          <Film className="w-3.5 h-3.5 text-zinc-400" />
+          <Film className="w-3.5 h-3.5 text-purple-400" />
           <span className="text-xs font-semibold tracking-wide text-zinc-200">
             Composition Preview
           </span>
         </div>
-        <span className="text-[10px] font-mono text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
-          Remotion 4K
-        </span>
+        <div className="flex items-center gap-1.5 font-mono text-[10px]">
+          <span className="text-cyan-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+            Shot 0{activeSceneIndex + 1}/{scenes.length}
+          </span>
+          <span className="text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+            4K 60fps
+          </span>
+        </div>
       </div>
 
       {/* Embedded Live Remotion Player */}
       <div className="relative aspect-video bg-black overflow-hidden border-b border-[#1E2638]">
         <Player
+          ref={playerRef}
           component={KinoComposition}
           inputProps={{
-            scenes: INITIAL_SCENES,
-            cameraCurveId: 'orbital_drift',
-            bpm: 120,
-            beats: INITIAL_DEMO_BEATS,
-            captions: INITIAL_CAPTIONS,
+            scenes,
+            cameraCurveId: activeCameraCurveId,
+            bpm,
+            beats,
+            captions,
           }}
           durationInFrames={totalFrames}
-          fps={30}
+          fps={fps}
           compositionWidth={1920}
           compositionHeight={1080}
           style={{ width: '100%', height: '100%' }}
-          controls
+          controls={false}
           autoPlay={false}
           loop
           acknowledgeRemotionLicense
         />
+
+        {/* Quick Play/Pause Overlay button on hover */}
+        <div className="absolute bottom-2 left-2 flex items-center gap-1.5 z-30">
+          <button
+            type="button"
+            onClick={togglePlay}
+            className="p-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-sm transition-colors border border-white/10"
+            title={isPlaying ? 'Pause' : 'Play'}
+          >
+            {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+          </button>
+          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/60 text-zinc-300 backdrop-blur-sm">
+            {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
+          </span>
+        </div>
       </div>
 
       {/* Node Controls Footer */}
       <div className="p-2.5 bg-[#0D1119] flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2 text-zinc-400 text-[11px]">
-          <span>10.0s</span>
-          <span className="text-zinc-600">/</span>
-          <span>30 FPS</span>
-          <span className="text-zinc-600">/</span>
-          <span className="text-zinc-300">1920×1080</span>
+          <span>{scenes.length} Shots</span>
+          <span>·</span>
+          <span>{duration.toFixed(1)}s Total</span>
+          <span>·</span>
+          <span className="text-cyan-400">{bpm} BPM</span>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 text-[11px] font-sans font-medium transition-colors"
-        >
-          <Download className="w-3 h-3 text-cyan-400" />
-          <span>Export Master</span>
-        </button>
+        <div className="text-[11px] text-zinc-500">
+          Remotion Engine
+        </div>
       </div>
     </div>
   );

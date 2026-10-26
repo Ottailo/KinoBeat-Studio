@@ -6,13 +6,8 @@ import {
   Background,
   Controls,
   MiniMap,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  Connection,
-  Edge,
-  Node,
   BackgroundVariant,
+  Node,
 } from '@xyflow/react';
 
 import { PromptNode } from './nodes/PromptNode';
@@ -21,7 +16,7 @@ import { ModelNode } from './nodes/ModelNode';
 import { AudioNode } from './nodes/AudioNode';
 import { RemotionTimelineNode } from './nodes/RemotionTimelineNode';
 import { NodeToolbar } from './NodeToolbar';
-import { INITIAL_NODES, INITIAL_EDGES } from '../../lib/store/studioStore';
+import { useStudioStore } from '../../lib/store/studioStore';
 
 const nodeTypes = {
   promptNode: PromptNode,
@@ -32,94 +27,46 @@ const nodeTypes = {
 };
 
 export const StudioCanvas: React.FC = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(INITIAL_NODES);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(INITIAL_EDGES);
+  const nodes = useStudioStore((s) => s.nodes);
+  const edges = useStudioStore((s) => s.edges);
+  const onNodesChange = useStudioStore((s) => s.onNodesChange);
+  const onEdgesChange = useStudioStore((s) => s.onEdgesChange);
+  const onConnect = useStudioStore((s) => s.onConnect);
+  const addNode = useStudioStore((s) => s.addNode);
+  const removeNode = useStudioStore((s) => s.removeNode);
+  const setSelectedNodeId = useStudioStore((s) => s.setSelectedNodeId);
+  const loadPresetWorkflow = useStudioStore((s) => s.loadPresetWorkflow);
 
-  const onConnect = useCallback(
-    (params: Connection) =>
-      setEdges((eds) =>
-        addEdge(
-          {
-            ...params,
-            animated: true,
-            style: { stroke: '#3E4D6D', strokeWidth: 2 },
-          },
-          eds
-        )
-      ),
-    [setEdges]
+  const handleAddNode = useCallback(
+    (type: 'promptNode' | 'cameraNode' | 'modelNode' | 'audioNode' | 'timelineNode') => {
+      addNode(type);
+    },
+    [addNode]
   );
 
-  const handleAddNode = (type: 'promptNode' | 'cameraNode' | 'modelNode' | 'audioNode' | 'timelineNode') => {
-    const id = `node-${type}-${Date.now()}`;
-    const xPos = 180 + Math.random() * 200;
-    const yPos = 120 + Math.random() * 200;
-
-    const newNode: Node = {
-      id,
-      type,
-      position: { x: xPos, y: yPos },
-      data: {
-        label: type.toUpperCase(),
-        ...(type === 'promptNode' && {
-          subject: 'Architectural interior of an obsidian brutalist gallery with diffused volumetric skylight',
-          action: 'camera smoothly tracking past floating kinetic sculptures',
-          look: '35mm Anamorphic, ARRI Alexa LF',
-          soulId: 'EX-900',
-          negativePrompt: 'blurry, distorted, watermarks',
-        }),
-        ...(type === 'cameraNode' && {
-          presetId: 'orbital_drift',
-          name: '360° Orbital Drift',
-          category: 'Arc / Orbit',
-          speedRamp: 1.0,
-          focalLength: '35mm',
-        }),
-        ...(type === 'modelNode' && {
-          modelId: 'flux_video',
-          resolution: '1080p',
-          aspectRatio: '16:9',
-          fps: 30,
-          cfg: 4.5,
-          steps: 35,
-        }),
-        ...(type === 'audioNode' && {
-          trackId: 'cyberpunk-neon-drift',
-          title: 'Neon Drift 2088',
-          bpm: 120,
-          energy: 0.90,
-          isSynthesizing: false,
-        }),
-        ...(type === 'timelineNode' && {
-          duration: 10,
-          sceneCount: 3,
-          renderEngine: 'Remotion 4.x',
-        }),
-      },
-    };
-
-    setNodes((nds) => nds.concat(newNode));
-  };
-
-  const handleLoadPreset = (presetKey: string) => {
-    if (presetKey === 'cyberpunk_reel') {
-      setNodes(INITIAL_NODES);
-      setEdges(INITIAL_EDGES);
-    }
-  };
+  const handleLoadPreset = useCallback(
+    (presetKey: string) => {
+      loadPresetWorkflow(presetKey);
+    },
+    [loadPresetWorkflow]
+  );
 
   return (
     <div className="relative w-full h-full bg-[#0B0E14]">
-      {/* Sleek Top Toolbar */}
+      {/* Sleek Top Studio Toolbar */}
       <NodeToolbar onAddNode={handleAddNode} onLoadPreset={handleLoadPreset} />
 
-      {/* React Flow Canvas */}
+      {/* Fully Reactive React Flow Canvas */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={(_, node) => setSelectedNodeId(node.id)}
+        onPaneClick={() => setSelectedNodeId(null)}
+        onNodesDelete={(deleted) => deleted.forEach((n) => removeNode(n.id))}
+        deleteKeyCode={['Backspace', 'Delete']}
         nodeTypes={nodeTypes}
         fitView
         colorMode="dark"
@@ -134,10 +81,25 @@ export const StudioCanvas: React.FC = () => {
         />
         <Controls position="bottom-left" showInteractive={false} />
         <MiniMap
-          nodeColor={() => '#1E2638'}
-          maskColor="rgba(11, 14, 20, 0.8)"
+          nodeColor={(node) => {
+            switch (node.type) {
+              case 'promptNode':
+                return '#38BDF8';
+              case 'cameraNode':
+                return '#F59E0B';
+              case 'modelNode':
+                return '#10B981';
+              case 'audioNode':
+                return '#EC4899';
+              case 'timelineNode':
+                return '#8B5CF6';
+              default:
+                return '#1E2638';
+            }
+          }}
+          maskColor="rgba(11, 14, 20, 0.85)"
           position="bottom-right"
-          style={{ width: 130, height: 80, backgroundColor: '#0B0E14' }}
+          style={{ width: 140, height: 85, backgroundColor: '#0B0E14', border: '1px solid #1E2638', borderRadius: '8px' }}
         />
       </ReactFlow>
     </div>

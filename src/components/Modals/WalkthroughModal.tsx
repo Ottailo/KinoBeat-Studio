@@ -7,7 +7,7 @@ interface WalkthroughModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenByok: () => void;
-  onOpenExport: () => void;
+  onOpenExport?: () => void;
 }
 
 interface StepItem {
@@ -67,11 +67,13 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       title: '5. Frame-Accurate Scrub & 4K Export',
       desc: 'Scrub the Remotion multi-track timeline at 60 FPS, check kinetic typography synchronization, and render high-res MP4 masters.',
       icon: <Film className="w-4 h-4 text-zinc-400" />,
-      actionText: 'Open Export',
-      onAction: () => {
-        onClose();
-        onOpenExport();
-      },
+      ...(onOpenExport && {
+        actionText: 'Open Export',
+        onAction: () => {
+          onClose();
+          onOpenExport();
+        },
+      }),
     },
   ];
 
@@ -98,7 +100,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#161B26]">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-200">
+            <div className="p-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-cyan-400">
               <Compass className="w-4 h-4" />
             </div>
             <div>
@@ -106,73 +108,87 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 Welcome to KinoBeat Studio
               </h2>
               <p className="text-[11px] text-zinc-400">
-                Industrial Generative AI Video & Infinite Canvas Architecture
+                Interactive Onboarding & Architecture Guide
               </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={handleDismiss}
+            onClick={onClose}
             className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Progress Tracker */}
-        <div className="px-5 py-3 bg-[#0D1119] border-b border-[#1E2638] flex items-center justify-between text-xs">
-          <span className="text-zinc-400 font-medium">
-            Setup Progress: <strong className="text-zinc-200">{progressCount} of {steps.length} completed</strong>
-          </span>
-          <span className="text-[11px] font-mono text-cyan-400">{progressPercent}%</span>
+        {/* Progress Bar */}
+        <div className="px-5 py-2.5 bg-[#0D1119] border-b border-[#1E2638] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-zinc-400">Setup Progress:</span>
+            <span className="font-mono text-cyan-400 font-medium">
+              {progressCount} / {steps.length} Steps
+            </span>
+          </div>
+          <div className="w-32 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-cyan-400 transition-all duration-300"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
-        {/* Checklist Steps */}
+        {/* Steps List */}
         <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
           {steps.map((s) => {
             const isDone = !!completedSteps[s.id];
+
             return (
               <div
                 key={s.id}
-                className={`p-3 rounded-lg border transition-all ${
+                onClick={() => toggleStep(s.id)}
+                className={`p-3 rounded-lg border transition-all cursor-pointer flex items-start gap-3 ${
                   isDone
-                    ? 'bg-[#141923] border-[#1E2638]'
-                    : 'bg-[#0F131C] border-[#1A2232] hover:border-zinc-700'
+                    ? 'bg-[#161B26]/60 border-[#1E2638]'
+                    : 'bg-[#0D1119] border-zinc-800 hover:border-zinc-700'
                 }`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={() => toggleStep(s.id)}
-                    className="flex items-start gap-2.5 text-left flex-1"
-                  >
-                    <div className="mt-0.5 shrink-0 text-zinc-400 hover:text-cyan-400 transition-colors">
-                      {isDone ? (
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                      ) : (
-                        <Circle className="w-4 h-4 text-zinc-600" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="text-xs font-medium text-zinc-200 flex items-center gap-2">
-                        <span>{s.title}</span>
-                      </div>
-                      <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
-                        {s.desc}
-                      </p>
-                    </div>
-                  </button>
-
-                  {s.actionText && (
-                    <button
-                      type="button"
-                      onClick={s.onAction}
-                      className="shrink-0 text-[11px] font-mono px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition-colors flex items-center gap-1"
-                    >
-                      <span>{s.actionText}</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
+                <button
+                  type="button"
+                  className="mt-0.5 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
+                >
+                  {isDone ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  ) : (
+                    <Circle className="w-4 h-4 text-zinc-600" />
                   )}
+                </button>
+
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-xs font-semibold ${
+                        isDone ? 'text-zinc-300' : 'text-zinc-100'
+                      }`}
+                    >
+                      {s.title}
+                    </span>
+                    {s.actionText && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          s.onAction?.();
+                        }}
+                        className="text-[11px] text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 hover:underline ml-2"
+                      >
+                        <span>{s.actionText}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    {s.desc}
+                  </p>
                 </div>
               </div>
             );
@@ -180,16 +196,20 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#161B26] border-t border-[#1E2638] flex items-center justify-between">
-          <span className="text-[11px] text-zinc-500 font-mono">
-            Press [?] anytime in header to re-open guide
-          </span>
+        <div className="px-5 py-3 border-t border-[#1E2638] bg-[#161B26] flex items-center justify-between">
           <button
             type="button"
             onClick={handleDismiss}
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+          >
+            Don&apos;t show again on startup
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
             className="px-4 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-xs transition-colors"
           >
-            Get Started
+            Enter Studio
           </button>
         </div>
       </div>

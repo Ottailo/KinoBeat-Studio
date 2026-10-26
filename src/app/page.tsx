@@ -7,31 +7,25 @@ import { MultiTrackTimeline } from '../components/Timeline/MultiTrackTimeline';
 import { ExportModal } from '../components/Export/ExportModal';
 import { ByokModal } from '../components/Modals/ByokModal';
 import { WalkthroughModal } from '../components/Modals/WalkthroughModal';
-import { INITIAL_SCENES, INITIAL_CAPTIONS } from '../lib/store/studioStore';
-import { BeatMarker, beatDetector } from '../lib/audio/beatDetector';
+import { useStudioStore } from '../lib/store/studioStore';
+import { beatDetector } from '../lib/audio/beatDetector';
 import { synthesizeAudioTrack } from '../lib/audio/audioSynthesizer';
 
 export default function StudioPage() {
-  // Playback & Timeline State
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(10);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [bpm, setBpm] = useState(120);
-  const [beats, setBeats] = useState<BeatMarker[]>([
-    { timestamp: 0.5, energy: 0.95, type: 'kick' },
-    { timestamp: 1.5, energy: 0.82, type: 'snare' },
-    { timestamp: 2.5, energy: 0.95, type: 'kick' },
-    { timestamp: 3.5, energy: 0.82, type: 'snare' },
-    { timestamp: 4.5, energy: 0.95, type: 'kick' },
-    { timestamp: 5.5, energy: 0.82, type: 'snare' },
-    { timestamp: 6.5, energy: 0.95, type: 'kick' },
-    { timestamp: 7.5, energy: 0.82, type: 'snare' },
-    { timestamp: 8.5, energy: 0.95, type: 'kick' },
-    { timestamp: 9.5, energy: 0.82, type: 'snare' },
-  ]);
+  const currentTime = useStudioStore((s) => s.currentTime);
+  const duration = useStudioStore((s) => s.duration);
+  const isPlaying = useStudioStore((s) => s.isPlaying);
+  const activeTrackId = useStudioStore((s) => s.activeTrackId);
+  const isMuted = useStudioStore((s) => s.isMuted);
+
+  const seekTo = useStudioStore((s) => s.seekTo);
+  const togglePlay = useStudioStore((s) => s.togglePlay);
+  const setIsPlaying = useStudioStore((s) => s.setIsPlaying);
+  const toggleMute = useStudioStore((s) => s.toggleMute);
+  const stepFrame = useStudioStore((s) => s.stepFrame);
+  const setBeatsAndBpm = useStudioStore((s) => s.setBeatsAndBpm);
 
   // Audio Context & Playback node refs
-  const [isMuted, setIsMuted] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -53,33 +47,56 @@ export default function StudioPage() {
     }
   }, []);
 
-  // Initialize Audio Synthesis on first load
+  // Global Keyboard Shortcuts (Space for Play/Pause, Left/Right for Step)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in a textarea or input
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement)?.tagName)) {
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        stepFrame(-1);
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        stepFrame(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePlay, stepFrame]);
+
+  // Preload and analyze audio on mount
   useEffect(() => {
     let isMounted = true;
     const initAudio = async () => {
       try {
         const ctx = beatDetector.getOrCreateContext();
         audioContextRef.current = ctx;
-        const buffer = await synthesizeAudioTrack('cyberpunk-neon-drift', ctx);
+        const buffer = await synthesizeAudioTrack(activeTrackId, ctx);
         if (isMounted) {
           audioBufferRef.current = buffer;
           const analysis = await beatDetector.analyzeBuffer(buffer);
-          setBpm(analysis.bpm);
           if (analysis.beats.length > 0) {
-            setBeats(analysis.beats);
+            setBeatsAndBpm(analysis.beats, analysis.bpm, activeTrackId);
           }
         }
       } catch (err) {
-        console.warn('Initial audio preload deferred until interaction:', err);
+        console.warn('Initial audio preload deferred:', err);
       }
     };
     initAudio();
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [activeTrackId, setBeatsAndBpm]);
 
-  // Playback Loop
+  // Audio Playback Transport Loop
   useEffect(() => {
     if (isPlaying) {
       playbackStartRef.current = performance.now() - currentTime * 1000;
@@ -93,138 +110,91 @@ export default function StudioPage() {
           const src = audioContextRef.current.createBufferSource();
           src.buffer = audioBufferRef.current;
           src.connect(audioContextRef.current.destination);
-          src.start(0, currentTime);
+          src.start(0, Math.max(0, currentTime));
           activeSourceRef.current = src;
         } catch (e) {
           console.warn('Audio playback start exception:', e);
         }
       }
 
-      const loop = () => {
-        const elapsed = (performance.now() - playbackStartRef.current) / 1000;
-        if (elapsed >= duration) {
-          setCurrentTime(0);
+      const updateFrame = () => {
+        const elapsedSec = (performance.now() - playbackStartRef.current) / 1000;
+        if (elapsedSec >= duration) {
+          seekTo(0);
           setIsPlaying(false);
-          if (activeSourceRef.current) {
-            activeSourceRef.current.stop();
-            activeSourceRef.current = null;
-          }
-        } else {
-          setCurrentTime(elapsed);
-          animFrameRef.current = requestAnimationFrame(loop);
+          try {
+            activeSourceRef.current?.stop();
+          } catch {}
+          return;
         }
+        seekTo(elapsedSec);
+        animFrameRef.current = requestAnimationFrame(updateFrame);
       };
 
-      animFrameRef.current = requestAnimationFrame(loop);
+      animFrameRef.current = requestAnimationFrame(updateFrame);
     } else {
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
       }
-      if (activeSourceRef.current) {
-        try {
-          activeSourceRef.current.stop();
-        } catch {}
+      try {
+        activeSourceRef.current?.stop();
         activeSourceRef.current = null;
-      }
+      } catch {}
     }
 
     return () => {
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
       }
-      if (activeSourceRef.current) {
-        try {
-          activeSourceRef.current.stop();
-        } catch {}
+      try {
+        activeSourceRef.current?.stop();
         activeSourceRef.current = null;
-      }
+      } catch {}
     };
-  }, [isPlaying, isMuted, duration]);
-
-  // Keyboard Shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) {
-        return;
-      }
-
-      if (e.code === 'Space') {
-        e.preventDefault();
-        setIsPlaying((prev) => !prev);
-      } else if (e.code === 'KeyJ') {
-        setCurrentTime((prev) => Math.max(0, prev - 1.0));
-      } else if (e.code === 'KeyL') {
-        setCurrentTime((prev) => Math.min(duration, prev + 1.0));
-      } else if (e.code === 'Home') {
-        setCurrentTime(0);
-      } else if (e.code === 'KeyE') {
-        setIsExportOpen(true);
-      } else if (e.key === '?') {
-        setIsGuideOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [duration]);
+  }, [isPlaying, isMuted, duration, seekTo, setIsPlaying]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0B0E14] text-zinc-100 font-sans">
-      {/* Top Header */}
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0B0E14] text-zinc-100 font-sans select-none">
+      {/* Sleek Top Studio Header */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
         onOpenByok={() => setIsByokOpen(true)}
         onOpenGuide={() => setIsGuideOpen(true)}
         isMuted={isMuted}
-        onToggleMute={() => setIsMuted(!isMuted)}
+        onToggleMute={toggleMute}
       />
 
-      {/* Main Workspace (Canvas Area) */}
+      {/* Main Studio Work Area: Infinite Reactive Canvas */}
       <main className="flex-1 relative overflow-hidden">
         <StudioCanvas />
       </main>
 
-      {/* Dockable Multi-Track Bottom Sequencer */}
-      <MultiTrackTimeline
-        currentTime={currentTime}
-        duration={duration}
-        isPlaying={isPlaying}
-        bpm={bpm}
-        scenes={INITIAL_SCENES}
-        beats={beats}
-        captions={INITIAL_CAPTIONS}
-        onSeek={(time) => {
-          setCurrentTime(time);
-          if (isPlaying) {
-            playbackStartRef.current = performance.now() - time * 1000;
-          }
-        }}
-        onTogglePlay={() => setIsPlaying(!isPlaying)}
-        onReset={() => {
-          setCurrentTime(0);
-          setIsPlaying(false);
-        }}
-      />
+      {/* Bottom Docked Multi-Track Timeline */}
+      <MultiTrackTimeline />
 
-      {/* Export & Render Modal */}
+      {/* Modals & Dialogs */}
       <ExportModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}
         duration={duration}
       />
 
-      {/* BYOK Keys Configuration Modal */}
       <ByokModal
         isOpen={isByokOpen}
         onClose={() => setIsByokOpen(false)}
       />
 
-      {/* Interactive Onboarding Walkthrough */}
       <WalkthroughModal
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
-        onOpenByok={() => setIsByokOpen(true)}
-        onOpenExport={() => setIsExportOpen(true)}
+        onOpenByok={() => {
+          setIsGuideOpen(false);
+          setIsByokOpen(true);
+        }}
+        onOpenExport={() => {
+          setIsGuideOpen(false);
+          setIsExportOpen(true);
+        }}
       />
     </div>
   );
