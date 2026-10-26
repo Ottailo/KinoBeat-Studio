@@ -92,7 +92,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ['#F8FAFC', '#E2E8F0', '#F59E0B'],
+        colors: ['#FFFFFF', '#FF5500', '#21242E'],
       });
     } catch (err: any) {
       if (err.name === 'AbortError') {
@@ -149,12 +149,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 select-none">
-      <div className="w-full max-w-lg rounded-xl bg-[#12151C] border border-white/[0.12] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 select-none">
+      <div className="w-full max-w-lg rounded-xl bg-[#191B22] border border-white/[0.12] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#181C26]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#21242E]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0E1017] border border-white/[0.08] flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-[#0D0E12] border border-white/[0.08] flex items-center justify-center text-[#FF5500]">
               <Film className="w-4 h-4" />
             </div>
             <div>
@@ -181,7 +181,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
           {renderedResult ? (
             /* Export Success View with Embedded Video Player */
             <div className="space-y-4">
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-[#181C26] border border-white/[0.12] text-zinc-200">
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-[#21242E] border border-white/[0.12] text-zinc-200">
                 <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
                   <div className="font-medium text-white text-xs">Master Video Render Complete</div>
@@ -204,21 +204,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
 
               {/* Render Metadata */}
               <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-                <div className="p-2.5 rounded-lg bg-[#0E1017] border border-white/[0.08]">
+                <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-white/[0.08]">
                   <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">Resolution</div>
                   <div className="font-medium text-zinc-200 mt-0.5">
                     {renderedResult.width}×{renderedResult.height}
                   </div>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#0E1017] border border-white/[0.08]">
+                <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-white/[0.08]">
                   <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">Duration</div>
                   <div className="font-medium text-zinc-200 mt-0.5">
                     {renderedResult.duration.toFixed(2)}s
                   </div>
                 </div>
-                <div className="p-2.5 rounded-lg bg-[#0E1017] border border-white/[0.08]">
+                <div className="p-2.5 rounded-lg bg-[#0D0E12] border border-white/[0.08]">
                   <div className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">File Size</div>
-                  <div className="font-medium text-emerald-400 mt-0.5">
+                  <div className="font-medium text-[#FF5500] mt-0.5 font-bold">
                     {(renderedResult.blob.size / (1024 * 1024)).toFixed(2)} MB
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                 <button
                   type="button"
                   onClick={handleDownloadVideo}
-                  className="w-full py-2.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-98 ring-1 ring-amber-400/30"
+                  className="w-full py-2.5 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5500]/20 cursor-pointer active:scale-98"
                 >
                   <Download className="w-4 h-4 stroke-[2]" />
                   <span>Download Master Video ({renderedResult.mimeType.includes('mp4') ? '.mp4' : '.webm'})</span>
@@ -239,7 +239,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   <button
                     type="button"
                     onClick={handleDownloadEdl}
-                    className="flex-1 py-2 rounded-md bg-[#181C26] hover:bg-[#202533] border border-white/[0.08] text-zinc-200 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="flex-1 py-2 rounded-md bg-[#21242E] hover:bg-[#2b2f3c] border border-white/[0.08] text-zinc-200 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <FileCode className="w-3.5 h-3.5 text-zinc-400" />
                     <span>Export EDL Manifest</span>
@@ -248,7 +248,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   <button
                     type="button"
                     onClick={() => setRenderedResult(null)}
-                    className="py-2 px-3.5 rounded-md bg-[#181C26] hover:bg-[#202533] border border-white/[0.08] text-zinc-300 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="py-2 px-3.5 rounded-md bg-[#21242E] hover:bg-[#2b2f3c] border border-white/[0.08] text-zinc-300 hover:text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     title="Configure & Re-render"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
@@ -279,8 +279,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                         onClick={() => setResolution(res.id as any)}
                         className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
                           resolution === res.id
-                            ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
-                            : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
+                            ? 'bg-[#21242E] border-[#FF5500] text-[#FF5500] font-bold shadow-sm'
+                            : 'bg-[#0D0E12] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
                         }`}
                       >
                         <div className="text-xs font-medium">{res.label}</div>
@@ -307,8 +307,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                         onClick={() => setFps(f.fpsVal as any)}
                         className={`py-2 px-3 rounded-lg border text-xs text-left transition-all cursor-pointer ${
                           fps === f.fpsVal
-                            ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
-                            : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
+                            ? 'bg-[#21242E] border-[#FF5500] text-[#FF5500] font-bold shadow-sm'
+                            : 'bg-[#0D0E12] border-white/[0.08] text-zinc-400 hover:text-zinc-200'
                         }`}
                       >
                         {f.label}
@@ -318,14 +318,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                 </div>
 
                 {/* Composition Summary */}
-                <div className="p-3 rounded-lg bg-[#0E1017] border border-white/[0.08] text-xs font-mono space-y-1.5">
+                <div className="p-3 rounded-lg bg-[#0D0E12] border border-white/[0.08] text-xs font-mono space-y-1.5">
                   <div className="flex justify-between text-zinc-400">
                     <span>Scene Shots:</span>
                     <span className="text-zinc-200 font-medium">{scenes.length} Clips</span>
                   </div>
                   <div className="flex justify-between text-zinc-400">
                     <span>Kinetic Titles:</span>
-                    <span className="text-amber-300 font-medium">{captions.length} Cues</span>
+                    <span className="text-[#FF5500] font-medium">{captions.length} Cues</span>
                   </div>
                   <div className="flex justify-between text-zinc-400">
                     <span>Timeline Duration:</span>
@@ -349,15 +349,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   <div className="space-y-2 pt-2">
                     <div className="flex items-center justify-between text-xs font-mono">
                       <span className="text-zinc-200 flex items-center gap-1.5 font-medium">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF5500]" />
                         <span>{currentStep}</span>
                       </span>
-                      <span className="text-amber-300 font-medium">{progress}%</span>
+                      <span className="text-[#FF5500] font-medium">{progress}%</span>
                     </div>
 
-                    <div className="w-full h-1.5 rounded-full bg-[#0E1017] overflow-hidden border border-white/[0.08]">
+                    <div className="w-full h-1.5 rounded-full bg-[#0D0E12] overflow-hidden border border-white/[0.08]">
                       <div
-                        className="h-full bg-amber-400 transition-all duration-150"
+                        className="h-full bg-[#FF5500] transition-all duration-150"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -370,7 +370,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                     <button
                       type="button"
                       onClick={handleCancelRender}
-                      className="w-full py-2.5 rounded-md bg-[#181C26] hover:bg-[#202533] text-zinc-300 font-medium text-xs transition-colors border border-white/[0.08] cursor-pointer"
+                      className="w-full py-2.5 rounded-md bg-[#21242E] hover:bg-[#2b2f3c] text-zinc-300 font-medium text-xs transition-colors border border-white/[0.08] cursor-pointer"
                     >
                       Cancel Render
                     </button>
@@ -378,7 +378,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                     <button
                       type="button"
                       onClick={handleStartRender}
-                      className="w-full py-2.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-98 ring-1 ring-amber-400/30"
+                      className="w-full py-2.5 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-white font-semibold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-[#FF5500]/25 cursor-pointer active:scale-98"
                     >
                       <Film className="w-4 h-4 stroke-[2]" />
                       <span>Start Master 4K Video Render</span>

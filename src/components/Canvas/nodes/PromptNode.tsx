@@ -87,17 +87,17 @@ export const PromptNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-xl bg-[#131620] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#191B22] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-amber-400/80 ring-1 ring-amber-400/30 shadow-black/90'
+          ? 'border-[#FF5500]/80 ring-1 ring-[#FF5500]/30 shadow-black/90'
           : 'border-white/[0.08] hover:border-white/20'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#181C26] border-b border-white/[0.08]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#21242E] border-b border-white/[0.08]">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-[#0E1017] border border-white/[0.08] flex items-center justify-center">
-            <Type className="w-3 h-3 text-amber-400" />
+          <div className="w-5 h-5 rounded-md bg-[#0D0E12] border border-white/[0.08] flex items-center justify-center">
+            <Type className="w-3 h-3 text-[#FF5500]" />
           </div>
           <span className="text-xs font-semibold tracking-tight text-white font-display">
             Prompt Core
@@ -107,13 +107,13 @@ export const PromptNode: React.FC<{
           <button
             type="button"
             onClick={handleEnhancePrompt}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#202533] hover:bg-[#283042] text-[10px] text-amber-300 font-mono transition-colors border border-amber-400/30 cursor-pointer"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#2a2e3c] hover:bg-[#34394a] text-[10px] text-[#FF5500] font-mono transition-colors border border-[#FF5500]/30 cursor-pointer"
             title="Auto-enhance with cinematic modifiers"
           >
-            <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+            <Sparkles className="w-2.5 h-2.5 text-[#FF5500]" />
             <span>Enhance</span>
           </button>
-          <span className="text-[10px] font-mono text-zinc-400 bg-[#0E1017] px-1.5 py-0.5 rounded border border-white/[0.08]">
+          <span className="text-[10px] font-mono text-zinc-400 bg-[#0D0E12] px-1.5 py-0.5 rounded border border-white/[0.08]">
             {estimatedTokens} tkn
           </span>
         </div>
@@ -131,7 +131,7 @@ export const PromptNode: React.FC<{
             value={subject}
             onChange={(e) => handleSubjectChange(e.target.value)}
             placeholder="Describe subject, wardrobe, and primary elements..."
-            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-amber-400/60 transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-[#FF5500]/60 transition-colors resize-none leading-relaxed"
           />
         </div>
 
@@ -145,7 +145,7 @@ export const PromptNode: React.FC<{
             value={action}
             onChange={(e) => handleActionChange(e.target.value)}
             placeholder="Describe kinetic movements and physical actions..."
-            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-amber-400/60 transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-[#FF5500]/60 transition-colors resize-none leading-relaxed"
           />
         </div>
 
@@ -157,7 +157,7 @@ export const PromptNode: React.FC<{
           <select
             value={look}
             onChange={(e) => handleLookChange(e.target.value)}
-            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 cursor-pointer font-medium"
+            className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#FF5500]/60 cursor-pointer font-medium"
           >
             {LOOK_PRESETS.map((p) => (
               <option key={p.id} value={p.prompt}>
@@ -173,7 +173,7 @@ export const PromptNode: React.FC<{
             <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400">
               Anamorphic Aspect Ratio
             </span>
-            <span className="text-[10px] text-amber-300 font-mono font-semibold">{aspectRatio}</span>
+            <span className="text-[10px] text-[#FF5500] font-mono font-semibold">{aspectRatio}</span>
           </div>
           <div className="grid grid-cols-4 gap-1.5">
             {ASPECT_RATIOS.map((ratio) => (
@@ -183,8 +183,8 @@ export const PromptNode: React.FC<{
                 onClick={() => handleAspectRatioChange(ratio)}
                 className={`py-1 text-[11px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                   aspectRatio === ratio
-                    ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
-                    : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
+                    ? 'bg-[#21242E] border-[#FF5500]/60 text-[#FF5500] font-bold shadow-sm'
+                    : 'bg-[#0D0E12] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
                 }`}
               >
                 {ratio}
@@ -217,7 +217,7 @@ export const PromptNode: React.FC<{
                 updateNodeData(id, { negativePrompt: e.target.value });
               }}
               placeholder="Elements to avoid (e.g. blurry, watermarks, morphing)..."
-              className="mt-2 w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-amber-400/60 resize-none leading-relaxed"
+              className="mt-2 w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-[#FF5500]/60 resize-none leading-relaxed"
             />
           )}
         </div>
@@ -228,7 +228,7 @@ export const PromptNode: React.FC<{
         type="source"
         position={Position.Right}
         id="prompt-out"
-        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#0C0D12] hover:!bg-amber-400"
+        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#121317] hover:!bg-[#FF5500]"
       />
     </div>
   );

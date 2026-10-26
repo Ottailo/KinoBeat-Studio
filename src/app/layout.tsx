@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className="antialiased bg-[#0C0D12] text-[#F8FAFC] overflow-hidden selection:bg-amber-500/25 selection:text-amber-200">
+      <body className="antialiased bg-[#121317] text-[#FFFFFF] overflow-hidden selection:bg-[#FF5500]/30 selection:text-white">
         {children}
       </body>
     </html>

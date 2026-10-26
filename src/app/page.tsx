@@ -6,6 +6,8 @@ import { StudioCanvas } from '../components/Canvas/StudioCanvas';
 import { MultiTrackTimeline } from '../components/Timeline/MultiTrackTimeline';
 import { CinemaDirectorView } from '../components/Player/CinemaDirectorView';
 import { TimelineSuiteView } from '../components/Timeline/TimelineSuiteView';
+import { ShowcaseView } from '../components/Showcase/ShowcaseView';
+import { WorkflowsView } from '../components/Showcase/WorkflowsView';
 import { ExportModal } from '../components/Export/ExportModal';
 import { ByokModal } from '../components/Modals/ByokModal';
 import { WalkthroughModal } from '../components/Modals/WalkthroughModal';
@@ -197,7 +199,7 @@ export default function StudioPage() {
   }, [audioVolume, isMuted]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0C0D12] text-zinc-100 font-sans select-none">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#121317] text-zinc-100 font-sans select-none">
       {/* Sleek Top Studio Header */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
@@ -226,6 +228,18 @@ export default function StudioPage() {
       {workspaceView === 'timeline' && (
         <main className="flex-1 relative overflow-hidden flex flex-col">
           <TimelineSuiteView />
+        </main>
+      )}
+
+      {workspaceView === 'showcase' && (
+        <main className="flex-1 relative overflow-hidden flex flex-col">
+          <ShowcaseView />
+        </main>
+      )}
+
+      {workspaceView === 'workflows' && (
+        <main className="flex-1 relative overflow-hidden flex flex-col">
+          <WorkflowsView />
         </main>
       )}
 

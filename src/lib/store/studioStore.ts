@@ -55,8 +55,8 @@ export interface MediaAsset {
 
 export interface StudioStore {
   // Workspace Layout Mode
-  workspaceView: 'canvas' | 'director' | 'timeline';
-  setWorkspaceView: (view: 'canvas' | 'director' | 'timeline') => void;
+  workspaceView: 'canvas' | 'director' | 'timeline' | 'showcase' | 'workflows';
+  setWorkspaceView: (view: 'canvas' | 'director' | 'timeline' | 'showcase' | 'workflows') => void;
 
   // Graph Canvas
   nodes: Node[];

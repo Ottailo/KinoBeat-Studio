@@ -37,12 +37,12 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-md rounded-xl bg-[#12151C] border border-white/10 shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+      <div className="w-full max-w-md rounded-xl bg-[#191B22] border border-white/10 shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#151922]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#21242E]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0E1017] border border-white/[0.08] flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-[#0D0E12] border border-white/[0.08] flex items-center justify-center text-[#FF5500]">
               <Key className="w-4 h-4" />
             </div>
             <div>
@@ -64,8 +64,8 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Security Notice */}
-        <div className="px-5 py-2.5 bg-[#0E1017] border-b border-white/[0.08] flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
-          <Shield className="w-3.5 h-3.5 text-amber-500/80 shrink-0" />
+        <div className="px-5 py-2.5 bg-[#0D0E12] border-b border-white/[0.08] flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+          <Shield className="w-3.5 h-3.5 text-[#FF5500] shrink-0" />
           <span>Zero Server Relay: API keys are used directly for client-side model requests.</span>
         </div>
 
@@ -80,7 +80,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
               value={falKey}
               onChange={(e) => setFalKey(e.target.value)}
               placeholder="fal_key_..."
-              className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder:text-zinc-600"
+              className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF5500]/60 focus:ring-1 focus:ring-[#FF5500]/20 transition-all placeholder:text-zinc-600"
             />
           </div>
 
@@ -93,7 +93,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
               value={higgsfieldKey}
               onChange={(e) => setHiggsfieldKey(e.target.value)}
               placeholder="hf_..."
-              className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder:text-zinc-600"
+              className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF5500]/60 focus:ring-1 focus:ring-[#FF5500]/20 transition-all placeholder:text-zinc-600"
             />
           </div>
 
@@ -106,7 +106,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
               value={replicateKey}
               onChange={(e) => setReplicateKey(e.target.value)}
               placeholder="r8_..."
-              className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/20 transition-all placeholder:text-zinc-600"
+              className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg p-2.5 text-xs text-white font-mono focus:outline-none focus:border-[#FF5500]/60 focus:ring-1 focus:ring-[#FF5500]/20 transition-all placeholder:text-zinc-600"
             />
           </div>
 
@@ -123,7 +123,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 bg-[#151922] border-t border-white/[0.08] flex justify-end gap-2">
+        <div className="px-5 py-3.5 bg-[#21242E] border-t border-white/[0.08] flex justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
@@ -134,7 +134,7 @@ export const ByokModal: React.FC<ByokModalProps> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={handleSave}
-            className="px-4 py-1.5 rounded-md bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer active:scale-98"
+            className="px-4 py-1.5 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-white font-semibold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-[#FF5500]/25 cursor-pointer active:scale-98"
           >
             {isSaved ? <Check className="w-3.5 h-3.5 stroke-[2]" /> : null}
             <span>{isSaved ? 'Saved Locally' : 'Save Keys'}</span>

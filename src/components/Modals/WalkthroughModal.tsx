@@ -135,12 +135,12 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   const progressPercent = Math.round((progressCount / steps.length) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-lg rounded-xl bg-[#12151C] border border-white/10 shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
+      <div className="w-full max-w-lg rounded-xl bg-[#191B22] border border-white/10 shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#151922]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#21242E]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#0E1017] border border-white/[0.08] flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-[#0D0E12] border border-white/[0.08] flex items-center justify-center text-[#FF5500]">
               <Compass className="w-4 h-4" />
             </div>
             <div>
@@ -162,16 +162,16 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Progress Bar */}
-        <div className="px-5 py-2.5 bg-[#0E1017] border-b border-white/[0.08] flex items-center justify-between text-xs font-mono">
+        <div className="px-5 py-2.5 bg-[#0D0E12] border-b border-white/[0.08] flex items-center justify-between text-xs font-mono">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Progress:</span>
             <span className="text-zinc-200 font-medium">
               {progressCount} / {steps.length} Personas Explored
             </span>
           </div>
-          <div className="w-32 h-1.5 bg-[#151922] rounded-full overflow-hidden border border-white/[0.08]">
+          <div className="w-32 h-1.5 bg-[#21242E] rounded-full overflow-hidden border border-white/[0.08]">
             <div
-              className="h-full bg-amber-400 transition-all duration-300"
+              className="h-full bg-[#FF5500] transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -188,8 +188,8 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 onClick={() => toggleStep(s.id)}
                 className={`p-3 rounded-lg border transition-all cursor-pointer flex items-start gap-3 ${
                   isDone
-                    ? 'bg-[#151922] border-amber-500/30'
-                    : 'bg-[#0E1017] border-white/[0.06] hover:border-white/20'
+                    ? 'bg-[#21242E] border-[#FF5500]/40'
+                    : 'bg-[#0D0E12] border-white/[0.06] hover:border-white/20'
                 }`}
               >
                 <button
@@ -201,7 +201,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                   className="mt-0.5 text-zinc-400 hover:text-white transition-colors shrink-0 cursor-pointer"
                 >
                   {isDone ? (
-                    <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                    <CheckCircle2 className="w-4 h-4 text-[#FF5500]" />
                   ) : (
                     <Circle className="w-4 h-4 text-zinc-600" />
                   )}
@@ -226,7 +226,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                           e.stopPropagation();
                           s.onAction?.();
                         }}
-                        className="text-[11px] text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 hover:underline ml-2 cursor-pointer font-mono"
+                        className="text-[11px] text-[#FF5500] hover:text-[#FF7733] font-medium flex items-center gap-1 hover:underline ml-2 cursor-pointer font-mono"
                       >
                         <span>{s.actionText}</span>
                         <ArrowRight className="w-3 h-3" />
@@ -243,7 +243,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 border-t border-white/[0.08] bg-[#151922] flex items-center justify-between">
+        <div className="px-5 py-3.5 border-t border-white/[0.08] bg-[#21242E] flex items-center justify-between">
           <button
             type="button"
             onClick={handleDismiss}
@@ -254,7 +254,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs transition-all shadow-sm cursor-pointer active:scale-98"
+            className="px-4 py-2 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-white font-semibold text-xs transition-all shadow-md shadow-[#FF5500]/25 cursor-pointer active:scale-98"
           >
             Enter Studio
           </button>

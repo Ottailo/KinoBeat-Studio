@@ -89,7 +89,7 @@ async function runPersonaTestSuite() {
 
   // Test Timecode ruler scrubbing
   await page.evaluate(() => {
-    const ruler = document.querySelector('.bg-\\[\\#0E121B\\].border-b');
+    const ruler = document.querySelector('.bg-\\[\\#0E1017\\].border-b, .bg-\\[\\#0E121B\\].border-b, [data-testid="timeline-ruler"]');
     if (ruler) {
       const rect = ruler.getBoundingClientRect();
       const down = new PointerEvent('pointerdown', { clientX: rect.left + 150, clientY: rect.top + 10, bubbles: true });
@@ -386,6 +386,70 @@ async function runPersonaTestSuite() {
     fullPage: false,
   });
   console.log('✓ Captured persona_5_export_master_player.png');
+
+  // Close export modal
+  await page.evaluate(() => {
+    const closeBtn = document.querySelector('.fixed.inset-0 button');
+    if (closeBtn) closeBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+
+  // ==========================================
+  // WEBSITE VIEWS & SHOWCASE CAPTURE
+  // ==========================================
+  console.log('\n[Website Views] Capturing all 5 redesigned workstation views...');
+
+  // 1. Showcase & AI Reels Archive
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const reelsBtn = buttons.find((b) => b.textContent?.includes('Reels'));
+    if (reelsBtn) reelsBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1200));
+  await page.screenshot({
+    path: path.join(outDir, 'view_showcase_reels.png'),
+    fullPage: false,
+  });
+  console.log('✓ Captured view_showcase_reels.png');
+
+  // 2. Personas & Workflow Matrix
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const workflowsBtn = buttons.find((b) => b.textContent?.includes('Personas'));
+    if (workflowsBtn) workflowsBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1200));
+  await page.screenshot({
+    path: path.join(outDir, 'view_creator_workflows.png'),
+    fullPage: false,
+  });
+  console.log('✓ Captured view_creator_workflows.png');
+
+  // 3. Cinema Director Studio View
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const directorBtn = buttons.find((b) => b.textContent?.includes('Director'));
+    if (directorBtn) directorBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1200));
+  await page.screenshot({
+    path: path.join(outDir, 'view_cinema_director.png'),
+    fullPage: false,
+  });
+  console.log('✓ Captured view_cinema_director.png');
+
+  // 4. NLE Timeline Suite View
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const timelineBtn = buttons.find((b) => b.textContent?.includes('Timeline'));
+    if (timelineBtn) timelineBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1200));
+  await page.screenshot({
+    path: path.join(outDir, 'view_timeline_suite.png'),
+    fullPage: false,
+  });
+  console.log('✓ Captured view_timeline_suite.png');
 
   console.log('\n--- ALL 5 PERSONAS TESTED SUCCESSFULLY WITH REAL VIDEO RENDER! ---');
   await browser.close();

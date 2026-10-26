@@ -65,9 +65,9 @@ export const ModelNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-xl bg-[#131620] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#191B22] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-amber-400/80 ring-1 ring-amber-400/30 shadow-black/90'
+          ? 'border-[#FF5500]/80 ring-1 ring-[#FF5500]/30 shadow-black/90'
           : 'border-white/[0.08] hover:border-white/20'
       }`}
     >
@@ -77,27 +77,27 @@ export const ModelNode: React.FC<{
         position={Position.Left}
         id="prompt-in"
         style={{ top: '28%' }}
-        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#0C0D12] hover:!bg-amber-400"
+        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#121317] hover:!bg-[#FF5500]"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="camera-in"
         style={{ top: '72%' }}
-        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#0C0D12] hover:!bg-amber-400"
+        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#121317] hover:!bg-[#FF5500]"
       />
 
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#181C26] border-b border-white/[0.08]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#21242E] border-b border-white/[0.08]">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-[#0E1017] border border-white/[0.08] flex items-center justify-center">
-            <Cpu className="w-3 h-3 text-amber-400" />
+          <div className="w-5 h-5 rounded-md bg-[#0D0E12] border border-white/[0.08] flex items-center justify-center">
+            <Cpu className="w-3 h-3 text-[#FF5500]" />
           </div>
           <span className="text-xs font-semibold tracking-tight text-white font-display">
             DiT Latent Engine
           </span>
         </div>
-        <span className="text-[10px] font-mono text-zinc-400 bg-[#0E1017] px-1.5 py-0.5 rounded border border-white/[0.08]">
+        <span className="text-[10px] font-mono text-zinc-400 bg-[#0D0E12] px-1.5 py-0.5 rounded border border-white/[0.08]">
           {currentModel.version}
         </span>
       </div>
@@ -112,7 +112,7 @@ export const ModelNode: React.FC<{
           <select
             value={modelId}
             onChange={(e) => handleModelChange(e.target.value)}
-            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 font-medium cursor-pointer"
+            className="w-full bg-[#0D0E12] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#FF5500]/60 font-medium cursor-pointer"
           >
             {Object.values(VIDEO_MODELS).map((m) => (
               <option key={m.id} value={m.id}>
@@ -135,8 +135,8 @@ export const ModelNode: React.FC<{
                 onClick={() => handleResolutionChange(res)}
                 className={`py-1 text-[11px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                   resolution === res
-                    ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
-                    : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
+                    ? 'bg-[#21242E] border-[#FF5500]/60 text-[#FF5500] font-bold shadow-sm'
+                    : 'bg-[#0D0E12] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
                 }`}
               >
                 {res}
@@ -161,7 +161,7 @@ export const ModelNode: React.FC<{
             step={0.5}
             value={cfg}
             onChange={(e) => handleCfgChange(parseFloat(e.target.value))}
-            className="w-full h-1.5 bg-[#0E1017] rounded-lg appearance-none cursor-pointer accent-amber-400 border border-white/[0.08]"
+            className="w-full h-1.5 bg-[#0D0E12] rounded-lg appearance-none cursor-pointer accent-[#FF5500] border border-white/[0.08]"
           />
         </div>
 
@@ -178,7 +178,7 @@ export const ModelNode: React.FC<{
             step={5}
             value={steps}
             onChange={(e) => handleStepsChange(parseInt(e.target.value, 10))}
-            className="w-full h-1.5 bg-[#0E1017] rounded-lg appearance-none cursor-pointer accent-amber-400 border border-white/[0.08]"
+            className="w-full h-1.5 bg-[#0D0E12] rounded-lg appearance-none cursor-pointer accent-[#FF5500] border border-white/[0.08]"
           />
         </div>
 
@@ -191,7 +191,7 @@ export const ModelNode: React.FC<{
           <button
             type="button"
             onClick={handleRandomizeSeed}
-            className="flex items-center gap-1 text-[11px] font-mono text-zinc-300 hover:text-white hover:bg-[#181C26] px-2 py-0.5 rounded border border-white/[0.08] transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-mono text-zinc-300 hover:text-white hover:bg-[#21242E] px-2 py-0.5 rounded border border-white/[0.08] transition-colors cursor-pointer"
           >
             <Shuffle className="w-3 h-3 text-zinc-400" />
             <span>Randomize</span>
@@ -203,16 +203,16 @@ export const ModelNode: React.FC<{
           type="button"
           onClick={() => generateActiveScene()}
           disabled={isGeneratingVideo}
-          className="w-full py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer active:scale-98 ring-1 ring-amber-400/30"
+          className="w-full py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer active:scale-98 font-mono"
         >
           {isGeneratingVideo ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
               <span>Generating DiT Latents ({generationProgress}%)...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+              <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
               <span>Generate Video Shot</span>
             </>
           )}
@@ -224,7 +224,7 @@ export const ModelNode: React.FC<{
         type="source"
         position={Position.Right}
         id="model-out"
-        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#0C0D12] hover:!bg-amber-400"
+        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#121317] hover:!bg-[#FF5500]"
       />
     </div>
   );
