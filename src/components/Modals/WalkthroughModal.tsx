@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Circle,
   Compass,
-  Video,
   Sparkles,
   Music,
   Type,
@@ -40,7 +39,6 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   onOpenExport,
 }) => {
   const addCaption = useStudioStore((s) => s.addCaption);
-  const setCameraCurve = useStudioStore((s) => s.setCameraCurve);
 
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({
     'step-1': true,
@@ -55,7 +53,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       persona: 'Persona 1 // Solo Creator',
       title: '1. Custom Media Import (MP4/PNG)',
       desc: 'Import your own video files or images via "+ Add Shot" -> "Upload Custom Media" with real timeline scrubbing and zero AI dependencies.',
-      icon: <Upload className="w-4 h-4 text-cyan-400" />,
+      icon: <Upload className="w-4 h-4 text-zinc-300" />,
       actionText: 'Add Shot',
       onAction: () => {
         useStudioStore.getState().addScene();
@@ -67,7 +65,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       persona: 'Persona 2 // AI Filmmaker',
       title: '2. Multi-Model DiT Inference',
       desc: 'Chain Prompt Core with 6-DOF cinematography curves into Wan 2.1 or Flux Pro engines for high-fidelity generative video.',
-      icon: <Sparkles className="w-4 h-4 text-emerald-400" />,
+      icon: <Sparkles className="w-4 h-4 text-zinc-300" />,
       actionText: 'BYOK API Keys',
       onAction: () => {
         onClose();
@@ -79,7 +77,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       persona: 'Persona 3 // Music Producer',
       title: '3. Real Web Audio FFT Beat Detection',
       desc: 'Upload an MP3/WAV backing track. The Web Audio FFT engine decodes true RMS energy and kick transients, auto-snapping cuts to the beat.',
-      icon: <Music className="w-4 h-4 text-pink-400" />,
+      icon: <Music className="w-4 h-4 text-zinc-300" />,
       actionText: 'Load Audio Stem',
       onAction: () => {
         useStudioStore.getState().setBeatsAndBpm(
@@ -96,7 +94,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       persona: 'Persona 4 // Kinetic Typographer',
       title: '4. Dynamic In-Place Title Editing',
       desc: 'Double-click any title block on Track T1 to edit text in-place, or open the Title Inspector to calibrate spring motion presets and colors.',
-      icon: <Type className="w-4 h-4 text-amber-400" />,
+      icon: <Type className="w-4 h-4 text-zinc-300" />,
       actionText: 'Spawn Title',
       onAction: () => {
         addCaption();
@@ -108,7 +106,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
       persona: 'Persona 5 // Brand Marketer',
       title: '5. Optical Camera Curves & 4K Master Export',
       desc: 'Apply Vertigo dolly zooms, orbital arcs, or FPV dives, then compile master H.264 video streams or DaVinci Resolve EDL timelines.',
-      icon: <Film className="w-4 h-4 text-purple-400" />,
+      icon: <Film className="w-4 h-4 text-zinc-300" />,
       ...(onOpenExport && {
         actionText: 'Open Export',
         onAction: () => {
@@ -138,49 +136,49 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="w-full max-w-lg rounded-xl bg-[#0D1117] border border-[#1A2130] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
+      <div className="w-full max-w-lg rounded-xl bg-[#10141B] border border-[#1E2535] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A2130] bg-[#151B24]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1C2331] bg-[#141A24]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#080A0F] border border-[#1A2130] flex items-center justify-center text-cyan-400">
+            <div className="w-8 h-8 rounded-lg bg-[#090B0E] border border-[#1E2535] flex items-center justify-center text-zinc-200">
               <Compass className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold tracking-tight text-white font-display">
+              <h2 className="text-sm font-semibold tracking-tight text-white font-display">
                 Welcome to KinoBeat Studio
               </h2>
               <p className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider">
-                5-Persona Architecture & Interactive Directing Guide
+                5-Persona Architecture & Workflow Guide
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-[#1E2638] transition-colors cursor-pointer"
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-[#1E2535] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="px-5 py-2.5 bg-[#080A0F] border-b border-[#1A2130] flex items-center justify-between text-xs font-mono">
+        <div className="px-5 py-2.5 bg-[#090B0E] border-b border-[#1C2331] flex items-center justify-between text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Setup Progress:</span>
-            <span className="text-cyan-400 font-bold">
+            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Progress:</span>
+            <span className="text-zinc-200 font-medium">
               {progressCount} / {steps.length} Personas Explored
             </span>
           </div>
-          <div className="w-32 h-1.5 bg-[#151B24] rounded-full overflow-hidden border border-[#1A2130]">
+          <div className="w-32 h-1.5 bg-[#161C26] rounded-full overflow-hidden border border-[#1C2331]">
             <div
-              className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 transition-all duration-300"
+              className="h-full bg-zinc-200 transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>
 
         {/* Steps List */}
-        <div className="p-5 space-y-3 max-h-[60vh] overflow-y-auto">
+        <div className="p-5 space-y-2.5 max-h-[60vh] overflow-y-auto">
           {steps.map((s) => {
             const isDone = !!completedSteps[s.id];
 
@@ -190,8 +188,8 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 onClick={() => toggleStep(s.id)}
                 className={`p-3 rounded-lg border transition-all cursor-pointer flex items-start gap-3 ${
                   isDone
-                    ? 'bg-[#151B24]/50 border-[#1A2130]'
-                    : 'bg-[#080A0F] border-[#1A2130] hover:border-[#2A354C]'
+                    ? 'bg-[#141A24]/60 border-[#1C2331]'
+                    : 'bg-[#090B0E] border-[#1C2331] hover:border-[#2C384E]'
                 }`}
               >
                 <button
@@ -210,12 +208,12 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 </button>
 
                 <div className="flex-1 space-y-1">
-                  <div className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
+                  <div className="text-[10px] font-mono text-zinc-400 font-medium uppercase tracking-wider">
                     {s.persona}
                   </div>
                   <div className="flex items-center justify-between">
                     <span
-                      className={`text-xs font-semibold ${
+                      className={`text-xs font-medium ${
                         isDone ? 'text-zinc-300' : 'text-white'
                       }`}
                     >
@@ -228,7 +226,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                           e.stopPropagation();
                           s.onAction?.();
                         }}
-                        className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 hover:underline ml-2 cursor-pointer font-mono"
+                        className="text-[11px] text-zinc-300 hover:text-white font-medium flex items-center gap-1 hover:underline ml-2 cursor-pointer font-mono"
                       >
                         <span>{s.actionText}</span>
                         <ArrowRight className="w-3 h-3" />
@@ -245,7 +243,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 border-t border-[#1A2130] bg-[#151B24] flex items-center justify-between">
+        <div className="px-5 py-3.5 border-t border-[#1C2331] bg-[#141A24] flex items-center justify-between">
           <button
             type="button"
             onClick={handleDismiss}
@@ -256,7 +254,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-[#00E5FF] hover:from-cyan-300 hover:to-cyan-400 text-[#080A0F] font-bold text-xs transition-all shadow-md shadow-cyan-950/40 cursor-pointer"
+            className="px-4 py-2 rounded-md bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition-all shadow-sm cursor-pointer active:scale-98"
           >
             Enter Studio
           </button>

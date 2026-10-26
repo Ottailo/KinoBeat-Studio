@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Cpu, Dna, Shuffle, Sparkles, Loader2, Check } from 'lucide-react';
+import { Cpu, Dna, Shuffle, Sparkles, Loader2 } from 'lucide-react';
 import { VIDEO_MODELS } from '../../../lib/models/modelRegistry';
 import { useStudioStore } from '../../../lib/store/studioStore';
 
@@ -65,10 +65,10 @@ export const ModelNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-xl bg-[#0D1117] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#10141B] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-emerald-400 ring-1 ring-emerald-400/40 shadow-emerald-950/20'
-          : 'border-[#1A2130] hover:border-[#2A354C]'
+          ? 'border-zinc-400 ring-1 ring-zinc-500/30 shadow-black/80'
+          : 'border-[#1E2535] hover:border-[#2C384E]'
       }`}
     >
       {/* Input Handles for Prompt and Camera */}
@@ -77,32 +77,27 @@ export const ModelNode: React.FC<{
         position={Position.Left}
         id="prompt-in"
         style={{ top: '28%' }}
-        className="!bg-cyan-400 !w-2.5 !h-2.5 !border-[#0D1117]"
+        className="!bg-[#475569] !w-2.5 !h-2.5 !border-[#090B0E] hover:!bg-zinc-200"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="camera-in"
         style={{ top: '72%' }}
-        className="!bg-amber-400 !w-2.5 !h-2.5 !border-[#0D1117]"
+        className="!bg-[#475569] !w-2.5 !h-2.5 !border-[#090B0E] hover:!bg-zinc-200"
       />
 
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#151B24] border-b border-[#1A2130]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141A24] border-b border-[#1C2331]">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-[#080A0F] border border-[#1A2130] flex items-center justify-center">
-            <Cpu className="w-3 h-3 text-emerald-400" />
+          <div className="w-5 h-5 rounded-md bg-[#090B0E] border border-[#1E2535] flex items-center justify-center">
+            <Cpu className="w-3 h-3 text-zinc-300" />
           </div>
-          <div>
-            <span className="text-xs font-semibold tracking-wide text-zinc-100">
-              DiT Latent Engine
-            </span>
-            <span className="text-[9px] font-mono text-zinc-500 block leading-none">
-              DIFFUSION TRANSFORMER
-            </span>
-          </div>
+          <span className="text-xs font-medium tracking-tight text-zinc-100">
+            DiT Latent Engine
+          </span>
         </div>
-        <span className="text-[10px] font-mono text-emerald-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130]">
+        <span className="text-[10px] font-mono text-zinc-400 bg-[#090B0E] px-1.5 py-0.5 rounded border border-[#1C2331]">
           {currentModel.version}
         </span>
       </div>
@@ -111,13 +106,13 @@ export const ModelNode: React.FC<{
       <div className="p-3.5 space-y-3 text-xs">
         {/* Model Selector */}
         <div>
-          <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1">
             Diffusion Model Backbone
           </label>
           <select
             value={modelId}
             onChange={(e) => handleModelChange(e.target.value)}
-            className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-emerald-400 font-medium cursor-pointer"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] font-medium cursor-pointer"
           >
             {Object.values(VIDEO_MODELS).map((m) => (
               <option key={m.id} value={m.id}>
@@ -129,7 +124,7 @@ export const ModelNode: React.FC<{
 
         {/* Quality Selector Pills */}
         <div>
-          <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">
+          <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1.5">
             Raster Output Resolution
           </label>
           <div className="grid grid-cols-3 gap-1.5">
@@ -140,8 +135,8 @@ export const ModelNode: React.FC<{
                 onClick={() => handleResolutionChange(res)}
                 className={`py-1 text-[11px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                   resolution === res
-                    ? 'bg-[#151B24] border-emerald-400 text-emerald-300 font-bold shadow-sm'
-                    : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-zinc-200 hover:border-[#2A354C]'
+                    ? 'bg-[#182130] border-zinc-400 text-white font-medium shadow-sm'
+                    : 'bg-[#090B0E] border-[#1C2331] text-zinc-400 hover:text-zinc-200 hover:border-[#2C384E]'
                 }`}
               >
                 {res}
@@ -152,12 +147,12 @@ export const ModelNode: React.FC<{
 
         {/* CFG Guidance Scale Slider */}
         <div>
-          <div className="flex items-center justify-between text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+          <div className="flex items-center justify-between text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1">
             <span className="flex items-center gap-1.5">
               <Dna className="w-3 h-3 text-zinc-500" />
               <span>CFG Guidance Scale</span>
             </span>
-            <span className="font-mono text-emerald-400">{cfg.toFixed(1)}</span>
+            <span className="font-mono text-zinc-200 font-medium">{cfg.toFixed(1)}</span>
           </div>
           <input
             type="range"
@@ -166,15 +161,15 @@ export const ModelNode: React.FC<{
             step={0.5}
             value={cfg}
             onChange={(e) => handleCfgChange(parseFloat(e.target.value))}
-            className="w-full h-1.5 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-emerald-400 border border-[#1A2130]"
+            className="w-full h-1.5 bg-[#090B0E] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1C2331]"
           />
         </div>
 
         {/* Denoise Steps Slider */}
         <div>
-          <div className="flex items-center justify-between text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+          <div className="flex items-center justify-between text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1">
             <span>Denoising Iterations</span>
-            <span className="font-mono text-emerald-400">{steps} iters</span>
+            <span className="font-mono text-zinc-200 font-medium">{steps} iters</span>
           </div>
           <input
             type="range"
@@ -183,41 +178,41 @@ export const ModelNode: React.FC<{
             step={5}
             value={steps}
             onChange={(e) => handleStepsChange(parseInt(e.target.value, 10))}
-            className="w-full h-1.5 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-emerald-400 border border-[#1A2130]"
+            className="w-full h-1.5 bg-[#090B0E] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1C2331]"
           />
         </div>
 
         {/* Seed & Randomizer */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#1A2130]">
+        <div className="flex items-center justify-between pt-2 border-t border-[#1C2331]">
           <div className="flex items-center gap-1.5 font-mono text-[11px] text-zinc-400">
             <span>Seed:</span>
-            <span className="text-zinc-200 font-semibold">{seed}</span>
+            <span className="text-zinc-200 font-medium">{seed}</span>
           </div>
           <button
             type="button"
             onClick={handleRandomizeSeed}
-            className="flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-[#151B24] px-2 py-0.5 rounded border border-[#1A2130] transition-colors cursor-pointer"
+            className="flex items-center gap-1 text-[11px] font-mono text-zinc-400 hover:text-white hover:bg-[#161C26] px-2 py-0.5 rounded border border-[#1C2331] transition-colors cursor-pointer"
           >
             <Shuffle className="w-3 h-3 text-zinc-500" />
             <span>Randomize</span>
           </button>
         </div>
 
-        {/* Real Generation Action Button */}
+        {/* Real Generation Action Button (Impeccable High-Contrast Pro Studio Button) */}
         <button
           type="button"
           onClick={() => generateActiveScene()}
           disabled={isGeneratingVideo}
-          className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[#080A0F] font-bold text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 disabled:opacity-50 cursor-pointer"
+          className="w-full py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer active:scale-98"
         >
           {isGeneratingVideo ? (
             <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-950" />
               <span>Generating DiT Latents ({generationProgress}%)...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3.5 h-3.5 text-zinc-950" />
               <span>Generate Video Shot</span>
             </>
           )}
@@ -229,7 +224,7 @@ export const ModelNode: React.FC<{
         type="source"
         position={Position.Right}
         id="model-out"
-        className="!bg-emerald-400 !w-2.5 !h-2.5 !border-[#0D1117]"
+        className="!bg-[#475569] !w-2.5 !h-2.5 !border-[#090B0E] hover:!bg-zinc-200"
       />
     </div>
   );

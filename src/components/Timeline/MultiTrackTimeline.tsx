@@ -447,10 +447,10 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={togglePlay}
-            className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 text-[#080A0F] font-bold transition-all shadow-md shadow-cyan-950/40 cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-zinc-100 hover:bg-white text-zinc-950 font-medium transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Play / Pause (Space)"
           >
-            {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 ml-0.5 fill-current" />}
+            {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 ml-0.5 fill-current" />}
           </button>
 
           {/* Step Forward 1 Frame */}
@@ -464,8 +464,8 @@ export const MultiTrackTimeline: React.FC = () => {
           </button>
 
           {/* Master Timecode Readout */}
-          <div className="font-mono text-xs px-2.5 py-1 rounded-md bg-[#080A0F] border border-[#1A2130] text-zinc-200 flex items-center gap-1 smpte-timecode">
-            <span className="text-cyan-400 font-bold">{formatTimecode(currentTime)}</span>
+          <div className="font-mono text-xs px-2.5 py-1 rounded-md bg-[#090B0E] border border-[#1C2331] text-zinc-200 flex items-center gap-1 smpte-timecode">
+            <span className="text-zinc-100 font-semibold">{formatTimecode(currentTime)}</span>
             <span className="text-zinc-600">/</span>
             <span className="text-zinc-400">{formatTimecode(duration)}</span>
           </div>
@@ -474,19 +474,19 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={splitSceneAtPlayhead}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#161C26] hover:bg-[#202737] text-zinc-200 hover:text-white text-xs font-medium border border-[#242E40] transition-colors cursor-pointer"
             title="Split Clip at Playhead (Cut)"
           >
-            <Scissors className="w-3.5 h-3.5 text-cyan-400" />
+            <Scissors className="w-3.5 h-3.5 text-zinc-300" />
             <span>Split Clip</span>
           </button>
 
           {/* BPM & FPS Badge */}
           <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
-            <span className="px-2 py-0.5 rounded bg-[#080A0F] border border-[#1A2130] text-zinc-300">
+            <span className="px-2 py-0.5 rounded bg-[#090B0E] border border-[#1C2331] text-zinc-300">
               {bpm.toFixed(1)} BPM
             </span>
-            <span className="px-2 py-0.5 rounded bg-[#080A0F] border border-[#1A2130] text-zinc-400">
+            <span className="px-2 py-0.5 rounded bg-[#090B0E] border border-[#1C2331] text-zinc-400">
               30 FPS
             </span>
           </div>
@@ -497,12 +497,12 @@ export const MultiTrackTimeline: React.FC = () => {
             onClick={toggleBeatSnap}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-mono border transition-all cursor-pointer ${
               autoBeatSnap
-                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-bold shadow-sm'
-                : 'bg-[#080A0F] border-[#1A2130] text-zinc-500 hover:text-zinc-300'
+                ? 'bg-[#182130] border-zinc-400 text-white font-medium shadow-sm'
+                : 'bg-[#090B0E] border-[#1C2331] text-zinc-400 hover:text-zinc-200'
             }`}
             title="Magnet-snap playhead and edits to nearest kick transient"
           >
-            <Magnet className="w-3 h-3 text-cyan-400" />
+            <Magnet className="w-3 h-3 text-zinc-300" />
             <span>Beat Snap: {autoBeatSnap ? 'ON' : 'OFF'}</span>
           </button>
         </div>
@@ -513,14 +513,14 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsAssetBinOpen(!isAssetBinOpen)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-all cursor-pointer ${
               isAssetBinOpen
-                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 shadow-sm'
-                : 'bg-[#151B24] hover:bg-[#1E2638] border-[#222C40] text-zinc-200'
+                ? 'bg-[#182130] border-zinc-400 text-white shadow-sm'
+                : 'bg-[#161C26] hover:bg-[#202737] border-[#242E40] text-zinc-200'
             }`}
             title="Toggle Left Asset Bin / Media Library"
           >
-            <FolderOpen className="w-3.5 h-3.5 text-cyan-400" />
+            <FolderOpen className="w-3.5 h-3.5 text-zinc-300" />
             <span>Media Bin ({mediaAssets.length})</span>
           </button>
 
@@ -529,23 +529,23 @@ export const MultiTrackTimeline: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsAddShotMenuOpen(!isAddShotMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#161C26] hover:bg-[#202737] text-zinc-200 hover:text-white text-xs font-medium border border-[#242E40] transition-colors cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5 text-cyan-400" />
+              <Plus className="w-3.5 h-3.5 text-zinc-300" />
               <span>Add Shot</span>
             </button>
 
             {isAddShotMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#0D1117] border border-[#1E2638] rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#10141B] border border-[#1E2535] rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-100">
                 <button
                   type="button"
                   onClick={() => {
                     fileInputRef.current?.click();
                     setIsAddShotMenuOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#151B24] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#161C26] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
                 >
-                  <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                  <Upload className="w-3.5 h-3.5 text-zinc-300" />
                   <div>
                     <div className="font-semibold text-xs text-white">Upload Custom Media</div>
                     <div className="text-[10px] text-zinc-500 font-mono">MP4, WebM, PNG, JPEG</div>
@@ -558,9 +558,9 @@ export const MultiTrackTimeline: React.FC = () => {
                     addScene();
                     setIsAddShotMenuOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#151B24] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#161C26] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-zinc-300" />
                   <div>
                     <div className="font-semibold text-xs text-white">Generate with AI</div>
                     <div className="text-[10px] text-zinc-500 font-mono">DiT Wan / Flux sequence</div>
@@ -574,9 +574,9 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => addCaption()}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#161C26] hover:bg-[#202737] text-zinc-200 hover:text-white text-xs font-medium border border-[#242E40] transition-colors cursor-pointer"
           >
-            <Type className="w-3.5 h-3.5 text-pink-400" />
+            <Type className="w-3.5 h-3.5 text-zinc-300" />
             <span>Add Title</span>
           </button>
 
@@ -1079,19 +1079,19 @@ export const MultiTrackTimeline: React.FC = () => {
               })}
             </div>
 
-            {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM (Zero Math.sin fake) */}
+            {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM */}
             <div className="h-16 p-1 relative flex items-center">
               <div className="w-full h-10 flex items-end gap-[2px]">
                 {audioWaveform.map((val, i) => (
                   <div
                     key={i}
-                    className="flex-1 rounded-xs bg-gradient-to-t from-emerald-600 to-cyan-400 transition-all duration-150"
+                    className="flex-1 rounded-xs bg-zinc-600 hover:bg-zinc-400 transition-all duration-150"
                     style={{ height: `${Math.max(12, val * (isMuted ? 0.15 : audioVolume) * 100)}%` }}
                   />
                 ))}
               </div>
 
-              {/* Vertical Beat Marker Ticks (Cyan for kick, Pink for snare) */}
+              {/* Vertical Beat Marker Ticks */}
               {beats.map((beat, i) => {
                 const posPct = (beat.timestamp / duration) * 100;
                 const isKick = beat.type === 'kick';
@@ -1100,8 +1100,8 @@ export const MultiTrackTimeline: React.FC = () => {
                   <div
                     key={i}
                     style={{ left: `${posPct}%` }}
-                    className={`absolute top-0 bottom-0 w-[1.5px] pointer-events-none ${
-                      isKick ? 'bg-cyan-400 opacity-90' : 'bg-pink-400 opacity-70'
+                    className={`absolute top-0 bottom-0 w-[1px] pointer-events-none ${
+                      isKick ? 'bg-zinc-400 opacity-60' : 'bg-zinc-600 opacity-30'
                     }`}
                     title={`${beat.type.toUpperCase()} @ ${beat.timestamp.toFixed(2)}s`}
                   />
@@ -1112,9 +1112,9 @@ export const MultiTrackTimeline: React.FC = () => {
             {/* Smooth Playhead Scrubber with Drag Grip */}
             <div
               style={{ left: `${playheadPercent}%` }}
-              className="absolute top-0 bottom-0 w-[2px] bg-cyan-400 pointer-events-none z-30 transition-transform duration-75"
+              className="absolute top-0 bottom-0 w-[2px] bg-white pointer-events-none z-30 transition-transform duration-75"
             >
-              <div className="w-3.5 h-3.5 bg-cyan-400 -ml-[6px] -mt-1 rotate-45 rounded-[1px] shadow-lg shadow-cyan-400/60 border border-white" />
+              <div className="w-3 h-3 bg-white -ml-[5px] -mt-1 rotate-45 rounded-[1px] shadow-md border border-zinc-900" />
             </div>
           </div>
         </div>
@@ -1420,14 +1420,14 @@ export const MultiTrackTimeline: React.FC = () => {
             </div>
 
             {/* Shot Actions Footer */}
-            <div className="pt-2.5 border-t border-[#1A2130] space-y-2 shrink-0">
+            <div className="pt-2.5 border-t border-[#1C2331] space-y-2 shrink-0">
               <button
                 type="button"
                 onClick={() => generateActiveScene()}
                 disabled={isGeneratingVideo}
-                className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[#080A0F] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 disabled:opacity-50 cursor-pointer"
+                className="w-full py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50 cursor-pointer active:scale-98"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-3.5 h-3.5 text-zinc-950" />
                 <span>{isGeneratingVideo ? 'Generating AI Shot...' : 'Regenerate AI Shot'}</span>
               </button>
 

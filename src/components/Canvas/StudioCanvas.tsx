@@ -67,7 +67,7 @@ const StudioCanvasInner: React.FC = () => {
   );
 
   return (
-    <div className="relative w-full h-full bg-[#080A0F] studio-film-grain select-none">
+    <div className="relative w-full h-full bg-[#090B0E] studio-film-grain select-none">
       {/* Floating Studio Nodes Toolbar */}
       <NodeToolbar
         onAddNode={handleFocusOrAddNode}
@@ -96,39 +96,39 @@ const StudioCanvasInner: React.FC = () => {
           variant={BackgroundVariant.Dots}
           gap={24}
           size={1.2}
-          color="#161E2E"
+          color="#161F2E"
         />
         <Controls
           position="bottom-left"
           showInteractive={false}
-          className="!bg-[#0D1117] !border-[#1A2130] !shadow-xl"
+          className="!bg-[#10141B] !border-[#1C2331] !shadow-xl"
         />
         <MiniMap
           nodeColor={(node) => {
             switch (node.type) {
               case 'promptNode':
-                return '#00F0FF';
+                return '#475569';
               case 'cameraNode':
-                return '#FFB800';
+                return '#64748B';
               case 'modelNode':
-                return '#10B981';
+                return '#94A3B8';
               case 'audioNode':
-                return '#F43F5E';
+                return '#64748B';
               case 'timelineNode':
-                return '#A855F7';
+                return '#CBD5E1';
               default:
-                return '#1E2638';
+                return '#1E2535';
             }
           }}
-          maskColor="rgba(8, 10, 15, 0.88)"
+          maskColor="rgba(9, 11, 14, 0.90)"
           position="bottom-right"
           style={{
-            width: 145,
-            height: 90,
-            backgroundColor: '#080A0F',
-            border: '1px solid #1A2130',
-            borderRadius: '10px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+            width: 140,
+            height: 88,
+            backgroundColor: '#090B0E',
+            border: '1px solid #1C2331',
+            borderRadius: '8px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}
         />
       </ReactFlow>

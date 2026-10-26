@@ -4,34 +4,32 @@
 
 @layer base {
   :root {
-    /* Studio Obsidian Neutral Scale (OKLCH tinted toward cool graphite) */
-    --bg-canvas: #080A0F;
-    --bg-surface: #0D1117;
-    --bg-elevated: #151B24;
-    --bg-input: #0A0D13;
-    --bg-glass: rgba(13, 17, 23, 0.88);
+    /* Taste & Impeccable Design System: Obsidian Neutral Ground */
+    --bg-canvas: #090B0E;
+    --bg-surface: #10141B;
+    --bg-elevated: #161C26;
+    --bg-input: #0B0E14;
+    --bg-glass: rgba(16, 20, 27, 0.94);
 
-    /* High-Precision Borders */
-    --border-subtle: #1A2130;
-    --border-medium: #222C40;
-    --border-strong: #2E3A52;
-    --border-focus: #3E4D6D;
+    /* Hairline Restrained Borders */
+    --border-subtle: #1C2331;
+    --border-medium: #242E40;
+    --border-strong: #313D54;
+    --border-focus: #38BDF8;
 
-    /* Single Locked Studio Accents */
-    --accent-cyan: #00F0FF;
-    --accent-cyan-glow: rgba(0, 240, 255, 0.18);
-    --accent-amber: #FFB800;
-    --accent-amber-glow: rgba(255, 184, 0, 0.18);
-    --accent-emerald: #10B981;
+    /* Laser-Restrained Pro Studio Accents (<5% Screen Area) */
+    --accent-sky: #38BDF8;
+    --accent-slate: #94A3B8;
+    --accent-amber: #F59E0B;
     --accent-rose: #F43F5E;
 
-    /* Typographic Spectrum */
-    --text-primary: #F4F4F6;
-    --text-secondary: #94A3B8;
-    --text-muted: #64748B;
-    --text-dim: #475569;
+    /* Typographic Ink Spectrum (High Contrast & Legibility) */
+    --text-primary: #F1F4F9;
+    --text-secondary: #94A0B4;
+    --text-muted: #626F84;
+    --text-dim: #434D5D;
 
-    /* Design Gate 7 Motion curves */
+    /* Mechanical Transitions */
     --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
     --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
   }
@@ -44,10 +42,22 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overscroll-behavior: none;
+    color-scheme: dark;
   }
 }
 
-/* Tabular Numerals on all timecodes, counters, and metrics (Gate 1 & Gate 7) */
+/* Browser Surfaces (impeccable craft floor § Browser surfaces) */
+::selection {
+  background: #2563EB;
+  color: #FFFFFF;
+}
+
+:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 1px;
+}
+
+/* Tabular Numerals on all timecodes, counters, and metrics */
 .font-mono,
 [data-numeric],
 .metric-value,
@@ -61,7 +71,7 @@ table td {
   font-family: 'Space Grotesk', 'Geist', sans-serif;
 }
 
-/* Touch Action & Tap Highlight normalization (Gate 7) */
+/* Touch Action & Tap Highlight normalization */
 button, a, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -69,10 +79,10 @@ button, a, [role="button"] {
 }
 
 button:active:not(:disabled), [role="button"]:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
-/* Reduced motion fallback (Gate 4 & Gate 7) */
+/* Reduced motion fallback */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -90,35 +100,35 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
 }
 
 .react-flow__node {
-  border-radius: 8px;
+  border-radius: 10px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .react-flow__node.selected {
-  box-shadow: 0 0 0 1px var(--accent-cyan), 0 10px 30px rgba(0, 0, 0, 0.75) !important;
+  box-shadow: 0 0 0 1px #94A3B8, 0 16px 40px rgba(0, 0, 0, 0.8) !important;
 }
 
 .react-flow__handle {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   border: 1.5px solid var(--bg-canvas);
-  background-color: #3E4D6D;
+  background-color: #475569;
   transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.35);
-  background-color: var(--accent-cyan);
+  transform: scale(1.3);
+  background-color: #F1F4F9;
 }
 
 .react-flow__edge-path {
   stroke-width: 1.5;
-  stroke: var(--border-medium);
+  stroke: #242E40;
 }
 
 .react-flow__edge.animated path {
-  stroke: var(--border-strong);
+  stroke: #475569;
   stroke-dasharray: 4;
   animation: react-flow__dash 1.2s linear infinite;
 }
@@ -146,7 +156,7 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
   background-color: var(--bg-canvas) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
   overflow: hidden;
 }
 
@@ -166,8 +176,8 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
   background: var(--border-strong);
 }
 
-/* Subtle Film Grain Noise Overlay (Optional Texture) */
+/* Subtle Film Grain Texture */
 .studio-film-grain {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
   background-size: 24px 24px;
 }
