@@ -177,23 +177,23 @@ export const CameraNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-xl bg-[#10141B] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#131620] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-zinc-400 ring-1 ring-zinc-500/30 shadow-black/80'
-          : 'border-[#1E2535] hover:border-[#2C384E]'
+          ? 'border-amber-400/80 ring-1 ring-amber-400/30 shadow-black/90'
+          : 'border-white/[0.08] hover:border-white/20'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#141A24] border-b border-[#1C2331]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#181C26] border-b border-white/[0.08]">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-md bg-[#090B0E] border border-[#1E2535] flex items-center justify-center">
-            <Video className="w-3 h-3 text-zinc-300" />
+          <div className="w-5 h-5 rounded-md bg-[#0E1017] border border-white/[0.08] flex items-center justify-center">
+            <Video className="w-3 h-3 text-amber-400" />
           </div>
-          <span className="text-xs font-medium tracking-tight text-zinc-100">
+          <span className="text-xs font-semibold tracking-tight text-white font-display">
             Camera Kinematics
           </span>
         </div>
-        <span className="text-[10px] font-mono text-zinc-400 bg-[#090B0E] px-1.5 py-0.5 rounded border border-[#1C2331]">
+        <span className="text-[10px] font-mono text-amber-400 bg-[#0E1017] px-1.5 py-0.5 rounded border border-white/[0.08] font-bold">
           {focalLength} ƒ/1.4
         </span>
       </div>
@@ -206,12 +206,12 @@ export const CameraNode: React.FC<{
             <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400">
               Motion Trajectory
             </span>
-            <span className="text-[10px] text-zinc-400 font-mono">{activePresetInfo.type}</span>
+            <span className="text-[10px] text-amber-300 font-mono">{activePresetInfo.type}</span>
           </div>
           <select
             value={selectedPreset}
             onChange={(e) => handlePresetChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
+            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 cursor-pointer font-medium"
           >
             {CINEMA_PRESETS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -219,19 +219,19 @@ export const CameraNode: React.FC<{
               </option>
             ))}
           </select>
-          <p className="text-[11px] text-zinc-500 mt-1 leading-snug">
+          <p className="text-[11px] text-zinc-400 mt-1 leading-snug">
             {activePresetInfo.desc}
           </p>
         </div>
 
         {/* Live Miniature 3D Trajectory Viewfinder Canvas */}
-        <div className="relative rounded-lg bg-[#090B0E] border border-[#1C2331] p-2 flex flex-col items-center">
-          <div className="w-full flex items-center justify-between text-[10px] text-zinc-500 font-mono mb-1.5 px-0.5">
+        <div className="relative rounded-lg bg-[#0E1017] border border-white/[0.08] p-2 flex flex-col items-center">
+          <div className="w-full flex items-center justify-between text-[10px] text-zinc-400 font-mono mb-1.5 px-0.5">
             <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
               VIEWFINDER VECTOR
             </span>
-            <span className="text-zinc-300 font-medium font-mono">t = {(currentTime % 3.5).toFixed(2)}s</span>
+            <span className="text-zinc-200 font-medium font-mono">t = {(currentTime % 3.5).toFixed(2)}s</span>
           </div>
           <canvas
             ref={canvasRef}
@@ -242,7 +242,7 @@ export const CameraNode: React.FC<{
               const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
               seekTo(Number((ratio * Math.min(3.5, duration)).toFixed(2)));
             }}
-            className="w-full h-15 rounded-md bg-[#07090D] cursor-crosshair hover:ring-1 hover:ring-zinc-400/40 transition-all border border-[#141B26]"
+            className="w-full h-15 rounded-md bg-[#0A0B10] cursor-crosshair hover:ring-1 hover:ring-amber-400/40 transition-all border border-white/[0.06]"
             title="Click to scrub camera path trajectory"
           />
         </div>
@@ -260,8 +260,8 @@ export const CameraNode: React.FC<{
                 onClick={() => handleFocalLengthChange(f.mm)}
                 className={`py-1 text-[11px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                   focalLength === f.mm
-                    ? 'bg-[#182130] border-zinc-400 text-white font-medium shadow-sm'
-                    : 'bg-[#090B0E] border-[#1C2331] text-zinc-400 hover:text-zinc-200 hover:border-[#2C384E]'
+                    ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
+                    : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/20'
                 }`}
               >
                 <div>{f.mm}</div>
@@ -275,7 +275,7 @@ export const CameraNode: React.FC<{
         <div>
           <div className="flex items-center justify-between text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1">
             <span className="flex items-center gap-1.5">
-              <Gauge className="w-3 h-3 text-zinc-500" />
+              <Gauge className="w-3 h-3 text-zinc-400" />
               <span>Speed Ramp Factor</span>
             </span>
             <span className="font-mono text-zinc-200 font-medium">{speedRamp.toFixed(2)}x</span>
@@ -287,20 +287,20 @@ export const CameraNode: React.FC<{
             step={0.05}
             value={speedRamp}
             onChange={(e) => handleSpeedRampChange(parseFloat(e.target.value))}
-            className="w-full h-1.5 bg-[#090B0E] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1C2331]"
+            className="w-full h-1.5 bg-[#0E1017] rounded-lg appearance-none cursor-pointer accent-amber-400 border border-white/[0.08]"
           />
         </div>
 
         {/* Transition Easing Curves */}
         <div>
           <label className="block text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400 mb-1 flex items-center gap-1.5">
-            <Compass className="w-3 h-3 text-zinc-500" />
+            <Compass className="w-3 h-3 text-zinc-400" />
             <span>Kinematic Easing Curve</span>
           </label>
           <select
             value={easing}
             onChange={(e) => handleEasingChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
+            className="w-full bg-[#0E1017] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 cursor-pointer font-medium"
           >
             {EASING_CURVES.map((curve) => (
               <option key={curve} value={curve}>
@@ -316,7 +316,7 @@ export const CameraNode: React.FC<{
         type="source"
         position={Position.Right}
         id="camera-out"
-        className="!bg-[#475569] !w-2.5 !h-2.5 !border-[#090B0E] hover:!bg-zinc-200"
+        className="!bg-zinc-500 !w-2.5 !h-2.5 !border-[#0C0D12] hover:!bg-amber-400"
       />
     </div>
   );

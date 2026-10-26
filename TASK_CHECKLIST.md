@@ -203,5 +203,29 @@
   - Ran the automated 5-persona browser E2E test suite (`scripts/test_personas.mjs`) verifying all 5 personas against the live server with full binary video render and capturing all 6 screenshots into `tests/screenshots/personas/`.  
   *Proof*: Verified in `scripts/test_personas.mjs` test run log (all 5 personas passed) and screenshots in `tests/screenshots/personas/`.
 
+---
+
+## 11. Cinema Studio Design System Overhaul (Post-Redesign)
+- [x] **11.1. Volcanic Graphite & Cinema Amber Palette**:
+  - Purged fragmented cyan (`#00F0FF`, `#38BDF8`) and harsh dark-blue tones (`#090B0E`, `#1C2331`).
+  - Established unified Volcanic Graphite palette: Canvas `#0C0D12`, Surface `#12151C`, Elevated `#181C26`, Recessed Wells `#0E1017`, and hairline borders `rgba(255, 255, 255, 0.08)`.
+  - Locked domain primary accent to **Cinema Amber** (`#F59E0B`), with status accents for Emerald (`#10B981`) and Ruby Tally (`#EF4444`).  
+  *Proof*: Implemented in `src/app/globals.css`, `src/app/layout.tsx`, and across all components.
+- [x] **11.2. 3-Workspace Layout & Ergonomic Switcher**:
+  - Header: Tactile segmented switcher with icons and keyboard shortcut badges (`[1] Cinema Director`, `[2] Timeline Suite`, `[3] Node Canvas`).
+  - View 1 (Cinema Director): Large cinema viewport with aspect ratio selector (`16:9`, `9:16`, `1:1`, `21:9`), bottom shot filmstrip carousel with thumbnail badges + frame stepper transport, and right-rail Cinema Optics & Prompt console.
+  - View 2 (Timeline Suite): Dual-deck NLE layout with side-by-side Program Monitor and Audio Stereo DSP Oscilloscope + FFT spectrum bars, feeding directly into an expanded MultiTrack Timeline.
+  - View 3 (Node Canvas): Infinite canvas with frosted node toolbar, unified node card styling, and docked timeline.  
+  *Proof*: Implemented in `Header.tsx`, `CinemaDirectorView.tsx`, `TimelineSuiteView.tsx`, and `StudioCanvas.tsx`.
+- [x] **11.3. MultiTrack Timeline & Modal Refinements**:
+  - Polished V1 Video, T1 Titles (inline double-click input), and A1 Audio tracks with amber playheads and volume faders.
+  - Re-themed `ExportModal.tsx`, `ByokModal.tsx`, and `WalkthroughModal.tsx` to match the volcanic graphite and amber design system.  
+  *Proof*: Implemented in `MultiTrackTimeline.tsx`, `ExportModal.tsx`, `ByokModal.tsx`, and `WalkthroughModal.tsx`.
+- [x] **11.4. Build & Full 5-Persona Verification**:
+  - Production build compiled with exit code 0 (`npm run build`).
+  - Full 5-Persona browser E2E test suite passed with exit code 0, capturing refreshed screenshots in `tests/screenshots/personas/`.  
+  *Proof*: Exit code 0 on `test_personas.mjs` and refreshed screenshots in `tests/screenshots/personas/`.
+
+
 
 

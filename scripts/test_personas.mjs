@@ -28,8 +28,8 @@ async function runPersonaTestSuite() {
   page.on('pageerror', (err) => logs.push(`[pageerror] ${err.toString()}`));
 
   console.log('Navigating to http://localhost:3000 ...');
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle2', timeout: 30000 });
-  await new Promise((r) => setTimeout(r, 2000));
+  await page.goto('http://localhost:3000', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await new Promise((r) => setTimeout(r, 3000));
 
   // ==========================================
   // ONBOARDING / GUIDE: First-Run Walkthrough

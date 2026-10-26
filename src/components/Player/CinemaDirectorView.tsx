@@ -112,22 +112,22 @@ export const CinemaDirectorView: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden bg-[#090B0E] text-zinc-100 select-none">
+    <div className="flex-1 flex overflow-hidden bg-[#0C0D12] text-zinc-100 select-none">
       {/* Left/Center Cinema Viewport Stage */}
-      <div className="flex-1 flex flex-col justify-between border-r border-[#1C2331] bg-[#07090C] relative">
+      <div className="flex-1 flex flex-col justify-between border-r border-white/[0.08] bg-[#0A0B10] relative">
         {/* Viewport Top Bar */}
-        <div className="h-10 px-4 flex items-center justify-between border-b border-[#1C2331] bg-[#0D1117]/80 backdrop-blur-md text-xs font-mono">
+        <div className="h-10 px-4 flex items-center justify-between border-b border-white/[0.08] bg-[#12151C]/90 backdrop-blur-md text-xs font-mono">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-[#141A24] px-2.5 py-1 rounded-md border border-[#222E42]">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+            <div className="flex items-center gap-1.5 bg-[#181C26] px-2.5 py-1 rounded-md border border-white/[0.08]">
+              <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-rose-500 animate-pulse' : 'bg-rose-500/80'}`} />
               <span className="font-semibold text-zinc-200">MASTER MONITOR</span>
             </div>
-            <span className="text-zinc-500">|</span>
-            <span className="text-zinc-400">4K CINEMA (3840×2160) · 30 FPS</span>
+            <span className="text-zinc-600">|</span>
+            <span className="text-zinc-400">4K CINEMA (3840×2160) · 30 FPS · DCI SCOPE</span>
           </div>
 
           {/* Aspect Ratio Switcher */}
-          <div className="flex items-center gap-1 bg-[#10141B] p-0.5 rounded-md border border-[#1E2535]">
+          <div className="flex items-center gap-1 bg-[#0E1017] p-0.5 rounded-md border border-white/[0.08]">
             {(['16:9', '9:16', '1:1', '21:9'] as const).map((r) => (
               <button
                 key={r}
@@ -135,7 +135,7 @@ export const CinemaDirectorView: React.FC = () => {
                 onClick={() => setAspectRatio(r)}
                 className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors cursor-pointer ${
                   aspectRatio === r
-                    ? 'bg-[#18202C] text-white font-bold border border-[#2B3B54]'
+                    ? 'bg-[#181C26] text-white font-bold border border-amber-400/30 text-amber-300'
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
@@ -147,7 +147,7 @@ export const CinemaDirectorView: React.FC = () => {
 
         {/* Center Stage: The Cinema Viewport */}
         <div className="flex-1 flex items-center justify-center p-6 overflow-hidden relative">
-          <div className={`relative w-full max-w-4xl ${aspectStyle} bg-black rounded-lg overflow-hidden border border-[#1E2535] shadow-2xl flex items-center justify-center`}>
+          <div className={`relative w-full max-w-4xl ${aspectStyle} bg-black rounded-xl overflow-hidden border border-white/[0.12] shadow-[0_20px_60px_rgba(0,0,0,0.9)] flex items-center justify-center`}>
             <Player
               ref={playerRef}
               component={KinoComposition}
@@ -175,70 +175,113 @@ export const CinemaDirectorView: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Transport Bar & SMPTE HUD */}
-        <div className="h-14 px-6 bg-[#0D1117] border-t border-[#1C2331] flex items-center justify-between">
-          {/* SMPTE HUD */}
-          <div className="flex items-center gap-2 font-mono text-xs">
-            <span className="text-zinc-200 font-semibold smpte-timecode bg-[#141A24] px-2.5 py-1 rounded border border-[#222E42]">
-              {formatSMPTE(currentTime)}
+        {/* Bottom Shot Filmstrip & Mechanical Transport Bar */}
+        <div className="flex flex-col border-t border-white/[0.08] bg-[#12151C]/95 backdrop-blur-md">
+          {/* Filmstrip Shot Selector Bar */}
+          <div className="px-4 py-2 border-b border-white/[0.06] flex items-center gap-2 overflow-x-auto">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 shrink-0">
+              Shots:
             </span>
-            <span className="text-zinc-500">/</span>
-            <span className="text-zinc-400">{formatSMPTE(duration)}</span>
+            <div className="flex items-center gap-1.5 flex-1 overflow-x-auto py-0.5">
+              {scenes.map((sc, idx) => (
+                <button
+                  key={sc.id}
+                  type="button"
+                  onClick={() => selectScene(idx)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono shrink-0 transition-all cursor-pointer border ${
+                    activeSceneIndex === idx
+                      ? 'bg-[#181C26] border-amber-400/60 text-white shadow-sm ring-1 ring-amber-400/20'
+                      : 'bg-[#0E1017] border-white/[0.08] text-zinc-400 hover:text-white hover:bg-[#181C26]'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${activeSceneIndex === idx ? 'bg-amber-400' : 'bg-zinc-600'}`} />
+                  <span className="font-semibold text-zinc-200">Shot {idx + 1}</span>
+                  <span className="text-[10px] text-zinc-400 border-l border-white/[0.08] pl-1.5">
+                    {sc.focalLength || '35mm'}
+                  </span>
+                  <span className="text-[10px] text-zinc-500">
+                    {sc.duration.toFixed(1)}s
+                  </span>
+                </button>
+              ))}
+
+              <button
+                type="button"
+                onClick={addScene}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#0E1017] hover:bg-[#181C26] border border-white/[0.08] text-zinc-400 hover:text-white text-xs font-mono transition-colors shrink-0 cursor-pointer"
+                title="Add New Cinema Shot"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Shot</span>
+              </button>
+            </div>
           </div>
 
-          {/* Centered Transport Controls */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => stepFrame(-1)}
-              className="p-2 rounded-md bg-[#141A24] hover:bg-[#1C2533] border border-[#222E42] text-zinc-300 hover:text-white transition-colors cursor-pointer"
-              title="Step Back 1 Frame (Left Arrow)"
-            >
-              <SkipBack className="w-3.5 h-3.5" />
-            </button>
+          {/* Transport Controls & Timecode */}
+          <div className="h-14 px-6 flex items-center justify-between">
+            {/* SMPTE HUD */}
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <span className="text-zinc-100 font-semibold smpte-timecode bg-[#181C26] px-2.5 py-1 rounded-md border border-white/[0.08]">
+                {formatSMPTE(currentTime)}
+              </span>
+              <span className="text-zinc-600">/</span>
+              <span className="text-zinc-400">{formatSMPTE(duration)}</span>
+            </div>
 
-            <button
-              type="button"
-              onClick={togglePlay}
-              className="p-2.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 transition-all shadow-md active:scale-95 cursor-pointer"
-              title="Play / Pause (Space)"
-            >
-              {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
-            </button>
+            {/* Centered Transport Controls */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => stepFrame(-1)}
+                className="p-2 rounded-md bg-[#181C26] hover:bg-[#202533] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                title="Step Back 1 Frame (Left Arrow)"
+              >
+                <SkipBack className="w-3.5 h-3.5" />
+              </button>
 
-            <button
-              type="button"
-              onClick={() => stepFrame(1)}
-              className="p-2 rounded-md bg-[#141A24] hover:bg-[#1C2533] border border-[#222E42] text-zinc-300 hover:text-white transition-colors cursor-pointer"
-              title="Step Forward 1 Frame (Right Arrow)"
-            >
-              <SkipForward className="w-3.5 h-3.5" />
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={togglePlay}
+                className="p-2.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 transition-all shadow-md active:scale-95 cursor-pointer ring-1 ring-amber-400/40"
+                title="Play / Pause (Space)"
+              >
+                {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+              </button>
 
-          {/* Quick Stats */}
-          <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-2">
-            <span>SHOT {activeSceneIndex + 1} OF {scenes.length}</span>
-            <span className="text-zinc-600">·</span>
-            <span className="text-amber-400 font-semibold">{activeScene?.focalLength || '35mm'}</span>
+              <button
+                type="button"
+                onClick={() => stepFrame(1)}
+                className="p-2 rounded-md bg-[#181C26] hover:bg-[#202533] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                title="Step Forward 1 Frame (Right Arrow)"
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-2">
+              <span>SHOT {activeSceneIndex + 1} OF {scenes.length}</span>
+              <span className="text-zinc-600">·</span>
+              <span className="text-amber-400 font-semibold">{activeScene?.focalLength || '35mm'}</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Right Rail: Pro Shot & Optics Inspector */}
-      <div className="w-96 bg-[#0D1117] flex flex-col justify-between shrink-0 p-4 space-y-4 overflow-y-auto">
+      <div className="w-96 bg-[#12151C] flex flex-col justify-between shrink-0 p-4 space-y-4 overflow-y-auto border-l border-white/[0.08]">
         <div className="space-y-4">
-          {/* Header & Scene Chips */}
+          {/* Header & Scene Selector */}
           <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#1C2331]">
+            <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
               <div className="flex items-center gap-2 font-semibold text-xs text-white">
-                <Video className="w-3.5 h-3.5 text-zinc-300" />
+                <Video className="w-3.5 h-3.5 text-amber-400" />
                 <span>DIRECTOR INSPECTOR</span>
               </div>
               <button
                 type="button"
                 onClick={addScene}
-                className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#161C26] hover:bg-[#202737] text-[10px] text-zinc-200 border border-[#242E40] transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#181C26] hover:bg-[#202533] text-[10px] text-zinc-200 border border-white/[0.08] transition-colors cursor-pointer"
               >
                 <Plus className="w-3 h-3" />
                 <span>Add Shot</span>
@@ -254,8 +297,8 @@ export const CinemaDirectorView: React.FC = () => {
                   onClick={() => selectScene(idx)}
                   className={`px-2.5 py-1 rounded text-[11px] font-mono shrink-0 transition-colors cursor-pointer ${
                     activeSceneIndex === idx
-                      ? 'bg-[#18202C] text-white font-bold border border-zinc-200'
-                      : 'bg-[#10141B] text-zinc-400 hover:text-white border border-[#1E2535]'
+                      ? 'bg-[#181C26] text-white font-bold border border-amber-400/50 text-amber-300'
+                      : 'bg-[#0E1017] text-zinc-400 hover:text-white border border-white/[0.08]'
                   }`}
                 >
                   Shot {idx + 1}
@@ -265,12 +308,12 @@ export const CinemaDirectorView: React.FC = () => {
           </div>
 
           {/* 6-DOF Camera Kinematics */}
-          <div className="p-3 rounded-lg bg-[#10141B] border border-[#1E2535] space-y-2.5">
+          <div className="p-3 rounded-lg bg-[#0E1017] border border-white/[0.08] space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400">
                 6-DOF Camera Kinematics
               </span>
-              <span className="text-[9px] font-mono text-zinc-400 bg-[#161C26] px-1.5 py-0.2 rounded border border-[#242E40]">
+              <span className="text-[9px] font-mono text-zinc-400 bg-[#181C26] px-1.5 py-0.5 rounded border border-white/[0.08]">
                 Matrix 3D
               </span>
             </div>
@@ -278,7 +321,7 @@ export const CinemaDirectorView: React.FC = () => {
             <select
               value={activeScene?.cameraPresetId || 'orbital_drift'}
               onChange={(e) => setCameraOptions({ presetId: e.target.value })}
-              className="w-full bg-[#080A0F] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
+              className="w-full bg-[#12151C] border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 cursor-pointer font-medium"
             >
               {CINEMA_PRESETS.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -301,8 +344,8 @@ export const CinemaDirectorView: React.FC = () => {
                     onClick={() => setCameraOptions({ focalLength: foc.mm })}
                     className={`py-1 text-[10px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                       (activeScene?.focalLength || '35mm') === foc.mm
-                        ? 'bg-[#18202C] border-zinc-200 text-white font-bold'
-                        : 'bg-[#080A0F] border-[#1E2535] text-zinc-400 hover:text-white'
+                        ? 'bg-[#181C26] border-amber-400/60 text-amber-300 font-bold shadow-sm'
+                        : 'bg-[#12151C] border-white/[0.08] text-zinc-400 hover:text-white'
                     }`}
                   >
                     {foc.mm}
@@ -324,13 +367,13 @@ export const CinemaDirectorView: React.FC = () => {
                 step={0.05}
                 value={activeScene?.speedRamp || 1.25}
                 onChange={(e) => setCameraOptions({ speedRamp: parseFloat(e.target.value) })}
-                className="w-full h-1 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1E2535]"
+                className="w-full h-1 bg-[#181C26] rounded-lg appearance-none cursor-pointer accent-amber-400 border border-white/[0.08]"
               />
             </div>
           </div>
 
           {/* Generative Visual Directive & Prompt */}
-          <div className="p-3 rounded-lg bg-[#10141B] border border-[#1E2535] space-y-2.5">
+          <div className="p-3 rounded-lg bg-[#0E1017] border border-white/[0.08] space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-zinc-400">
                 Visual Directive
@@ -338,10 +381,10 @@ export const CinemaDirectorView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleEnhancePrompt}
-                className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#161C26] hover:bg-[#202737] text-[10px] text-zinc-200 border border-[#242E40] transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2 py-0.5 rounded bg-[#181C26] hover:bg-[#202533] text-[10px] text-zinc-200 border border-white/[0.08] transition-colors cursor-pointer"
                 title="Auto-enhance with cinematic modifiers"
               >
-                <Sparkles className="w-2.5 h-2.5 text-zinc-300" />
+                <Sparkles className="w-2.5 h-2.5 text-amber-400" />
                 <span>Enhance</span>
               </button>
             </div>
@@ -350,20 +393,20 @@ export const CinemaDirectorView: React.FC = () => {
               rows={3}
               value={activeScene?.prompt || ''}
               onChange={(e) => updateScene(activeSceneIndex, { prompt: e.target.value })}
-              className="w-full bg-[#080A0F] border border-[#1E2535] rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 resize-none leading-relaxed"
+              className="w-full bg-[#12151C] border border-white/[0.08] rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-amber-400/60 resize-none leading-relaxed"
             />
           </div>
         </div>
 
         {/* Generate Button Footer */}
-        <div className="pt-3 border-t border-[#1C2331]">
+        <div className="pt-3 border-t border-white/[0.08]">
           <button
             type="button"
             onClick={handleGenerateShot}
             disabled={isGeneratingVideo}
-            className="w-full py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50 cursor-pointer active:scale-98"
+            className="w-full py-2.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50 cursor-pointer active:scale-98 ring-1 ring-amber-400/30"
           >
-            <Sparkles className="w-3.5 h-3.5 text-zinc-950" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>{isGeneratingVideo ? 'Generating Video Shot...' : 'Generate Video Shot'}</span>
           </button>
         </div>

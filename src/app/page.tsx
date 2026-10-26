@@ -197,7 +197,7 @@ export default function StudioPage() {
   }, [audioVolume, isMuted]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#080A0F] text-zinc-100 font-sans select-none">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0C0D12] text-zinc-100 font-sans select-none">
       {/* Sleek Top Studio Header */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}
@@ -209,12 +209,12 @@ export default function StudioPage() {
 
       {/* Main Studio Work Area */}
       {workspaceView === 'canvas' && (
-        <>
+        <div className="flex-1 relative overflow-hidden flex flex-col">
           <main className="flex-1 relative overflow-hidden">
             <StudioCanvas />
           </main>
           <MultiTrackTimeline />
-        </>
+        </div>
       )}
 
       {workspaceView === 'director' && (

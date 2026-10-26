@@ -67,7 +67,7 @@ const StudioCanvasInner: React.FC = () => {
   );
 
   return (
-    <div className="relative w-full h-full bg-[#090B0E] studio-film-grain select-none">
+    <div className="relative w-full h-full bg-[#0C0D12] studio-film-grain select-none">
       {/* Floating Studio Nodes Toolbar */}
       <NodeToolbar
         onAddNode={handleFocusOrAddNode}
@@ -96,12 +96,12 @@ const StudioCanvasInner: React.FC = () => {
           variant={BackgroundVariant.Dots}
           gap={24}
           size={1.2}
-          color="#161F2E"
+          color="rgba(255, 255, 255, 0.08)"
         />
         <Controls
           position="bottom-left"
           showInteractive={false}
-          className="!bg-[#10141B] !border-[#1C2331] !shadow-xl"
+          className="!bg-[#12151C] !border-white/[0.08] !shadow-2xl"
         />
         <MiniMap
           nodeColor={(node) => {
@@ -109,24 +109,24 @@ const StudioCanvasInner: React.FC = () => {
               case 'promptNode':
                 return '#475569';
               case 'cameraNode':
-                return '#64748B';
+                return '#F59E0B';
               case 'modelNode':
                 return '#94A3B8';
               case 'audioNode':
                 return '#64748B';
               case 'timelineNode':
-                return '#CBD5E1';
+                return '#E2E8F0';
               default:
-                return '#1E2535';
+                return '#181C26';
             }
           }}
-          maskColor="rgba(9, 11, 14, 0.90)"
+          maskColor="rgba(12, 13, 18, 0.90)"
           position="bottom-right"
           style={{
             width: 140,
             height: 88,
-            backgroundColor: '#090B0E',
-            border: '1px solid #1C2331',
+            backgroundColor: '#12151C',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '8px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
           }}

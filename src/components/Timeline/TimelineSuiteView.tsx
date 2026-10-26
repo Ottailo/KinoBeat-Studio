@@ -50,11 +50,11 @@ export const TimelineSuiteView: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-[#07090C] text-zinc-100 select-none">
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#0C0D12] text-zinc-100 select-none">
       {/* Top Preview Stage & Audio Telemetry */}
-      <div className="h-60 px-4 py-3 flex gap-4 border-b border-[#1C2331] bg-[#0A0D13]">
+      <div className="h-68 px-4 py-3 flex gap-4 border-b border-white/[0.08] bg-[#0F1118]">
         {/* Left: Program Monitor Preview */}
-        <div className="w-[380px] bg-black rounded-lg overflow-hidden border border-[#1E2535] relative shadow-lg shrink-0 flex items-center justify-center">
+        <div className="w-[440px] bg-black rounded-xl overflow-hidden border border-white/[0.12] relative shadow-2xl shrink-0 flex items-center justify-center">
           <Player
             ref={playerRef}
             component={KinoComposition}
@@ -76,11 +76,16 @@ export const TimelineSuiteView: React.FC = () => {
             loop
             acknowledgeRemotionLicense
           />
+          {/* Subtle Monitor HUD badge */}
+          <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-300">
+            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-rose-500 animate-pulse' : 'bg-rose-500/80'}`} />
+            <span>PROGRAM</span>
+          </div>
         </div>
 
         {/* Right: Audio FFT Spectrogram & Master Telemetry */}
-        <div className="flex-1 rounded-lg bg-[#0E121A] border border-[#1E2535] p-3 flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2 border-b border-[#1C2331]">
+        <div className="flex-1 rounded-xl bg-[#12151C] border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-lg">
+          <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
             <div className="flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-amber-400" />
               <span className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-200">
@@ -88,7 +93,7 @@ export const TimelineSuiteView: React.FC = () => {
               </span>
             </div>
             <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-400">
-              <span className="bg-[#141A24] px-2 py-0.5 rounded border border-[#222E42] text-zinc-300">
+              <span className="bg-[#181C26] px-2 py-0.5 rounded border border-white/[0.08] text-amber-300 font-semibold">
                 {bpm.toFixed(1)} BPM
               </span>
               <span>48kHz · 24-BIT PCM</span>
@@ -96,14 +101,14 @@ export const TimelineSuiteView: React.FC = () => {
           </div>
 
           {/* Real-time Spectrum Waveform */}
-          <div className="flex-1 flex items-end gap-[3px] py-2">
+          <div className="flex-1 flex items-end gap-[3px] py-3">
             {(audioWaveform.length > 0 ? audioWaveform : Array.from({ length: 48 }).map((_, i) => Math.sin(i * 0.2) * 0.5 + 0.5)).map((val, i) => {
               const heightPct = Math.max(8, Math.min(100, Math.round(val * 100)));
               return (
                 <div
                   key={i}
                   style={{ height: `${heightPct}%` }}
-                  className={`flex-1 rounded-t-[1px] transition-all duration-75 ${
+                  className={`flex-1 rounded-t-[2px] transition-all duration-75 ${
                     val > 0.8
                       ? 'bg-amber-400'
                       : val > 0.5
@@ -116,10 +121,13 @@ export const TimelineSuiteView: React.FC = () => {
           </div>
 
           {/* Shot Info Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-[#1C2331] text-[10px] font-mono text-zinc-400">
-            <span>ACTIVE CLIP: {scenes[activeSceneIndex]?.title || 'Shot 1'}</span>
-            <span className="text-zinc-500">
-              {(scenes[activeSceneIndex]?.duration || 3.5).toFixed(1)}s · {scenes[activeSceneIndex]?.cameraPresetId || 'orbital_drift'}
+          <div className="flex items-center justify-between pt-2 border-t border-white/[0.08] text-[10px] font-mono text-zinc-400">
+            <span className="flex items-center gap-2">
+              <span className="text-zinc-500">ACTIVE CLIP:</span>
+              <span className="text-zinc-200 font-semibold">{scenes[activeSceneIndex]?.title || 'Shot 1'}</span>
+            </span>
+            <span className="text-zinc-400 bg-[#181C26] px-2 py-0.5 rounded border border-white/[0.08]">
+              {(scenes[activeSceneIndex]?.duration || 3.5).toFixed(1)}s · {scenes[activeSceneIndex]?.focalLength || '35mm'} · {scenes[activeSceneIndex]?.cameraPresetId || 'orbital_drift'}
             </span>
           </div>
         </div>
