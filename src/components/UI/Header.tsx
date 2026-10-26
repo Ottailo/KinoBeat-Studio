@@ -12,6 +12,9 @@ import {
   Cpu,
   CheckCircle2,
   X,
+  Layers,
+  Video,
+  Film,
 } from 'lucide-react';
 import { useStudioStore } from '../../lib/store/studioStore';
 
@@ -35,6 +38,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [benchmarkResult, setBenchmarkResult] = useState<string | null>(null);
 
   // Store telemetry
+  const workspaceView = useStudioStore((s) => s.workspaceView);
+  const setWorkspaceView = useStudioStore((s) => s.setWorkspaceView);
   const currentTime = useStudioStore((s) => s.currentTime);
   const duration = useStudioStore((s) => s.duration);
   const bpm = useStudioStore((s) => s.bpm);
@@ -70,17 +75,17 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-12 bg-[#090B0E] border-b border-[#1C2331] px-4 flex items-center justify-between text-zinc-100 select-none z-50">
+    <header className="h-14 bg-[#090B0E] border-b border-[#1C2331] px-4 flex items-center justify-between text-zinc-100 select-none z-50">
       {/* Brand & Identity: Refined Industrial Wordmark */}
-      <div className="flex items-center gap-5">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Studio Anamorphic Aperture Mark */}
-          <div className="w-7 h-7 rounded-md bg-[#131720] border border-[#222B3D] flex items-center justify-center p-1 shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-[#141A24] border border-[#222E42] flex items-center justify-center p-1 shadow-sm shrink-0">
             <svg
               viewBox="0 0 32 32"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="w-4.5 h-4.5 text-zinc-200"
+              className="w-5 h-5 text-zinc-200"
             >
               <polygon
                 points="16,3 27,9 27,23 16,29 5,23 5,9"
@@ -100,16 +105,67 @@ export const Header: React.FC<HeaderProps> = ({
             </svg>
           </div>
 
-          {/* Clean Pro Wordmark */}
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm tracking-tight text-white font-display">
-              KinoBeat
-            </span>
-            <span className="text-[10px] font-mono text-zinc-400 bg-[#141A24] px-1.5 py-0.5 rounded border border-[#222C3E]">
-              Studio
+          {/* Clean Pro Wordmark & Project Subtitle */}
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm tracking-wide text-white font-display uppercase">
+                KINOBEAT
+              </span>
+              <span className="text-[9px] font-mono uppercase tracking-widest text-amber-400 bg-amber-400/10 px-1.5 py-0.2 rounded border border-amber-400/25 font-semibold">
+                NLE·AI
+              </span>
+            </div>
+            <span className="text-[9px] font-mono text-zinc-500 tracking-tight hidden sm:inline">
+              PROJ-01 // TOKYO 2088 [MASTER 4K]
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Center: Tactile Workspace View Switcher */}
+      <div className="flex items-center bg-[#10141B] p-1 rounded-lg border border-[#1E2535] gap-1 shadow-inner">
+        <button
+          type="button"
+          onClick={() => setWorkspaceView('canvas')}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+            workspaceView === 'canvas'
+              ? 'bg-[#18202C] text-white shadow-sm border border-zinc-200/20 font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+          title="Infinite Node Workflow Canvas"
+        >
+          <Layers className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="hidden md:inline">Node Canvas</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setWorkspaceView('director')}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+            workspaceView === 'director'
+              ? 'bg-[#18202C] text-white shadow-sm border border-zinc-200/20 font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+          title="Cinema Director Split Viewport & Optics"
+        >
+          <Video className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="hidden md:inline">Cinema Director</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setWorkspaceView('timeline')}
+          className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+            workspaceView === 'timeline'
+              ? 'bg-[#18202C] text-white shadow-sm border border-zinc-200/20 font-semibold'
+              : 'text-zinc-400 hover:text-zinc-200'
+          }`}
+          title="Expanded NLE Multi-Track Timeline Suite"
+        >
+          <Film className="w-3.5 h-3.5 text-zinc-400" />
+          <span className="hidden md:inline">Timeline Suite</span>
+        </button>
+      </div>
 
         {/* Master SMPTE Broadcast Timecode HUD */}
         <div className="hidden lg:flex items-center gap-3 pl-4 border-l border-[#1C2331]">
@@ -157,7 +213,6 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="text-zinc-400 uppercase">{aspectRatio}</span>
           </div>
         </div>
-      </div>
 
       {/* Right Action Group */}
       <div className="flex items-center gap-2">

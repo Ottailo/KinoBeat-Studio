@@ -139,7 +139,7 @@ export const CameraNode: React.FC<{
 
     // Evaluate curve trajectory points
     const curve = CAMERA_CURVES[selectedPreset] || CAMERA_CURVES.orbital_drift;
-    ctx.strokeStyle = '#38BDF8';
+    ctx.strokeStyle = '#F59E0B';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
 
@@ -211,7 +211,7 @@ export const CameraNode: React.FC<{
           <select
             value={selectedPreset}
             onChange={(e) => handlePresetChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] cursor-pointer font-medium"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
           >
             {CINEMA_PRESETS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -300,7 +300,7 @@ export const CameraNode: React.FC<{
           <select
             value={easing}
             onChange={(e) => handleEasingChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] cursor-pointer font-medium"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
           >
             {EASING_CURVES.map((curve) => (
               <option key={curve} value={curve}>

@@ -131,7 +131,7 @@ export const PromptNode: React.FC<{
             value={subject}
             onChange={(e) => handleSubjectChange(e.target.value)}
             placeholder="Describe subject, wardrobe, and primary elements..."
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-[#38BDF8] transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-300 transition-colors resize-none leading-relaxed"
           />
         </div>
 
@@ -145,7 +145,7 @@ export const PromptNode: React.FC<{
             value={action}
             onChange={(e) => handleActionChange(e.target.value)}
             placeholder="Describe kinetic movements and physical actions..."
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-[#38BDF8] transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-300 transition-colors resize-none leading-relaxed"
           />
         </div>
 
@@ -157,7 +157,7 @@ export const PromptNode: React.FC<{
           <select
             value={look}
             onChange={(e) => handleLookChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] cursor-pointer font-medium"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
           >
             {LOOK_PRESETS.map((p) => (
               <option key={p.id} value={p.prompt}>
@@ -217,7 +217,7 @@ export const PromptNode: React.FC<{
                 updateNodeData(id, { negativePrompt: e.target.value });
               }}
               placeholder="Elements to avoid (e.g. blurry, watermarks, morphing)..."
-              className="mt-2 w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-[#38BDF8] resize-none leading-relaxed"
+              className="mt-2 w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-300 resize-none leading-relaxed"
             />
           )}
         </div>

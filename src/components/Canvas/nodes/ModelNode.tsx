@@ -112,7 +112,7 @@ export const ModelNode: React.FC<{
           <select
             value={modelId}
             onChange={(e) => handleModelChange(e.target.value)}
-            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] font-medium cursor-pointer"
+            className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 font-medium cursor-pointer"
           >
             {Object.values(VIDEO_MODELS).map((m) => (
               <option key={m.id} value={m.id}>

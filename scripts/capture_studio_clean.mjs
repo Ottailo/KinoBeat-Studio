@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 async function captureStudioClean() {
   const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
-  const outPath = path.resolve(__dirname, '..', 'tests', 'screenshots', 'verified_live_studio_redesign.png');
+  const outDir = path.resolve(__dirname, '..', 'tests', 'screenshots');
 
   const browser = await puppeteer.launch({
     executablePath: edgePath,
@@ -29,8 +29,37 @@ async function captureStudioClean() {
   });
   await new Promise((r) => setTimeout(r, 1200));
 
-  await page.screenshot({ path: outPath, fullPage: false });
-  console.log('✓ Captured clean live studio:', outPath);
+  // 1. Capture Node Canvas View with New Header & Branding
+  await page.screenshot({ path: path.join(outDir, 'verified_live_studio_redesign.png'), fullPage: false });
+  console.log('✓ Captured verified_live_studio_redesign.png');
+
+  // 2. Switch to Cinema Director View & Capture
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const dirBtn = buttons.find((b) => b.textContent?.includes('Cinema Director'));
+    if (dirBtn) dirBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1500));
+  await page.screenshot({ path: path.join(outDir, 'workspace_cinema_director.png'), fullPage: false });
+  console.log('✓ Captured workspace_cinema_director.png');
+
+  // 3. Switch to Timeline Suite View & Capture
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const timeBtn = buttons.find((b) => b.textContent?.includes('Timeline Suite'));
+    if (timeBtn) timeBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1500));
+  await page.screenshot({ path: path.join(outDir, 'workspace_timeline_suite.png'), fullPage: false });
+  console.log('✓ Captured workspace_timeline_suite.png');
+
+  // Switch back to Node Canvas
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const canvasBtn = buttons.find((b) => b.textContent?.includes('Node Canvas'));
+    if (canvasBtn) canvasBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 800));
 
   await browser.close();
 }

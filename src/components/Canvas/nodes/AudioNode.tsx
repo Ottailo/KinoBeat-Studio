@@ -226,7 +226,7 @@ export const AudioNode: React.FC<{
             <select
               value={trackId}
               onChange={(e) => handleTrackChange(e.target.value)}
-              className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] font-medium cursor-pointer"
+              className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 font-medium cursor-pointer"
             >
               {PRESET_TRACKS.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -284,7 +284,7 @@ export const AudioNode: React.FC<{
               rows={2}
               value={ttsText}
               onChange={(e) => setTtsText(e.target.value)}
-              className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#38BDF8] resize-none leading-relaxed"
+              className="w-full bg-[#090B0E] border border-[#1E2535] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 resize-none leading-relaxed"
             />
             <div className="flex gap-2">
               <button

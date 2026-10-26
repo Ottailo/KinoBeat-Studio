@@ -54,6 +54,10 @@ export interface MediaAsset {
 }
 
 export interface StudioStore {
+  // Workspace Layout Mode
+  workspaceView: 'canvas' | 'director' | 'timeline';
+  setWorkspaceView: (view: 'canvas' | 'director' | 'timeline') => void;
+
   // Graph Canvas
   nodes: Node[];
   edges: Edge[];
@@ -352,14 +356,14 @@ export const INITIAL_EDGES: Edge[] = [
     source: 'node-prompt',
     target: 'node-model',
     animated: true,
-    style: { stroke: '#00F0FF', strokeWidth: 2 },
+    style: { stroke: '#F59E0B', strokeWidth: 2 },
   },
   {
     id: 'edge-camera-model',
     source: 'node-camera',
     target: 'node-model',
     animated: true,
-    style: { stroke: '#00F0FF', strokeWidth: 2 },
+    style: { stroke: '#475569', strokeWidth: 2 },
   },
   {
     id: 'edge-model-timeline',
@@ -378,6 +382,9 @@ export const INITIAL_EDGES: Edge[] = [
 ];
 
 export const useStudioStore = create<StudioStore>((set, get) => ({
+  workspaceView: 'canvas',
+  setWorkspaceView: (view) => set({ workspaceView: view }),
+
   nodes: INITIAL_NODES,
   edges: INITIAL_EDGES,
   selectedNodeId: null,

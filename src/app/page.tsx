@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Header } from '../components/UI/Header';
 import { StudioCanvas } from '../components/Canvas/StudioCanvas';
 import { MultiTrackTimeline } from '../components/Timeline/MultiTrackTimeline';
+import { CinemaDirectorView } from '../components/Player/CinemaDirectorView';
+import { TimelineSuiteView } from '../components/Timeline/TimelineSuiteView';
 import { ExportModal } from '../components/Export/ExportModal';
 import { ByokModal } from '../components/Modals/ByokModal';
 import { WalkthroughModal } from '../components/Modals/WalkthroughModal';
@@ -15,6 +17,7 @@ export default function StudioPage() {
   const currentTime = useStudioStore((s) => s.currentTime);
   const duration = useStudioStore((s) => s.duration);
   const isPlaying = useStudioStore((s) => s.isPlaying);
+  const workspaceView = useStudioStore((s) => s.workspaceView);
   const activeTrackId = useStudioStore((s) => s.activeTrackId);
   const isMuted = useStudioStore((s) => s.isMuted);
   const audioVolume = useStudioStore((s) => s.audioVolume);
@@ -204,13 +207,27 @@ export default function StudioPage() {
         onToggleMute={toggleMute}
       />
 
-      {/* Main Studio Work Area: Infinite Reactive Canvas */}
-      <main className="flex-1 relative overflow-hidden">
-        <StudioCanvas />
-      </main>
+      {/* Main Studio Work Area */}
+      {workspaceView === 'canvas' && (
+        <>
+          <main className="flex-1 relative overflow-hidden">
+            <StudioCanvas />
+          </main>
+          <MultiTrackTimeline />
+        </>
+      )}
 
-      {/* Bottom Docked Multi-Track Timeline */}
-      <MultiTrackTimeline />
+      {workspaceView === 'director' && (
+        <main className="flex-1 relative overflow-hidden flex flex-col">
+          <CinemaDirectorView />
+        </main>
+      )}
+
+      {workspaceView === 'timeline' && (
+        <main className="flex-1 relative overflow-hidden flex flex-col">
+          <TimelineSuiteView />
+        </main>
+      )}
 
       {/* Modals & Dialogs */}
       <ExportModal

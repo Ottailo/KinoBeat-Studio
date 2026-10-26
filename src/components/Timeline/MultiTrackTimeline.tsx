@@ -75,7 +75,7 @@ const COLOR_SWATCHES = [
 
 const FONT_SIZES = [18, 24, 28, 36];
 
-export const MultiTrackTimeline: React.FC = () => {
+export const MultiTrackTimeline: React.FC<{ isExpanded?: boolean }> = ({ isExpanded = false }) => {
   const currentTime = useStudioStore((s) => s.currentTime);
   const duration = useStudioStore((s) => s.duration);
   const isPlaying = useStudioStore((s) => s.isPlaying);
@@ -403,7 +403,7 @@ export const MultiTrackTimeline: React.FC = () => {
   );
 
   return (
-    <div className="w-full bg-[#080A0F] border-t border-[#1A2130] select-none text-zinc-100 flex flex-col h-72 z-40 shadow-2xl relative">
+    <div className={`w-full bg-[#080A0F] border-t border-[#1A2130] select-none text-zinc-100 flex flex-col ${isExpanded ? 'flex-1 h-full' : 'h-72'} z-40 shadow-2xl relative`}>
       {/* Hidden file input for custom media upload */}
       <input
         ref={fileInputRef}
