@@ -129,7 +129,11 @@
 3. **Studio Canvas Overview**:
    - Arranges the node pipeline on the obsidian `#0B0E14` canvas.
    - Verifies the connecting edges (`Prompt -> Model -> Remotion Sequencer`).
-4. **4K Master Export & NLE Interchange**:
-   - Opens `Export Master`.
-   - Selects Target Output Format: `NLE Timeline EDL` for color grading in DaVinci Resolve.
-   - Downloads the `KinoBeat_Timeline.edl` manifest with non-drop-frame timecodes.
+4. **4K Master Video Export & In-Modal Playback**:
+   - Opens `Export 4K` in the top header.
+   - Selects Target Resolution: `1080p FHD` or `4K Cinema` at 30/60 fps.
+   - Clicks `Start Master 4K Video Render`.
+   - The deterministic canvas engine rasterizes all frames and encodes a genuine video stream.
+   - Watches the resulting video directly in the modal's embedded `<video />` player.
+   - Clicks `Download Master Video (.webm / .mp4)` to save the actual playable binary video file to disk!
+   - Optionally clicks `Export EDL Manifest` for color grading in DaVinci Resolve or Adobe Premiere.

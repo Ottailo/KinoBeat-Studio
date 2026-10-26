@@ -39,6 +39,16 @@ export interface CaptionItem {
   color?: string;    // e.g. '#FFFFFF', '#00F0FF', '#F472B6', '#FACC15', '#34D399'
 }
 
+export interface MediaAsset {
+  id: string;
+  name: string;
+  type: 'video' | 'image' | 'audio';
+  url: string;
+  duration?: number;
+  sizeBytes?: number;
+  createdAt: string;
+}
+
 export interface StudioStore {
   // Graph Canvas
   nodes: Node[];
@@ -74,6 +84,10 @@ export interface StudioStore {
   beats: BeatMarker[];
   audioWaveform: number[]; // Real 64-bar RMS waveform
   isMuted: boolean;
+  audioVolume: number; // 0 to 1.5, default 1.0
+
+  // Media Asset Bin
+  mediaAssets: MediaAsset[];
 
   // Generation & Engine State
   isGeneratingVideo: boolean;
@@ -91,6 +105,11 @@ export interface StudioStore {
   addCustomMediaScene: (file: File, url: string, mediaType: 'video' | 'image', duration?: number) => void;
   removeScene: (index: number) => void;
   updateScene: (index: number, partial: Partial<SceneClip>) => void;
+  trimScene: (index: number, newDuration: number) => void;
+  splitSceneAtPlayhead: () => void;
+  addMediaAsset: (asset: MediaAsset) => void;
+  removeMediaAsset: (id: string) => void;
+  setAudioVolume: (volume: number) => void;
   addCaption: () => void;
   updateCaption: (id: string, partial: Partial<CaptionItem>) => void;
   removeCaption: (id: string) => void;
@@ -105,6 +124,45 @@ export interface StudioStore {
   generateAutoStoryboard: (theme: string) => void;
   loadPresetWorkflow: (presetKey: string) => void;
 }
+
+export const INITIAL_ASSETS: MediaAsset[] = [
+  {
+    id: 'asset-1',
+    name: 'Cyberpunk Arrival (Tokyo Rooftop)',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
+    duration: 3.5,
+    sizeBytes: 1024 * 720,
+    createdAt: '2026-10-26T00:00:00Z',
+  },
+  {
+    id: 'asset-2',
+    name: 'Megastructure FPV Speeder',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+    duration: 3.5,
+    sizeBytes: 1024 * 850,
+    createdAt: '2026-10-26T00:00:00Z',
+  },
+  {
+    id: 'asset-3',
+    name: 'Quantum Monolith Ignition',
+    type: 'image',
+    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+    duration: 3.0,
+    sizeBytes: 1024 * 640,
+    createdAt: '2026-10-26T00:00:00Z',
+  },
+  {
+    id: 'asset-4',
+    name: 'Neon Drift 2088 (Cyber Master)',
+    type: 'audio',
+    url: '#audio-neon-drift',
+    duration: 10.0,
+    sizeBytes: 1024 * 1024 * 2.5,
+    createdAt: '2026-10-26T00:00:00Z',
+  },
+];
 
 export const INITIAL_SCENES: SceneClip[] = [
   {
@@ -307,6 +365,8 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   beats: INITIAL_BEATS,
   audioWaveform: INITIAL_WAVEFORM,
   isMuted: false,
+  audioVolume: 1.0,
+  mediaAssets: INITIAL_ASSETS,
 
   isGeneratingVideo: false,
   generationProgress: 0,
@@ -627,6 +687,96 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
         set({ activeCameraCurveId: partial.cameraPresetId });
       }
     }
+  },
+
+  trimScene: (index: number, newDuration: number) => {
+    const scenes = [...get().scenes];
+    if (!scenes[index]) return;
+
+    const clampedDuration = Math.max(0.4, Number(newDuration.toFixed(2)));
+    scenes[index] = { ...scenes[index], duration: clampedDuration };
+
+    let currentOffset = 0;
+    const recalculated = scenes.map((sc) => {
+      const s = { ...sc, startAt: currentOffset };
+      currentOffset += sc.duration;
+      return s;
+    });
+
+    set({
+      scenes: recalculated,
+      duration: currentOffset,
+    });
+
+    get().updateNodeData('node-timeline', {
+      duration: currentOffset,
+      sceneCount: recalculated.length,
+    });
+  },
+
+  splitSceneAtPlayhead: () => {
+    const state = get();
+    const { currentTime, scenes, activeSceneIndex } = state;
+    const targetScene = scenes[activeSceneIndex];
+    if (!targetScene) return;
+
+    const offset = currentTime - targetScene.startAt;
+    if (offset < 0.3 || targetScene.duration - offset < 0.3) {
+      return;
+    }
+
+    const firstDuration = Number(offset.toFixed(2));
+    const secondDuration = Number((targetScene.duration - offset).toFixed(2));
+
+    const firstScene: SceneClip = {
+      ...targetScene,
+      duration: firstDuration,
+    };
+
+    const secondScene: SceneClip = {
+      ...targetScene,
+      id: `scene-split-${Date.now()}`,
+      title: `${targetScene.title} (Part 2)`,
+      startAt: targetScene.startAt + firstDuration,
+      duration: secondDuration,
+    };
+
+    const newScenes = [
+      ...scenes.slice(0, activeSceneIndex),
+      firstScene,
+      secondScene,
+      ...scenes.slice(activeSceneIndex + 1),
+    ];
+
+    let currentOffset = 0;
+    const recalculated = newScenes.map((sc) => {
+      const s = { ...sc, startAt: currentOffset };
+      currentOffset += sc.duration;
+      return s;
+    });
+
+    set({
+      scenes: recalculated,
+      duration: currentOffset,
+      activeSceneIndex: activeSceneIndex + 1,
+    });
+
+    get().updateNodeData('node-timeline', {
+      duration: currentOffset,
+      sceneCount: recalculated.length,
+    });
+  },
+
+  setAudioVolume: (volume: number) => {
+    set({ audioVolume: Math.max(0, Math.min(1.5, volume)) });
+  },
+
+  addMediaAsset: (asset: MediaAsset) => {
+    set({ mediaAssets: [asset, ...get().mediaAssets] });
+  },
+
+  removeMediaAsset: (id: string) => {
+    set({ mediaAssets: get().mediaAssets.filter((a) => a.id !== id) });
   },
 
   addCaption: () => {

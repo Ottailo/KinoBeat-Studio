@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Play,
   Pause,
@@ -20,19 +20,33 @@ import {
   Sliders,
   X,
   Palette,
+  Scissors,
+  FolderOpen,
+  Volume2,
+  VolumeX,
+  Copy,
+  ChevronRight,
+  HardDrive,
+  FileVideo,
+  ImageIcon,
+  Music2,
 } from 'lucide-react';
-import { useStudioStore, SceneClip, CaptionItem } from '../../lib/store/studioStore';
-import { BeatMarker } from '../../lib/audio/beatDetector';
+import {
+  useStudioStore,
+  SceneClip,
+  CaptionItem,
+  MediaAsset,
+} from '../../lib/store/studioStore';
 
 const KINETIC_STYLES: Array<{ id: CaptionItem['style']; label: string }> = [
-  { id: 'slam', label: 'Slam (Spring Punch)' },
+  { id: 'slam', label: 'Slam (Spring Impact)' },
   { id: 'glow', label: 'Glow (Neon Bloom)' },
-  { id: 'split', label: 'Split (Sliding Reveal)' },
-  { id: 'matrix', label: 'Matrix (Glitch Cascade)' },
+  { id: 'split', label: 'Split (Chromatic Shift)' },
+  { id: 'matrix', label: 'Matrix (Glitch Stream)' },
 ];
 
 const COLOR_SWATCHES = [
-  { hex: '#FFFFFF', name: 'White' },
+  { hex: '#FFFFFF', name: 'Studio White' },
   { hex: '#00F0FF', name: 'Electric Cyan' },
   { hex: '#F472B6', name: 'Hot Pink' },
   { hex: '#FACC15', name: 'Cyber Amber' },
@@ -53,6 +67,9 @@ export const MultiTrackTimeline: React.FC = () => {
   const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
   const autoBeatSnap = useStudioStore((s) => s.autoBeatSnap);
   const selectedCaptionId = useStudioStore((s) => s.selectedCaptionId);
+  const audioVolume = useStudioStore((s) => s.audioVolume);
+  const isMuted = useStudioStore((s) => s.isMuted);
+  const mediaAssets = useStudioStore((s) => s.mediaAssets);
 
   const seekTo = useStudioStore((s) => s.seekTo);
   const togglePlay = useStudioStore((s) => s.togglePlay);
@@ -62,20 +79,34 @@ export const MultiTrackTimeline: React.FC = () => {
   const addScene = useStudioStore((s) => s.addScene);
   const addCustomMediaScene = useStudioStore((s) => s.addCustomMediaScene);
   const removeScene = useStudioStore((s) => s.removeScene);
+  const trimScene = useStudioStore((s) => s.trimScene);
+  const splitSceneAtPlayhead = useStudioStore((s) => s.splitSceneAtPlayhead);
   const addCaption = useStudioStore((s) => s.addCaption);
   const updateCaption = useStudioStore((s) => s.updateCaption);
   const removeCaption = useStudioStore((s) => s.removeCaption);
   const setSelectedCaptionId = useStudioStore((s) => s.setSelectedCaptionId);
   const toggleBeatSnap = useStudioStore((s) => s.toggleBeatSnap);
+  const setAudioVolume = useStudioStore((s) => s.setAudioVolume);
+  const toggleMute = useStudioStore((s) => s.toggleMute);
+  const addMediaAsset = useStudioStore((s) => s.addMediaAsset);
 
   const [zoom, setZoom] = useState(1);
   const [isAddShotMenuOpen, setIsAddShotMenuOpen] = useState(false);
+  const [isAssetBinOpen, setIsAssetBinOpen] = useState(false);
+  const [assetTab, setAssetTab] = useState<'all' | 'video' | 'image' | 'audio'>('all');
 
   // Inline editing state for title caption
   const [editingCaptionId, setEditingCaptionId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
 
+  // Dragging / Trimming State
+  const [trimmingIndex, setTrimmingIndex] = useState<number | null>(null);
+  const [trimInitialDuration, setTrimInitialDuration] = useState<number>(0);
+  const [trimInitialClientX, setTrimInitialClientX] = useState<number>(0);
+
+  const timelineTrackRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const assetFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Timecode formatter: MM:SS.ff
   const formatTimecode = (sec: number) => {
@@ -88,6 +119,7 @@ export const MultiTrackTimeline: React.FC = () => {
   const playheadPercent = Math.min(100, (currentTime / Math.max(0.1, duration)) * 100);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (trimmingIndex !== null) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     let targetRatio = Math.max(0, Math.min(1, clickX / rect.width));
@@ -115,7 +147,6 @@ export const MultiTrackTimeline: React.FC = () => {
     const isVideo = file.type.startsWith('video');
 
     if (isVideo) {
-      // Create offscreen video element to extract natural duration
       const tempVideo = document.createElement('video');
       tempVideo.src = url;
       tempVideo.onloadedmetadata = () => {
@@ -129,7 +160,68 @@ export const MultiTrackTimeline: React.FC = () => {
       addCustomMediaScene(file, url, 'image', 3.5);
     }
 
+    // Also register in Media Assets Bin
+    addMediaAsset({
+      id: `asset-${Date.now()}`,
+      name: file.name,
+      type: isVideo ? 'video' : 'image',
+      url,
+      sizeBytes: file.size,
+      createdAt: new Date().toISOString(),
+    });
+
     setIsAddShotMenuOpen(false);
+  };
+
+  // Dedicated Asset Bin File Upload
+  const handleAssetBinUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    const isVideo = file.type.startsWith('video');
+    const isAudio = file.type.startsWith('audio');
+    const type = isVideo ? 'video' : isAudio ? 'audio' : 'image';
+
+    addMediaAsset({
+      id: `asset-${Date.now()}`,
+      name: file.name,
+      type,
+      url,
+      sizeBytes: file.size,
+      createdAt: new Date().toISOString(),
+    });
+  };
+
+  // Trimming Pointer Handlers
+  const handleTrimStart = (index: number, e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setTrimmingIndex(index);
+    setTrimInitialDuration(scenes[index]?.duration || 3.5);
+    setTrimInitialClientX(e.clientX);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handleTrimMove = (e: React.PointerEvent) => {
+    if (trimmingIndex === null || !timelineTrackRef.current) return;
+    e.preventDefault();
+
+    const trackWidth = timelineTrackRef.current.clientWidth || 800;
+    const deltaX = e.clientX - trimInitialClientX;
+    const deltaSeconds = (deltaX / trackWidth) * duration;
+    const newDuration = Math.max(0.4, trimInitialDuration + deltaSeconds);
+
+    trimScene(trimmingIndex, newDuration);
+  };
+
+  const handleTrimEnd = (e: React.PointerEvent) => {
+    if (trimmingIndex !== null) {
+      try {
+        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {}
+      setTrimmingIndex(null);
+    }
   };
 
   // Inline Title Editing handlers
@@ -147,15 +239,28 @@ export const MultiTrackTimeline: React.FC = () => {
   };
 
   const selectedCaption = captions.find((c) => c.id === selectedCaptionId);
+  const activeScene = scenes[activeSceneIndex];
+
+  // Filtered Assets for Asset Bin
+  const filteredAssets = mediaAssets.filter((a) =>
+    assetTab === 'all' ? true : a.type === assetTab
+  );
 
   return (
-    <div className="w-full bg-[#0B0E14] border-t border-[#1E2638] select-none text-zinc-100 flex flex-col h-68 z-40 shadow-2xl relative">
+    <div className="w-full bg-[#0B0E14] border-t border-[#1E2638] select-none text-zinc-100 flex flex-col h-72 z-40 shadow-2xl relative">
       {/* Hidden file input for custom media upload */}
       <input
         ref={fileInputRef}
         type="file"
         accept="video/mp4,video/webm,video/quicktime,image/png,image/jpeg,image/webp"
         onChange={handleMediaFileUpload}
+        className="hidden"
+      />
+      <input
+        ref={assetFileInputRef}
+        type="file"
+        accept="video/*,image/*,audio/*"
+        onChange={handleAssetBinUpload}
         className="hidden"
       />
 
@@ -209,7 +314,18 @@ export const MultiTrackTimeline: React.FC = () => {
             <span className="text-zinc-400">{formatTimecode(duration)}</span>
           </div>
 
-          {/* BPM Badge */}
+          {/* Razor Split Tool Button */}
+          <button
+            type="button"
+            onClick={splitSceneAtPlayhead}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
+            title="Split Clip at Playhead (Cut)"
+          >
+            <Scissors className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Split Clip</span>
+          </button>
+
+          {/* BPM & FPS Badge */}
           <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
             <span className="px-2 py-0.5 rounded bg-[#161B26] border border-[#1E2638] text-zinc-300">
               {bpm} BPM
@@ -237,6 +353,21 @@ export const MultiTrackTimeline: React.FC = () => {
 
         {/* Timeline Actions & Zoom */}
         <div className="flex items-center gap-2 text-zinc-400">
+          {/* Asset Bin Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setIsAssetBinOpen(!isAssetBinOpen)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+              isAssetBinOpen
+                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-semibold'
+                : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
+            }`}
+            title="Toggle Left Asset Bin / Media Library"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Media Bin ({mediaAssets.length})</span>
+          </button>
+
           {/* Add Shot Popover Trigger */}
           <div className="relative">
             <button
@@ -249,7 +380,7 @@ export const MultiTrackTimeline: React.FC = () => {
             </button>
 
             {isAddShotMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#12161F] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 text-xs space-y-1">
+              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#12161F] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-150">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -315,37 +446,173 @@ export const MultiTrackTimeline: React.FC = () => {
 
       {/* Main Tracks & Inspector Area */}
       <div className="flex-1 flex overflow-hidden relative">
+        {/* Left Collapsible Asset Bin / Media Manager */}
+        {isAssetBinOpen && (
+          <div className="w-80 bg-[#12161F] border-r border-[#1E2638] flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-left duration-200">
+            <div className="p-3 border-b border-[#1E2638] flex items-center justify-between bg-[#161B26]">
+              <div className="flex items-center gap-2">
+                <HardDrive className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-semibold text-zinc-100">Project Asset Bin</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => assetFileInputRef.current?.click()}
+                  className="p-1 rounded hover:bg-zinc-800 text-cyan-400 transition-colors"
+                  title="Upload New Asset to Bin"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAssetBinOpen(false)}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Asset Category Tabs */}
+            <div className="flex items-center px-3 py-1.5 border-b border-[#1E2638] text-[10px] gap-1 font-mono bg-[#0D1119]">
+              {(['all', 'video', 'image', 'audio'] as const).map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setAssetTab(tab)}
+                  className={`px-2 py-0.5 rounded capitalize transition-colors ${
+                    assetTab === tab
+                      ? 'bg-zinc-800 text-cyan-300 font-semibold'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            {/* Asset List */}
+            <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+              {filteredAssets.length === 0 ? (
+                <div className="p-4 text-center text-xs text-zinc-500 font-mono">
+                  No assets found in category.
+                </div>
+              ) : (
+                filteredAssets.map((asset) => (
+                  <div
+                    key={asset.id}
+                    className="p-2 rounded-lg bg-[#0D1119] border border-[#1E2638] hover:border-zinc-700 flex items-center justify-between text-xs group transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center shrink-0 text-cyan-400">
+                        {asset.type === 'video' ? (
+                          <FileVideo className="w-4 h-4" />
+                        ) : asset.type === 'audio' ? (
+                          <Music2 className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <ImageIcon className="w-4 h-4 text-pink-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-medium text-zinc-200 truncate">
+                          {asset.name}
+                        </div>
+                        <div className="text-[9px] text-zinc-500 font-mono uppercase">
+                          {asset.type} {asset.duration ? `· ${asset.duration.toFixed(1)}s` : ''}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (asset.type === 'audio') return;
+                        addCustomMediaScene(
+                          new File([], asset.name),
+                          asset.url,
+                          asset.type as 'video' | 'image',
+                          asset.duration || 3.5
+                        );
+                      }}
+                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-[10px] font-medium transition-colors shrink-0"
+                      title="Add to Timeline Track V1"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Track Headers (Left Column) */}
-        <div className="w-36 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-between py-1 shrink-0 text-xs text-zinc-400 font-mono">
-          <div className="h-18 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
-            <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
-              <Video className="w-3.5 h-3.5 text-cyan-400" />
-              <span>V1 Video</span>
+        <div className="w-40 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-between py-1 shrink-0 text-xs text-zinc-400 font-mono">
+          {/* V1 Video Track Header */}
+          <div className="h-20 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
+            <div className="flex items-center justify-between font-semibold text-zinc-300">
+              <div className="flex items-center gap-1.5">
+                <Video className="w-3.5 h-3.5 text-cyan-400" />
+                <span>V1 Video</span>
+              </div>
+              <span className="text-[9px] text-zinc-500 font-mono">{scenes.length} Clips</span>
             </div>
-            <span className="text-[10px] text-zinc-500 mt-0.5">{scenes.length} Clips</span>
+            <span className="text-[10px] text-zinc-500 mt-1">4K Deterministic</span>
           </div>
 
+          {/* T1 Title Track Header */}
           <div className="h-12 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
-            <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
-              <Type className="w-3.5 h-3.5 text-pink-400" />
-              <span>T1 Titles</span>
+            <div className="flex items-center justify-between font-semibold text-zinc-300">
+              <div className="flex items-center gap-1.5">
+                <Type className="w-3.5 h-3.5 text-pink-400" />
+                <span>T1 Titles</span>
+              </div>
+              <span className="text-[9px] text-zinc-500 font-mono">{captions.length} Cues</span>
             </div>
-            <span className="text-[10px] text-zinc-500 mt-0.5">{captions.length} Kinetic Cues</span>
           </div>
 
-          <div className="h-14 px-3 flex flex-col justify-center">
-            <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
-              <Music className="w-3.5 h-3.5 text-emerald-400" />
-              <span>A1 Audio</span>
+          {/* A1 Audio Track Header with Volume Slider */}
+          <div className="h-16 px-3 flex flex-col justify-center">
+            <div className="flex items-center justify-between font-semibold text-zinc-300">
+              <div className="flex items-center gap-1.5">
+                <Music className="w-3.5 h-3.5 text-emerald-400" />
+                <span>A1 Audio</span>
+              </div>
+              <button
+                type="button"
+                onClick={toggleMute}
+                className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                title={isMuted ? 'Unmute' : 'Mute'}
+              >
+                {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
+              </button>
             </div>
-            <span className="text-[10px] text-zinc-500 mt-0.5">{beats.length} Transient Hits</span>
+
+            {/* Volume Fader Slider */}
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <input
+                type="range"
+                min="0"
+                max="1.5"
+                step="0.05"
+                value={isMuted ? 0 : audioVolume}
+                onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
+                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+              />
+              <span className="text-[9px] font-mono text-zinc-500 w-8 text-right">
+                {Math.round((isMuted ? 0 : audioVolume) * 100)}%
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Track Timeline Area (Right Scrollable / Interactive Canvas) */}
         <div
+          ref={timelineTrackRef}
           className="flex-1 relative bg-[#0B0E14] overflow-hidden cursor-pointer"
           onClick={handleTimelineClick}
+          onPointerMove={handleTrimMove}
+          onPointerUp={handleTrimEnd}
         >
           {/* Subtle Vertical Time Tick Marks */}
           <div className="absolute inset-0 flex justify-between pointer-events-none opacity-20">
@@ -354,8 +621,8 @@ export const MultiTrackTimeline: React.FC = () => {
             ))}
           </div>
 
-          {/* V1 Video Track: Scene Blocks */}
-          <div className="h-18 p-1 flex items-center gap-1 border-b border-[#1E2638]/60">
+          {/* V1 Video Track: Scene Blocks with Draggable Trim Handles */}
+          <div className="h-20 p-1 flex items-center gap-1 border-b border-[#1E2638]/60">
             {scenes.map((scene, idx) => {
               const widthPct = (scene.duration / duration) * 100;
               const isSelected = activeSceneIndex === idx;
@@ -408,10 +675,19 @@ export const MultiTrackTimeline: React.FC = () => {
 
                   {/* Footer: Camera Preset Badge & Duration */}
                   <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-zinc-400">
-                    <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-cyan-300">
+                    <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-cyan-300 truncate max-w-[120px]">
                       {scene.cameraPresetId.replace('_', ' ')}
                     </span>
-                    <span>{scene.duration.toFixed(1)}s</span>
+                    <span className="font-semibold text-zinc-200">{scene.duration.toFixed(1)}s</span>
+                  </div>
+
+                  {/* Draggable Trim-End Handle (Right Edge) */}
+                  <div
+                    onPointerDown={(e) => handleTrimStart(idx, e)}
+                    className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
+                    title="Drag to Trim Clip Duration"
+                  >
+                    <div className="w-[2px] h-4 rounded-full bg-cyan-400/60 group-hover/trim:bg-cyan-300" />
                   </div>
                 </div>
               );
@@ -475,13 +751,13 @@ export const MultiTrackTimeline: React.FC = () => {
           </div>
 
           {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM (Zero Math.sin fake) */}
-          <div className="h-14 p-1 relative flex items-center">
-            <div className="w-full h-8 flex items-end gap-[2px]">
+          <div className="h-16 p-1 relative flex items-center">
+            <div className="w-full h-10 flex items-end gap-[2px]">
               {audioWaveform.map((val, i) => (
                 <div
                   key={i}
                   className="flex-1 rounded-sm bg-gradient-to-t from-emerald-600 to-cyan-400 transition-all duration-150"
-                  style={{ height: `${Math.max(12, val * 100)}%` }}
+                  style={{ height: `${Math.max(12, val * (isMuted ? 0.2 : audioVolume) * 100)}%` }}
                 />
               ))}
             </div>

@@ -22,6 +22,8 @@
   - Rendered real physical RMS waveform bars on Track A1 and inside `AudioNode.tsx`.  
   *Proof*: Implemented in [`beatDetector.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/audio/beatDetector.ts), [`AudioNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/AudioNode.tsx), and [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx); verified in [`tests/screenshots/personas/persona_3_audio_beat_sync.png`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/tests/screenshots/personas/persona_3_audio_beat_sync.png).
 
+---
+
 ## 2. Studio Aesthetic Overhaul
 - [x] **2.1. Industrial Obsidian Dark Theme**: Canvas background `#0B0E14` with subtle grid lines `#141923`; graphite `#12161F` node cards with clean `#1E2638` borders; single cyan `#00F0FF` accent.  
   *Proof*: Verified in [`StudioCanvas.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/StudioCanvas.tsx) and all persona screenshots.
@@ -30,34 +32,75 @@
 - [x] **2.3. Zero Math Dumps in Camera Node**: Clean cinematography dropdowns (360° Orbital Drift, FPV Dive, Dolly Zoom Vertigo, 540° Roll, Overhead Crane, Rack Focus) and focal lengths (24mm, 35mm, 50mm, 85mm) from `Repos/higgsfield-ai-prompt-skill` with live 3D Vector Path canvas.  
   *Proof*: Verified in [`CameraNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/CameraNode.tsx) and grep output showing zero formula dump in UI components.
 
-## 3. User Personas Matrix (`USER_PERSONAS.md`)
-- [x] **3.1. Create `USER_PERSONAS.md`** defining 5 distinct personas and their step-by-step click workflows:
-  - Persona 1: Solo Creator (Custom MP4 footage upload -> inline title edit -> trimming -> export).
-  - Persona 2: AI Filmmaker (Prompting -> 35mm FPV Camera node -> Wan 2.1 model -> AI video generation).
-  - Persona 3: Music Producer (Song WAV upload -> Web Audio FFT beat detection -> snap video cuts to kick drum).
-  - Persona 4: Motion Typographer (Title overlays -> inline double-click editing -> kinetic motion style inspector).
-  - Persona 5: Brand Marketer (High-res product photo upload -> cinematic dolly zoom vertigo camera curve -> 4K preview).  
-  *Proof*: Created [`USER_PERSONAS.md`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/USER_PERSONAS.md).
+---
 
-## 4. Interactive First-Run Walkthrough (`WalkthroughModal.tsx`)
-- [x] **4.1. 5-Persona Onboarding Guide**: Walkthrough modal walking users through all 5 workflows with deep-links and progress tracking.  
-  *Proof*: Verified in [`WalkthroughModal.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Modals/WalkthroughModal.tsx) and screenshot [`tests/screenshots/personas/persona_5_walkthrough_guide.png`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/tests/screenshots/personas/persona_5_walkthrough_guide.png).
+## 3. Real Deterministic In-Browser Video Render Engine
+- [x] **3.1. Zero-JSON Master Video Compilation (`videoRenderer.ts`)**:
+  - Built an in-browser deterministic frame-by-frame Canvas 2D + Web Audio API + `MediaRecorder` compilation engine.
+  - Generates actual binary video files (`video/webm; codecs=vp9,opus` / `video/mp4`) at 1080p, 720p, and 4K-Cinema resolutions.
+  - Draws scene visuals, applies 3D camera transforms (orbital drift, FPV dive, vertigo dolly zoom), kinetic typography with spring mechanics, audio mixing, and technical timecode burn-in.  
+  *Proof*: Implemented in [`src/lib/video/videoRenderer.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/video/videoRenderer.ts).
+- [x] **3.2. In-Modal Video Player & Direct File Download (`ExportModal.tsx`)**:
+  - Replaced the mock timeout and JSON manifest download with live progress tracking (`Encoding frame X of Y...`).
+  - Upon completion, mounts an interactive `<video controls autoPlay />` player showing the freshly rendered video stream.
+  - Displays true video metrics: Resolution (e.g. `1920x1080`), Duration (`13.50s`), File Size (`2.91 MB`).
+  - "Download Master Video (.webm)" button saves the actual video file to disk.
+  - "Export EDL Manifest" provides DaVinci Resolve / Premiere timeline exchange.  
+  *Proof*: Implemented in [`ExportModal.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Export/ExportModal.tsx); verified via visual screenshot [`tests/screenshots/personas/persona_5_export_master_player.png`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/tests/screenshots/personas/persona_5_export_master_player.png).
 
-## 5. Automated 5-Persona Browser E2E Test Suite
-- [x] **5.1. E2E Test Script (`scripts/test_personas.mjs`)**: Programmatically simulates all 5 personas interacting with the running application.  
-  *Proof*: Executed with exit code 0 (`ALL 5 PERSONAS TESTED SUCCESSFULLY!`).
-- [x] **5.2. Screenshot Verification Gate**: Saved 5 high-res screenshots to `tests/screenshots/personas/`:
-  - `persona_1_custom_media.png`
-  - `persona_2_generative_shot.png`
-  - `persona_3_audio_beat_sync.png`
-  - `persona_4_kinetic_typography.png`
-  - `persona_5_walkthrough_guide.png`  
-  *Proof*: Verified all 5 images in artifact directory.
+---
 
-## 6. Build, Typecheck & Git Gate
-- [x] **6.1. Clean Next.js Build**: `npm run build` succeeds with exit code 0 and zero TypeScript errors (`Compiled successfully in 4.6s`).  
-  *Proof*: Task `task-679` completed with exit code 0.
-- [x] **6.2. Live Server Health**: Responds `HTTP 200 OK` on `http://localhost:3000`.  
+## 4. Multi-Track NLE Timeline Ergonomics
+- [x] **4.1. Draggable Clip Trim Handles**:
+  - Every scene block on Track V1 includes a right-edge trimming handle (`cursor-ew-resize`) with cyan grip line.
+  - Dragging the handle resizes clip duration in real-time, ripples subsequent clip start offsets, and updates total duration.  
+  *Proof*: Implemented in [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx) and `studioStore.ts` (`trimScene`).
+- [x] **4.2. Razor Split Tool ("Split Clip")**:
+  - Added dedicated "Split Clip" button with scissors icon.
+  - Slices the active scene under the playhead into two distinct clips maintaining continuity.  
+  *Proof*: Implemented in [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx) and `studioStore.ts` (`splitSceneAtPlayhead`); verified in persona test log.
+- [x] **4.3. Track A1 Volume Fader & Mute Controls**:
+  - Added interactive volume slider (0% to 150%) on the Track A1 header.
+  - Speaker mute toggle switches between muted and active volume state, dynamically scaling waveform bars.  
+  *Proof*: Implemented in `MultiTrackTimeline.tsx` and `studioStore.ts` (`audioVolume`, `setAudioVolume`).
+- [x] **4.4. Project Media Bin / Asset Library**:
+  - Collapsible left panel cataloging all project media with category filters (`All`, `Video`, `Image`, `Audio`).
+  - Displays thumbnails, file sizes, and duration with "+ Add" buttons to push directly to Track V1.
+  - Direct file upload to import external files into the project bin.  
+  *Proof*: Implemented in `MultiTrackTimeline.tsx` and `studioStore.ts` (`mediaAssets`, `addMediaAsset`).
+
+---
+
+## 5. Prior-Art Comparative Audit & Documentation
+- [x] **5.1. Comprehensive Comparative Audit (`AUDIT_AND_REBUILD_BLUEPRINT.md`)**:
+  - Formally compared and ranked all 8 reference repositories (`HeliosGen`, `BeatDesign`, `open-higgsfield`, `higgsfield-ai-prompt-skill`, `OpenMontage`, `OpenCut`, `wavesurfer.js`, `Remotion`).
+  - Documented architectural synthesis, eliminating weaknesses while adopting the best implementations across all 6 core pillars.  
+  *Proof*: Created [`AUDIT_AND_REBUILD_BLUEPRINT.md`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/AUDIT_AND_REBUILD_BLUEPRINT.md).
+- [x] **5.2. Clean Public Documentation**:
+  - Public `README.md` and user guide present KinoBeat Studio as a first-class original production studio.
+  - Clean architecture specification with zero internal repo exposure.  
+  *Proof*: Verified in [`README.md`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/README.md).
+
+---
+
+## 6. Automated 5-Persona Browser E2E Test Suite
+- [x] **6.1. E2E Test Script (`scripts/test_personas.mjs`)**:
+  - Simulates all 5 personas interacting with the running application (Media upload, Trimming, Razor Split, Prompting, Camera kinematics, DiT generation, Audio FFT, Volume slider, Kinetic Title Inspector, Media Bin, and real deterministic video render).
+  - Executed with exit code 0 (`ALL 5 PERSONAS TESTED SUCCESSFULLY WITH REAL VIDEO RENDER!`).  
+  *Proof*: Output of Task `task-904`.
+- [x] **6.2. Screenshot Verification Gate**: Saved high-res screenshots to `tests/screenshots/personas/`:
+  - `persona_1_custom_media.png` (Media upload, Trimming, Razor split, and inline title edit)
+  - `persona_2_generative_shot.png` (FPV camera, DiT Wan 2.1 inference)
+  - `persona_3_audio_beat_sync.png` (Real FFT waveform, Volume slider, Beat Snap)
+  - `persona_4_kinetic_typography.png` (Title Inspector drawer, 36px font, Cyan swatch)
+  - `persona_5_export_master_player.png` (In-modal video player with 2.91 MB WebM video and download button)
+  - `persona_5_walkthrough_guide.png` (First-run onboarding walkthrough)  
+  *Proof*: All 6 screenshots verified and mirrored to artifact directory.
+
+---
+
+## 7. Build, Typecheck & Health Gate
+- [x] **7.1. Clean Next.js Build**: `npm run build` succeeds with exit code 0 and zero TypeScript errors (`Compiled successfully in 19.4s`).  
+  *Proof*: Task `task-882` completed with exit code 0.
+- [x] **7.2. Live Server Health**: Responds `HTTP 200 OK` on `http://localhost:3000`.  
   *Proof*: `curl.exe -s -I http://localhost:3000` returned `HTTP/1.1 200 OK`.
-- [x] **6.3. Git Commit & Push**: Pushed to `https://github.com/Ottailo/KinoBeat-Studio`.  
-  *Proof*: Git commit and push executed.

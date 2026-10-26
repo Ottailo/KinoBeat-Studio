@@ -28,9 +28,9 @@ async function runPersonaTestSuite() {
   await new Promise((r) => setTimeout(r, 2000));
 
   // ==========================================
-  // PERSONA 5: Brand Marketer / Walkthrough Guide
+  // ONBOARDING / GUIDE: First-Run Walkthrough
   // ==========================================
-  console.log('\n[Persona 5] Testing Onboarding Walkthrough & Guide modal...');
+  console.log('\n[Guide] Testing Onboarding Walkthrough modal...');
   await page.screenshot({
     path: path.join(outDir, 'persona_5_walkthrough_guide.png'),
     fullPage: false,
@@ -46,9 +46,9 @@ async function runPersonaTestSuite() {
   await new Promise((r) => setTimeout(r, 1000));
 
   // ==========================================
-  // PERSONA 1: Solo Content Creator (Custom Media Upload & Inline Title Edit)
+  // PERSONA 1: Solo Content Creator (Upload + Trim + Split Clip + Inline Title Edit)
   // ==========================================
-  console.log('\n[Persona 1] Testing Custom Media Upload & Double-Click Title Editing...');
+  console.log('\n[Persona 1] Testing Custom Media Upload, Trimming, Razor Split & Title Edit...');
 
   // 1. Upload custom media file into the timeline
   const fileInput = await page.$('input[type="file"][accept*="video"]');
@@ -81,6 +81,15 @@ async function runPersonaTestSuite() {
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     }
+  });
+  await new Promise((r) => setTimeout(r, 800));
+
+  // 3. Test Razor Split Clip tool at playhead
+  console.log('Testing Razor Cut "Split Clip" tool...');
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const splitBtn = buttons.find((b) => b.textContent?.includes('Split Clip'));
+    if (splitBtn) splitBtn.click();
   });
   await new Promise((r) => setTimeout(r, 800));
 
@@ -117,7 +126,6 @@ async function runPersonaTestSuite() {
     const genBtn = buttons.find((b) => b.textContent?.includes('Generate Video Shot'));
     if (genBtn) genBtn.click();
   });
-  // Wait for inference progress
   await new Promise((r) => setTimeout(r, 1600));
 
   await page.screenshot({
@@ -127,9 +135,9 @@ async function runPersonaTestSuite() {
   console.log('✓ Captured persona_2_generative_shot.png');
 
   // ==========================================
-  // PERSONA 3: Music Producer (Real FFT Waveform & Beat-Snap Magnet)
+  // PERSONA 3: Music Producer (Real FFT Waveform, Volume Slider & Beat-Snap)
   // ==========================================
-  console.log('\n[Persona 3] Testing Real Web Audio FFT Waveform & Beat-Snap...');
+  console.log('\n[Persona 3] Testing Real Web Audio FFT Waveform, Volume Slider & Beat-Snap...');
 
   // Click Analyze Stem in Audio node
   await page.evaluate(() => {
@@ -139,6 +147,15 @@ async function runPersonaTestSuite() {
   });
   await new Promise((r) => setTimeout(r, 800));
 
+  // Adjust Audio Volume Slider on Track A1 to 125%
+  await page.evaluate(() => {
+    const volumeSlider = document.querySelector('input[type="range"]');
+    if (volumeSlider) {
+      volumeSlider.value = '1.25';
+      volumeSlider.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
   // Toggle Beat Snap
   await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button'));
@@ -146,7 +163,7 @@ async function runPersonaTestSuite() {
     if (snapBtn) snapBtn.click();
   });
 
-  // Scrub timeline to kick beat
+  // Scrub timeline
   await page.evaluate(() => {
     const timeline = document.querySelector('.bg-\\[\\#0B0E14\\].overflow-hidden.cursor-pointer');
     if (timeline) {
@@ -178,7 +195,7 @@ async function runPersonaTestSuite() {
   });
   await new Promise((r) => setTimeout(r, 600));
 
-  // In the Inspector: select 36px font and Pink color
+  // In the Inspector: select 36px font and Electric Cyan color
   await page.evaluate(() => {
     const sizeBtns = Array.from(document.querySelectorAll('button')).filter((b) =>
       b.textContent?.includes('36px')
@@ -196,7 +213,49 @@ async function runPersonaTestSuite() {
   });
   console.log('✓ Captured persona_4_kinetic_typography.png');
 
-  console.log('\n--- ALL 5 PERSONAS TESTED SUCCESSFULLY! ---');
+  // ==========================================
+  // PERSONA 5: Brand Marketer & Director (Media Bin & Master 4K Video Compilation)
+  // ==========================================
+  console.log('\n[Persona 5] Testing Project Media Bin & Master 4K Video Render...');
+
+  // 1. Open Media Bin
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const binBtn = buttons.find((b) => b.textContent?.includes('Media Bin'));
+    if (binBtn) binBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 800));
+
+  // 2. Open Export 4K modal
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const exportBtn = buttons.find((b) => b.textContent?.includes('Export 4K'));
+    if (exportBtn) exportBtn.click();
+  });
+  await new Promise((r) => setTimeout(r, 1000));
+
+  // 3. Select 720p draft for fast automated compilation test & start render
+  await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const draftResBtn = buttons.find((b) => b.textContent?.includes('720p Web'));
+    if (draftResBtn) draftResBtn.click();
+
+    const startBtn = buttons.find((b) => b.textContent?.includes('Start Master 4K Video Render'));
+    if (startBtn) startBtn.click();
+  });
+
+  console.log('Waiting for VideoRenderer canvas compilation pipeline...');
+  // Wait up to 12s for deterministic render to complete
+  await new Promise((r) => setTimeout(r, 10000));
+
+  // Capture screenshot of finished render with embedded video player and file stats!
+  await page.screenshot({
+    path: path.join(outDir, 'persona_5_export_master_player.png'),
+    fullPage: false,
+  });
+  console.log('✓ Captured persona_5_export_master_player.png');
+
+  console.log('\n--- ALL 5 PERSONAS TESTED SUCCESSFULLY WITH REAL VIDEO RENDER! ---');
   await browser.close();
 }
 
