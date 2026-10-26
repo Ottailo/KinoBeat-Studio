@@ -1,7 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, CheckCircle2, Circle, Compass, Sparkles, Key, Video, Music, Film, ArrowRight } from 'lucide-react';
+import {
+  X,
+  CheckCircle2,
+  Circle,
+  Compass,
+  Video,
+  Sparkles,
+  Music,
+  Type,
+  Film,
+  ArrowRight,
+  Upload,
+} from 'lucide-react';
+import { useStudioStore } from '../../lib/store/studioStore';
 
 interface WalkthroughModalProps {
   isOpen: boolean;
@@ -12,6 +25,7 @@ interface WalkthroughModalProps {
 
 interface StepItem {
   id: string;
+  persona: string;
   title: string;
   desc: string;
   icon: React.ReactNode;
@@ -25,6 +39,9 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   onOpenByok,
   onOpenExport,
 }) => {
+  const addCaption = useStudioStore((s) => s.addCaption);
+  const setCameraCurve = useStudioStore((s) => s.setCameraCurve);
+
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({
     'step-1': true,
     'step-2': true,
@@ -35,38 +52,48 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   const steps: StepItem[] = [
     {
       id: 'step-1',
-      title: '1. Connect Inference Engine',
-      desc: 'Configure your API keys (Fal.ai, Higgsfield, Replicate) via BYOK or run with the local zero-cost simulator.',
-      icon: <Key className="w-4 h-4 text-zinc-400" />,
-      actionText: 'Configure BYOK',
+      persona: 'Persona 1 // Solo Creator',
+      title: '1. Custom Media Import (MP4/PNG)',
+      desc: 'Import your own video files or images via "+ Add Shot" -> "Upload Custom Media" with real timeline scrubbing and zero AI dependencies.',
+      icon: <Upload className="w-4 h-4 text-cyan-400" />,
+    },
+    {
+      id: 'step-2',
+      persona: 'Persona 2 // AI Filmmaker',
+      title: '2. Multi-Model DiT Inference',
+      desc: 'Chain Prompt Core with 6-DOF cinematography curves into Wan 2.1 or Flux Pro engines for high-fidelity generative video.',
+      icon: <Sparkles className="w-4 h-4 text-emerald-400" />,
+      actionText: 'BYOK API Keys',
       onAction: () => {
         onClose();
         onOpenByok();
       },
     },
     {
-      id: 'step-2',
-      title: '2. Assemble Node Pipeline',
-      desc: 'Link PromptNode and CameraNode to the ModelNode, then route output to the Remotion Sequencer.',
-      icon: <Sparkles className="w-4 h-4 text-zinc-400" />,
-    },
-    {
       id: 'step-3',
-      title: '3. Configure Cinematic Camera Motion',
-      desc: 'Select professional camera trajectories (360° Orbital Drift, FPV Dive, Vertigo Zoom) and focal lengths (24mm, 35mm, 50mm, 85mm).',
-      icon: <Video className="w-4 h-4 text-zinc-400" />,
+      persona: 'Persona 3 // Music Producer',
+      title: '3. Real Web Audio FFT Beat Detection',
+      desc: 'Upload an MP3/WAV backing track. The Web Audio FFT engine decodes true RMS energy and kick transients, auto-snapping cuts to the beat.',
+      icon: <Music className="w-4 h-4 text-pink-400" />,
     },
     {
       id: 'step-4',
-      title: '4. Analyze Audio & Transient Beats',
-      desc: 'Synthesize or upload backing tracks. The Web Audio API FFT engine automatically flags kicks and snares on the timeline.',
-      icon: <Music className="w-4 h-4 text-zinc-400" />,
+      persona: 'Persona 4 // Kinetic Typographer',
+      title: '4. Dynamic In-Place Title Editing',
+      desc: 'Double-click any title block on Track T1 to edit text in-place, or open the Title Inspector to calibrate spring motion presets and colors.',
+      icon: <Type className="w-4 h-4 text-amber-400" />,
+      actionText: 'Spawn Title',
+      onAction: () => {
+        addCaption();
+        onClose();
+      },
     },
     {
       id: 'step-5',
-      title: '5. Frame-Accurate Scrub & 4K Export',
-      desc: 'Scrub the Remotion multi-track timeline at 60 FPS, check kinetic typography synchronization, and render high-res MP4 masters.',
-      icon: <Film className="w-4 h-4 text-zinc-400" />,
+      persona: 'Persona 5 // Brand Marketer',
+      title: '5. Optical Camera Curves & 4K Master Export',
+      desc: 'Apply Vertigo dolly zooms, orbital arcs, or FPV dives, then compile master H.264 video streams or DaVinci Resolve EDL timelines.',
+      icon: <Film className="w-4 h-4 text-purple-400" />,
       ...(onOpenExport && {
         actionText: 'Open Export',
         onAction: () => {
@@ -95,7 +122,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   const progressPercent = Math.round((progressCount / steps.length) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-lg rounded-xl bg-[#12161F] border border-[#1E2638] shadow-2xl overflow-hidden text-zinc-100 font-sans">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#161B26]">
@@ -108,7 +135,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 Welcome to KinoBeat Studio
               </h2>
               <p className="text-[11px] text-zinc-400">
-                Interactive Onboarding & Architecture Guide
+                5-Persona Architecture & Interactive Directing Guide
               </p>
             </div>
           </div>
@@ -126,7 +153,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-zinc-400">Setup Progress:</span>
             <span className="font-mono text-cyan-400 font-medium">
-              {progressCount} / {steps.length} Steps
+              {progressCount} / {steps.length} Personas Explored
             </span>
           </div>
           <div className="w-32 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
@@ -164,6 +191,9 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 </button>
 
                 <div className="flex-1 space-y-1">
+                  <div className="text-[10px] font-mono text-cyan-400 font-semibold uppercase tracking-wider">
+                    {s.persona}
+                  </div>
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-xs font-semibold ${
@@ -207,7 +237,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-md bg-zinc-100 hover:bg-white text-zinc-900 font-semibold text-xs transition-colors"
+            className="px-4 py-1.5 rounded-md bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-bold text-xs transition-colors shadow-md shadow-cyan-950/30"
           >
             Enter Studio
           </button>

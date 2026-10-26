@@ -5,7 +5,7 @@ import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { SceneClip } from '../../lib/store/studioStore';
 import { BeatMarker } from '../../lib/audio/beatDetector';
 import { CAMERA_CURVES } from '../../lib/camera/cameraMath';
-import { KineticTypography } from './KineticTypography';
+import { KineticTypography, CaptionItem } from './KineticTypography';
 import { AudioVisualizerOverlay } from './AudioVisualizerOverlay';
 
 export interface KinoCompositionProps {
@@ -13,13 +13,7 @@ export interface KinoCompositionProps {
   cameraCurveId: string;
   bpm: number;
   beats: BeatMarker[];
-  captions: Array<{
-    id: string;
-    text: string;
-    startTime: number;
-    endTime: number;
-    style: 'slam' | 'glow' | 'split' | 'matrix';
-  }>;
+  captions: CaptionItem[];
 }
 
 export const KinoComposition: React.FC<KinoCompositionProps> = ({
@@ -43,7 +37,7 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
 
   const sceneLocalTime = Math.max(
     0,
-    Math.min(1.0, (currentTime - currentScene.startAt) / currentScene.duration)
+    Math.min(1.0, (currentTime - currentScene.startAt) / Math.max(0.1, currentScene.duration))
   );
 
   const activeCurve = CAMERA_CURVES[cameraCurveId] || CAMERA_CURVES.orbital_drift;
@@ -68,15 +62,28 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
     transformOrigin: 'center center',
   };
 
+  const isVideo = currentScene.mediaType === 'video' && !!currentScene.videoUrl;
+
   return (
     <div className="relative w-full h-full overflow-hidden bg-black select-none font-sans">
-      {/* 3D Viewport Scene Layer */}
+      {/* 3D Viewport Scene Layer (Video or High-Res Image) */}
       <div className="absolute inset-0 w-full h-full" style={transformStyle}>
-        <img
-          src={currentScene.thumbnailUrl}
-          alt={currentScene.title}
-          className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
-        />
+        {isVideo ? (
+          <video
+            src={currentScene.videoUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
+          />
+        ) : (
+          <img
+            src={currentScene.thumbnailUrl}
+            alt={currentScene.title}
+            className="w-full h-full object-cover brightness-[0.92] contrast-[1.08]"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40 pointer-events-none" />
       </div>
 
@@ -94,19 +101,27 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
 
       {/* Scene Telemetry */}
       <div className="absolute bottom-10 left-12 z-20 font-mono text-[10px] text-zinc-400">
-        <div className="text-zinc-200 font-medium uppercase">{currentScene.title}</div>
+        <div className="text-zinc-200 font-medium uppercase tracking-wider flex items-center gap-2">
+          <span>{currentScene.title}</span>
+          {isVideo && (
+            <span className="px-1.5 py-0.2 rounded bg-cyan-950/80 border border-cyan-500/60 text-cyan-300 text-[9px]">
+              MP4 RAW
+            </span>
+          )}
+        </div>
         <div className="text-zinc-500 text-[9px] mt-0.5">
           {activeCurve.name} · {currentScene.modelId.toUpperCase()}
         </div>
       </div>
 
-      {/* Visualizer & Captions */}
+      {/* Real-time Frequency Spectrum Overlay */}
       <AudioVisualizerOverlay
-        energy={isBeatHit ? 0.9 : 0.4}
+        energy={isBeatHit ? 0.95 : 0.4}
         isBeatHit={isBeatHit}
         bpm={bpm}
       />
 
+      {/* Word-Level Kinetic Typography */}
       <KineticTypography
         captions={captions}
         currentTime={currentTime}

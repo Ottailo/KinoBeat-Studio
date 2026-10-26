@@ -15,6 +15,7 @@ export interface AudioAnalysisResult {
   beats: BeatMarker[];
   sampleRate: number;
   peaks: number[];
+  waveform: number[]; // 64 normalized RMS energy buckets for UI visualization
 }
 
 export class BeatDetector {
@@ -28,7 +29,9 @@ export class BeatDetector {
 
   public getOrCreateContext(): AudioContext {
     if (!this.audioContext || this.audioContext.state === 'closed') {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioContextClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.audioContext = new AudioContextClass();
     }
     if (this.audioContext.state === 'suspended') {
@@ -45,16 +48,36 @@ export class BeatDetector {
     const sampleRate = buffer.sampleRate;
     const duration = buffer.duration;
 
-    // FFT parameters
+    // 1. Compute 64 true RMS energy buckets for timeline waveform display
+    const bucketCount = 64;
+    const bucketSize = Math.max(1, Math.floor(channelData.length / bucketCount));
+    const rawWaveform: number[] = [];
+
+    for (let b = 0; b < bucketCount; b++) {
+      let sumSq = 0;
+      const start = b * bucketSize;
+      const end = Math.min(channelData.length, start + bucketSize);
+      for (let s = start; s < end; s++) {
+        sumSq += channelData[s] * channelData[s];
+      }
+      const rms = Math.sqrt(sumSq / Math.max(1, end - start));
+      rawWaveform.push(rms);
+    }
+
+    const maxRms = Math.max(...rawWaveform, 0.001);
+    const waveform = rawWaveform.map((val) =>
+      Math.max(0.12, Math.min(1.0, val / maxRms))
+    );
+
+    // 2. FFT & Spectral Flux Parameters
     const hopSize = 512;
     const frameCount = Math.floor(channelData.length / hopSize);
-    
-    // Spectral flux & energy envelope
+
     const spectralFlux: number[] = new Array(frameCount).fill(0);
     const peaks: number[] = [];
     const step = Math.max(1, Math.floor(channelData.length / 200));
 
-    // Downsampled waveform for UI visualization
+    // Downsampled peak envelope
     for (let i = 0; i < channelData.length; i += step) {
       let max = 0;
       for (let j = 0; j < step && i + j < channelData.length; j++) {
@@ -74,7 +97,7 @@ export class BeatDetector {
         currentEnergy += val * val;
       }
       currentEnergy = Math.sqrt(currentEnergy / hopSize);
-      
+
       // Half-wave rectified difference (Spectral Flux approximation)
       const diff = Math.max(0, currentEnergy - prevEnergy);
       spectralFlux[f] = diff;
@@ -96,7 +119,7 @@ export class BeatDetector {
       const localMean = sum / (2 * windowSize + 1);
       const threshold = localMean * 1.45 + 0.02;
 
-      if (spectralFlux[i] > threshold && (i - lastBeatFrame) >= minBeatDistance) {
+      if (spectralFlux[i] > threshold && i - lastBeatFrame >= minBeatDistance) {
         // Is it a local maximum?
         let isLocalMax = true;
         for (let w = -3; w <= 3; w++) {
@@ -109,7 +132,7 @@ export class BeatDetector {
         if (isLocalMax) {
           const timestamp = (i * hopSize) / sampleRate;
           const energy = Math.min(1.0, spectralFlux[i] * 3.5);
-          
+
           // Classify transient by energy
           let type: BeatMarker['type'] = 'transient';
           if (energy > 0.75) type = 'kick';
@@ -132,17 +155,17 @@ export class BeatDetector {
       const intervals: number[] = [];
       for (let b = 1; b < beats.length; b++) {
         const delta = beats[b].timestamp - beats[b - 1].timestamp;
-        if (delta >= 0.25 && delta <= 1.2) { // 50 BPM - 240 BPM
+        if (delta >= 0.25 && delta <= 1.2) {
+          // 50 BPM - 240 BPM
           intervals.push(delta);
         }
       }
 
       if (intervals.length > 0) {
-        // Median interval
         intervals.sort((a, b) => a - b);
         const medianInterval = intervals[Math.floor(intervals.length / 2)];
         let calculatedBpm = 60 / medianInterval;
-        
+
         // Normalize to common range 80-160 BPM
         while (calculatedBpm < 85) calculatedBpm *= 2;
         while (calculatedBpm > 175) calculatedBpm /= 2;
@@ -156,6 +179,7 @@ export class BeatDetector {
       beats,
       sampleRate,
       peaks,
+      waveform,
     };
   }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Play,
   Pause,
@@ -15,9 +15,31 @@ import {
   ZoomIn,
   ZoomOut,
   Magnet,
+  Upload,
+  Sparkles,
+  Sliders,
+  X,
+  Palette,
 } from 'lucide-react';
 import { useStudioStore, SceneClip, CaptionItem } from '../../lib/store/studioStore';
 import { BeatMarker } from '../../lib/audio/beatDetector';
+
+const KINETIC_STYLES: Array<{ id: CaptionItem['style']; label: string }> = [
+  { id: 'slam', label: 'Slam (Spring Punch)' },
+  { id: 'glow', label: 'Glow (Neon Bloom)' },
+  { id: 'split', label: 'Split (Sliding Reveal)' },
+  { id: 'matrix', label: 'Matrix (Glitch Cascade)' },
+];
+
+const COLOR_SWATCHES = [
+  { hex: '#FFFFFF', name: 'White' },
+  { hex: '#00F0FF', name: 'Electric Cyan' },
+  { hex: '#F472B6', name: 'Hot Pink' },
+  { hex: '#FACC15', name: 'Cyber Amber' },
+  { hex: '#34D399', name: 'Emerald' },
+];
+
+const FONT_SIZES = [18, 24, 28, 36];
 
 export const MultiTrackTimeline: React.FC = () => {
   const currentTime = useStudioStore((s) => s.currentTime);
@@ -27,8 +49,10 @@ export const MultiTrackTimeline: React.FC = () => {
   const scenes = useStudioStore((s) => s.scenes);
   const beats = useStudioStore((s) => s.beats);
   const captions = useStudioStore((s) => s.captions);
+  const audioWaveform = useStudioStore((s) => s.audioWaveform);
   const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
   const autoBeatSnap = useStudioStore((s) => s.autoBeatSnap);
+  const selectedCaptionId = useStudioStore((s) => s.selectedCaptionId);
 
   const seekTo = useStudioStore((s) => s.seekTo);
   const togglePlay = useStudioStore((s) => s.togglePlay);
@@ -36,11 +60,22 @@ export const MultiTrackTimeline: React.FC = () => {
   const stepFrame = useStudioStore((s) => s.stepFrame);
   const selectScene = useStudioStore((s) => s.selectScene);
   const addScene = useStudioStore((s) => s.addScene);
+  const addCustomMediaScene = useStudioStore((s) => s.addCustomMediaScene);
   const removeScene = useStudioStore((s) => s.removeScene);
   const addCaption = useStudioStore((s) => s.addCaption);
+  const updateCaption = useStudioStore((s) => s.updateCaption);
+  const removeCaption = useStudioStore((s) => s.removeCaption);
+  const setSelectedCaptionId = useStudioStore((s) => s.setSelectedCaptionId);
   const toggleBeatSnap = useStudioStore((s) => s.toggleBeatSnap);
 
   const [zoom, setZoom] = useState(1);
+  const [isAddShotMenuOpen, setIsAddShotMenuOpen] = useState(false);
+
+  // Inline editing state for title caption
+  const [editingCaptionId, setEditingCaptionId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Timecode formatter: MM:SS.ff
   const formatTimecode = (sec: number) => {
@@ -50,7 +85,7 @@ export const MultiTrackTimeline: React.FC = () => {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`;
   };
 
-  const playheadPercent = Math.min(100, (currentTime / duration) * 100);
+  const playheadPercent = Math.min(100, (currentTime / Math.max(0.1, duration)) * 100);
 
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -58,7 +93,7 @@ export const MultiTrackTimeline: React.FC = () => {
     let targetRatio = Math.max(0, Math.min(1, clickX / rect.width));
     let targetTime = targetRatio * duration;
 
-    // Magnet snap to nearest beat if enabled
+    // Magnet snap to nearest kick/snare beat if enabled
     if (autoBeatSnap && beats.length > 0) {
       const nearestBeat = beats.reduce((prev, curr) =>
         Math.abs(curr.timestamp - targetTime) < Math.abs(prev.timestamp - targetTime) ? curr : prev
@@ -71,8 +106,59 @@ export const MultiTrackTimeline: React.FC = () => {
     seekTo(targetTime);
   };
 
+  // Custom Media Upload Handler
+  const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    const isVideo = file.type.startsWith('video');
+
+    if (isVideo) {
+      // Create offscreen video element to extract natural duration
+      const tempVideo = document.createElement('video');
+      tempVideo.src = url;
+      tempVideo.onloadedmetadata = () => {
+        const vidDuration = Math.min(12, Math.max(2, tempVideo.duration || 3.5));
+        addCustomMediaScene(file, url, 'video', Number(vidDuration.toFixed(1)));
+      };
+      tempVideo.onerror = () => {
+        addCustomMediaScene(file, url, 'video', 3.5);
+      };
+    } else {
+      addCustomMediaScene(file, url, 'image', 3.5);
+    }
+
+    setIsAddShotMenuOpen(false);
+  };
+
+  // Inline Title Editing handlers
+  const handleStartTitleEdit = (cap: CaptionItem) => {
+    setEditingCaptionId(cap.id);
+    setEditingText(cap.text);
+    setSelectedCaptionId(cap.id);
+  };
+
+  const handleSaveTitleEdit = (id: string) => {
+    if (editingText.trim()) {
+      updateCaption(id, { text: editingText.trim() });
+    }
+    setEditingCaptionId(null);
+  };
+
+  const selectedCaption = captions.find((c) => c.id === selectedCaptionId);
+
   return (
-    <div className="w-full bg-[#0B0E14] border-t border-[#1E2638] select-none text-zinc-100 flex flex-col h-64 z-40 shadow-2xl">
+    <div className="w-full bg-[#0B0E14] border-t border-[#1E2638] select-none text-zinc-100 flex flex-col h-68 z-40 shadow-2xl relative">
+      {/* Hidden file input for custom media upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime,image/png,image/jpeg,image/webp"
+        onChange={handleMediaFileUpload}
+        className="hidden"
+      />
+
       {/* Timeline Controls Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[#1E2638] bg-[#12161F]">
         <div className="flex items-center gap-3">
@@ -91,7 +177,7 @@ export const MultiTrackTimeline: React.FC = () => {
             type="button"
             onClick={() => stepFrame(-1)}
             className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
-            title="Step Back 1 Frame"
+            title="Step Back 1 Frame (Left Arrow)"
           >
             <StepBack className="w-3.5 h-3.5" />
           </button>
@@ -111,7 +197,7 @@ export const MultiTrackTimeline: React.FC = () => {
             type="button"
             onClick={() => stepFrame(1)}
             className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
-            title="Step Forward 1 Frame"
+            title="Step Forward 1 Frame (Right Arrow)"
           >
             <StepForward className="w-3.5 h-3.5" />
           </button>
@@ -139,27 +225,62 @@ export const MultiTrackTimeline: React.FC = () => {
             onClick={toggleBeatSnap}
             className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
               autoBeatSnap
-                ? 'bg-cyan-950/60 border-cyan-500/80 text-cyan-300'
-                : 'bg-[#161B26] border-[#1E2638] text-zinc-500'
+                ? 'bg-cyan-950/60 border-cyan-500/80 text-cyan-300 font-semibold shadow-sm'
+                : 'bg-[#161B26] border-[#1E2638] text-zinc-500 hover:text-zinc-300'
             }`}
-            title="Snap playhead & edits to nearest audio kick/transient"
+            title="Magnet-snap playhead and edits to nearest kick transient"
           >
-            <Magnet className="w-3 h-3" />
-            <span>Beat Snap</span>
+            <Magnet className="w-3 h-3 text-cyan-400" />
+            <span>Beat Snap: {autoBeatSnap ? 'ON' : 'OFF'}</span>
           </button>
         </div>
 
         {/* Timeline Actions & Zoom */}
         <div className="flex items-center gap-2 text-zinc-400">
-          <button
-            type="button"
-            onClick={addScene}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Add Shot</span>
-          </button>
+          {/* Add Shot Popover Trigger */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsAddShotMenuOpen(!isAddShotMenuOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Add Shot</span>
+            </button>
 
+            {isAddShotMenuOpen && (
+              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#12161F] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 text-xs space-y-1">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full text-left px-2.5 py-2 rounded hover:bg-[#161B26] text-zinc-200 transition-colors flex items-center gap-2"
+                >
+                  <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                  <div>
+                    <div className="font-medium text-xs">Upload Custom Media</div>
+                    <div className="text-[10px] text-zinc-500">MP4, WebM, PNG, JPEG</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    addScene();
+                    setIsAddShotMenuOpen(false);
+                  }}
+                  className="w-full text-left px-2.5 py-2 rounded hover:bg-[#161B26] text-zinc-200 transition-colors flex items-center gap-2"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                  <div>
+                    <div className="font-medium text-xs">Generate with AI</div>
+                    <div className="text-[10px] text-zinc-500">Flux / Kling prompt sequence</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Add Title Button */}
           <button
             type="button"
             onClick={addCaption}
@@ -171,6 +292,7 @@ export const MultiTrackTimeline: React.FC = () => {
 
           <div className="h-4 w-[1px] bg-[#1E2638] mx-1" />
 
+          {/* Zoom Controls */}
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
@@ -191,8 +313,8 @@ export const MultiTrackTimeline: React.FC = () => {
         </div>
       </div>
 
-      {/* Tracks Container */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Tracks & Inspector Area */}
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Track Headers (Left Column) */}
         <div className="w-36 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-between py-1 shrink-0 text-xs text-zinc-400 font-mono">
           <div className="h-18 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
@@ -203,11 +325,12 @@ export const MultiTrackTimeline: React.FC = () => {
             <span className="text-[10px] text-zinc-500 mt-0.5">{scenes.length} Clips</span>
           </div>
 
-          <div className="h-10 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
+          <div className="h-12 px-3 flex flex-col justify-center border-b border-[#1E2638]/60">
             <div className="flex items-center gap-1.5 font-semibold text-zinc-300">
               <Type className="w-3.5 h-3.5 text-pink-400" />
               <span>T1 Titles</span>
             </div>
+            <span className="text-[10px] text-zinc-500 mt-0.5">{captions.length} Kinetic Cues</span>
           </div>
 
           <div className="h-14 px-3 flex flex-col justify-center">
@@ -236,6 +359,7 @@ export const MultiTrackTimeline: React.FC = () => {
             {scenes.map((scene, idx) => {
               const widthPct = (scene.duration / duration) * 100;
               const isSelected = activeSceneIndex === idx;
+              const isVideo = scene.mediaType === 'video';
 
               return (
                 <div
@@ -251,7 +375,7 @@ export const MultiTrackTimeline: React.FC = () => {
                       : 'border-[#1E2638] bg-[#12161F] hover:border-zinc-600'
                   }`}
                 >
-                  {/* Clip Thumbnail Background with dark fade */}
+                  {/* Clip Thumbnail / Video Background */}
                   <div
                     className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-35 transition-opacity pointer-events-none"
                     style={{ backgroundImage: `url(${scene.thumbnailUrl})` }}
@@ -259,8 +383,13 @@ export const MultiTrackTimeline: React.FC = () => {
 
                   {/* Header: Shot Title & Delete Action */}
                   <div className="relative z-10 flex items-center justify-between">
-                    <span className="text-[11px] font-semibold tracking-tight text-zinc-200 truncate">
-                      {scene.title}
+                    <span className="text-[11px] font-semibold tracking-tight text-zinc-200 truncate flex items-center gap-1">
+                      {isVideo && (
+                        <span className="px-1 py-0.2 rounded bg-cyan-900/60 text-cyan-300 text-[9px] font-mono">
+                          MP4
+                        </span>
+                      )}
+                      <span>{scene.title}</span>
                     </span>
                     {scenes.length > 1 && isSelected && (
                       <button
@@ -289,39 +418,72 @@ export const MultiTrackTimeline: React.FC = () => {
             })}
           </div>
 
-          {/* T1 Title Track: Kinetic Caption Blocks */}
-          <div className="h-10 p-1 flex items-center relative border-b border-[#1E2638]/60">
+          {/* T1 Title Track: Kinetic Caption Blocks with Double-Click Inline Editing */}
+          <div className="h-12 p-1 flex items-center relative border-b border-[#1E2638]/60">
             {captions.map((cap) => {
               const leftPct = (cap.startTime / duration) * 100;
               const widthPct = ((cap.endTime - cap.startTime) / duration) * 100;
+              const isEditing = editingCaptionId === cap.id;
+              const isSelected = selectedCaptionId === cap.id;
 
               return (
                 <div
                   key={cap.id}
-                  style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                  className="absolute h-7 rounded border border-pink-500/40 bg-pink-950/40 text-pink-200 px-2 flex items-center text-[10px] font-mono truncate shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedCaptionId(cap.id);
+                  }}
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    handleStartTitleEdit(cap);
+                  }}
+                  style={{
+                    left: `${leftPct}%`,
+                    width: `${widthPct}%`,
+                    borderLeftColor: cap.color || '#00F0FF',
+                  }}
+                  className={`absolute h-8 rounded border text-zinc-100 px-2 flex items-center text-[10px] font-mono truncate shadow-sm cursor-pointer transition-all border-l-4 ${
+                    isSelected
+                      ? 'border-cyan-400 bg-zinc-800 ring-1 ring-cyan-400/50'
+                      : 'border-pink-500/40 bg-pink-950/30 hover:border-pink-400/80'
+                  }`}
+                  title="Double-click to edit text directly"
                 >
                   <Type className="w-2.5 h-2.5 mr-1 text-pink-400 shrink-0" />
-                  <span className="truncate">{cap.text}</span>
+
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      autoFocus
+                      value={editingText}
+                      onChange={(e) => setEditingText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveTitleEdit(cap.id);
+                        if (e.key === 'Escape') setEditingCaptionId(null);
+                      }}
+                      onBlur={() => handleSaveTitleEdit(cap.id)}
+                      className="w-full bg-[#0D1119] border border-cyan-400 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
+                    />
+                  ) : (
+                    <span className="truncate select-none font-semibold" style={{ color: cap.color || '#FFFFFF' }}>
+                      {cap.text}
+                    </span>
+                  )}
                 </div>
               );
             })}
           </div>
 
-          {/* A1 Audio Track: Waveform & Beat Markers */}
+          {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM (Zero Math.sin fake) */}
           <div className="h-14 p-1 relative flex items-center">
-            {/* Waveform Bars */}
-            <div className="w-full h-8 flex items-end gap-[2px] opacity-40">
-              {Array.from({ length: 64 }).map((_, i) => {
-                const height = 20 + Math.sin(i * 0.4) * 15 + Math.cos(i * 0.7) * 15;
-                return (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-sm bg-gradient-to-t from-emerald-600 to-cyan-400"
-                    style={{ height: `${height}%` }}
-                  />
-                );
-              })}
+            <div className="w-full h-8 flex items-end gap-[2px]">
+              {audioWaveform.map((val, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-sm bg-gradient-to-t from-emerald-600 to-cyan-400 transition-all duration-150"
+                  style={{ height: `${Math.max(12, val * 100)}%` }}
+                />
+              ))}
             </div>
 
             {/* Vertical Beat Marker Ticks (Cyan for kick, Pink for snare) */}
@@ -334,7 +496,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   key={i}
                   style={{ left: `${posPct}%` }}
                   className={`absolute top-0 bottom-0 w-[1.5px] pointer-events-none ${
-                    isKick ? 'bg-cyan-400 opacity-80' : 'bg-pink-400 opacity-60'
+                    isKick ? 'bg-cyan-400 opacity-90' : 'bg-pink-400 opacity-70'
                   }`}
                   title={`${beat.type.toUpperCase()} @ ${beat.timestamp.toFixed(2)}s`}
                 />
@@ -347,10 +509,122 @@ export const MultiTrackTimeline: React.FC = () => {
             style={{ left: `${playheadPercent}%` }}
             className="absolute top-0 bottom-0 w-[2px] bg-cyan-400 pointer-events-none z-30 transition-transform duration-75"
           >
-            {/* Playhead Arrow Handle */}
             <div className="w-3 h-3 bg-cyan-400 -ml-[5px] -mt-1 rotate-45 rounded-[1px] shadow-lg shadow-cyan-400/50" />
           </div>
         </div>
+
+        {/* Title Properties Inspector Drawer (Opens when caption is selected) */}
+        {selectedCaption && (
+          <div className="w-72 bg-[#12161F] border-l border-[#1E2638] p-3 text-xs flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-right duration-150">
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between pb-1.5 border-b border-[#1E2638]">
+                <div className="flex items-center gap-1.5 font-semibold text-zinc-200">
+                  <Sliders className="w-3.5 h-3.5 text-pink-400" />
+                  <span>Title Inspector</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCaptionId(null)}
+                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Title Text Content Input */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  Text Content
+                </label>
+                <input
+                  type="text"
+                  value={selectedCaption.text}
+                  onChange={(e) => updateCaption(selectedCaption.id, { text: e.target.value })}
+                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-pink-400"
+                />
+              </div>
+
+              {/* Kinetic Motion Style Dropdown */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  Kinetic Motion Preset
+                </label>
+                <select
+                  value={selectedCaption.style}
+                  onChange={(e) =>
+                    updateCaption(selectedCaption.id, {
+                      style: e.target.value as CaptionItem['style'],
+                    })
+                  }
+                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-pink-400 cursor-pointer"
+                >
+                  {KINETIC_STYLES.map((st) => (
+                    <option key={st.id} value={st.id}>
+                      {st.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Font Size Pills */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  Font Size
+                </label>
+                <div className="grid grid-cols-4 gap-1">
+                  {FONT_SIZES.map((fs) => (
+                    <button
+                      key={fs}
+                      type="button"
+                      onClick={() => updateCaption(selectedCaption.id, { fontSize: fs })}
+                      className={`py-1 text-[10px] font-mono rounded border transition-colors ${
+                        (selectedCaption.fontSize || 28) === fs
+                          ? 'bg-zinc-700 border-pink-400 text-white font-semibold'
+                          : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200'
+                      }`}
+                    >
+                      {fs}px
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Swatches */}
+              <div>
+                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1 flex items-center justify-between">
+                  <span>Color Theme</span>
+                  <Palette className="w-3 h-3 text-zinc-500" />
+                </label>
+                <div className="flex items-center gap-1.5">
+                  {COLOR_SWATCHES.map((sw) => (
+                    <button
+                      key={sw.hex}
+                      type="button"
+                      onClick={() => updateCaption(selectedCaption.id, { color: sw.hex })}
+                      style={{ backgroundColor: sw.hex }}
+                      className={`w-5 h-5 rounded-full border transition-transform ${
+                        (selectedCaption.color || '#FFFFFF') === sw.hex
+                          ? 'scale-115 ring-2 ring-white border-black'
+                          : 'border-black/40 hover:scale-105'
+                      }`}
+                      title={sw.name}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Delete Title Action */}
+            <button
+              type="button"
+              onClick={() => removeCaption(selectedCaption.id)}
+              className="w-full mt-3 py-1.5 rounded bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Title Overlay</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

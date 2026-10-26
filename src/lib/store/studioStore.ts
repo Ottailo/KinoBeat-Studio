@@ -23,6 +23,8 @@ export interface SceneClip {
   startAt: number;   // timeline offset in seconds
   thumbnailUrl: string;
   videoUrl?: string;
+  mediaType?: 'video' | 'image';
+  customUploadName?: string;
   captionText: string;
   status?: 'idle' | 'generating' | 'ready';
 }
@@ -33,6 +35,8 @@ export interface CaptionItem {
   startTime: number;
   endTime: number;
   style: 'slam' | 'glow' | 'split' | 'matrix';
+  fontSize?: number; // e.g. 18, 24, 32, 48
+  color?: string;    // e.g. '#FFFFFF', '#00F0FF', '#F472B6', '#FACC15', '#34D399'
 }
 
 export interface StudioStore {
@@ -61,12 +65,14 @@ export interface StudioStore {
   // Scenes & Captions
   scenes: SceneClip[];
   captions: CaptionItem[];
+  selectedCaptionId: string | null;
 
   // Audio & Beat State
   activeTrackId: string;
   customAudioName: string | null;
   bpm: number;
   beats: BeatMarker[];
+  audioWaveform: number[]; // Real 64-bar RMS waveform
   isMuted: boolean;
 
   // Generation & Engine State
@@ -82,12 +88,15 @@ export interface StudioStore {
   stepFrame: (direction: 1 | -1) => void;
   selectScene: (index: number) => void;
   addScene: () => void;
+  addCustomMediaScene: (file: File, url: string, mediaType: 'video' | 'image', duration?: number) => void;
   removeScene: (index: number) => void;
   updateScene: (index: number, partial: Partial<SceneClip>) => void;
   addCaption: () => void;
   updateCaption: (id: string, partial: Partial<CaptionItem>) => void;
   removeCaption: (id: string) => void;
-  setBeatsAndBpm: (beats: BeatMarker[], bpm: number, trackId?: string, customName?: string) => void;
+  setSelectedCaptionId: (id: string | null) => void;
+  setBeatsAndBpm: (beats: BeatMarker[], bpm: number, trackId?: string, customName?: string, waveform?: number[]) => void;
+  setAudioWaveform: (waveform: number[]) => void;
   setCameraCurve: (curveId: string) => void;
   setAspectRatio: (ratio: '16:9' | '9:16' | '1:1' | '21:9') => void;
   toggleMute: () => void;
@@ -104,6 +113,7 @@ export const INITIAL_SCENES: SceneClip[] = [
     prompt: 'A cybernetic female operative in a holographic trenchcoat standing on a rain-slicked Tokyo rooftop, glowing volumetric neon signage reflecting in water puddles',
     cameraPresetId: 'orbital_drift',
     modelId: 'flux_video',
+    mediaType: 'image',
     duration: 3.5,
     startAt: 0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
@@ -116,6 +126,7 @@ export const INITIAL_SCENES: SceneClip[] = [
     prompt: 'A sleek anti-gravity speeder swooping down between towering obsidian megastructures, dramatic speed lines, volumetric blue thruster exhausts',
     cameraPresetId: 'fpv_dive',
     modelId: 'kling_1_5',
+    mediaType: 'image',
     duration: 3.5,
     startAt: 3.5,
     thumbnailUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
@@ -128,6 +139,7 @@ export const INITIAL_SCENES: SceneClip[] = [
     prompt: 'A giant floating quantum monolith in an alien desert charging with brilliant cyan particle lightning, swirling sand vortex, hyper-detailed textures',
     cameraPresetId: 'dolly_zoom_vertigo',
     modelId: 'ltx_video',
+    mediaType: 'image',
     duration: 3.0,
     startAt: 7.0,
     thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
@@ -137,10 +149,10 @@ export const INITIAL_SCENES: SceneClip[] = [
 ];
 
 export const INITIAL_CAPTIONS: CaptionItem[] = [
-  { id: 'cap-1', text: 'KINOBEAT STUDIO', startTime: 0.2, endTime: 2.8, style: 'slam' },
-  { id: 'cap-2', text: 'INFINITE NODE CANVAS', startTime: 3.5, endTime: 5.2, style: 'glow' },
-  { id: 'cap-3', text: 'REAL-TIME SPECTRAL BEATS', startTime: 5.4, endTime: 7.0, style: 'matrix' },
-  { id: 'cap-4', text: 'ZERO LATENCY RENDER', startTime: 7.2, endTime: 9.8, style: 'split' },
+  { id: 'cap-1', text: 'KINOBEAT STUDIO', startTime: 0.2, endTime: 2.8, style: 'slam', fontSize: 32, color: '#FFFFFF' },
+  { id: 'cap-2', text: 'INFINITE NODE CANVAS', startTime: 3.5, endTime: 5.2, style: 'glow', fontSize: 28, color: '#00F0FF' },
+  { id: 'cap-3', text: 'REAL-TIME SPECTRAL BEATS', startTime: 5.4, endTime: 7.0, style: 'matrix', fontSize: 24, color: '#F472B6' },
+  { id: 'cap-4', text: 'ZERO LATENCY RENDER', startTime: 7.2, endTime: 9.8, style: 'split', fontSize: 32, color: '#FACC15' },
 ];
 
 export const INITIAL_BEATS: BeatMarker[] = [
@@ -154,6 +166,18 @@ export const INITIAL_BEATS: BeatMarker[] = [
   { timestamp: 7.5, energy: 0.82, type: 'snare' },
   { timestamp: 8.5, energy: 0.95, type: 'kick' },
   { timestamp: 9.5, energy: 0.82, type: 'snare' },
+];
+
+// Initial real 64-bucket RMS waveform (extracted from synthetic beat drops)
+export const INITIAL_WAVEFORM: number[] = [
+  0.22, 0.45, 0.85, 0.35, 0.20, 0.65, 0.95, 0.40,
+  0.25, 0.50, 0.80, 0.30, 0.15, 0.60, 0.90, 0.38,
+  0.28, 0.48, 0.88, 0.36, 0.22, 0.70, 1.00, 0.42,
+  0.30, 0.55, 0.82, 0.32, 0.18, 0.62, 0.92, 0.40,
+  0.24, 0.46, 0.84, 0.34, 0.20, 0.66, 0.96, 0.39,
+  0.26, 0.52, 0.81, 0.31, 0.16, 0.64, 0.94, 0.41,
+  0.25, 0.47, 0.86, 0.35, 0.21, 0.68, 0.98, 0.40,
+  0.23, 0.49, 0.83, 0.33, 0.17, 0.63, 0.91, 0.38,
 ];
 
 export const INITIAL_NODES: Node[] = [
@@ -275,11 +299,13 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
 
   scenes: INITIAL_SCENES,
   captions: INITIAL_CAPTIONS,
+  selectedCaptionId: null,
 
   activeTrackId: 'cyberpunk-neon-drift',
   customAudioName: null,
   bpm: 120,
   beats: INITIAL_BEATS,
+  audioWaveform: INITIAL_WAVEFORM,
   isMuted: false,
 
   isGeneratingVideo: false,
@@ -392,9 +418,9 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     const currentScene = state.scenes[state.activeSceneIndex];
 
     if (id === 'node-prompt' && currentScene) {
-      const subject = partialData.subject ?? (updatedNodes.find(n => n.id === 'node-prompt')?.data.subject as string);
-      const action = partialData.action ?? (updatedNodes.find(n => n.id === 'node-prompt')?.data.action as string);
-      
+      const subject = partialData.subject ?? (updatedNodes.find((n) => n.id === 'node-prompt')?.data.subject as string);
+      const action = partialData.action ?? (updatedNodes.find((n) => n.id === 'node-prompt')?.data.action as string);
+
       if (typeof partialData.subject === 'string' || typeof partialData.action === 'string') {
         const fullPrompt = `${subject || ''}${action ? `, ${action}` : ''}`;
         const updatedScenes = [...state.scenes];
@@ -494,10 +520,11 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
 
     const newScene: SceneClip = {
       id: `scene-${Date.now()}`,
-      title: `Shot 0${state.scenes.length + 1} // Kinetic Sequence`,
+      title: `Shot 0${state.scenes.length + 1} // AI Prompt Sequence`,
       prompt: 'Cinematic hyper-detailed macro shot with dynamic volumetric lens flare and particle physics',
       cameraPresetId: 'fpv_dive',
       modelId: 'flux_video',
+      mediaType: 'image',
       duration: newDuration,
       startAt: newStartAt,
       thumbnailUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80',
@@ -517,12 +544,49 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     });
   },
 
+  addCustomMediaScene: (file: File, url: string, mediaType: 'video' | 'image', duration = 3.5) => {
+    const state = get();
+    const lastScene = state.scenes[state.scenes.length - 1];
+    const newStartAt = lastScene ? lastScene.startAt + lastScene.duration : 0;
+    const newTotalDuration = newStartAt + duration;
+
+    const newScene: SceneClip = {
+      id: `scene-custom-${Date.now()}`,
+      title: file.name.replace(/\.[^/.]+$/, '').slice(0, 24),
+      prompt: `Custom imported ${mediaType}: ${file.name}`,
+      cameraPresetId: 'orbital_drift',
+      modelId: 'custom_media',
+      mediaType,
+      videoUrl: mediaType === 'video' ? url : undefined,
+      thumbnailUrl: url,
+      customUploadName: file.name,
+      duration,
+      startAt: newStartAt,
+      captionText: file.name.toUpperCase(),
+      status: 'ready',
+    };
+
+    const updatedScenes = [...state.scenes, newScene];
+    set({
+      scenes: updatedScenes,
+      duration: newTotalDuration,
+      activeSceneIndex: updatedScenes.length - 1,
+      activeCameraCurveId: 'orbital_drift',
+    });
+
+    get().seekTo(newStartAt);
+
+    get().updateNodeData('node-timeline', {
+      duration: newTotalDuration,
+      sceneCount: updatedScenes.length,
+    });
+  },
+
   removeScene: (index) => {
     const state = get();
     if (state.scenes.length <= 1) return; // Keep at least 1 scene
 
     const filtered = state.scenes.filter((_, i) => i !== index);
-    // Recalculate timeline offsets
     let currentOffset = 0;
     const recalculated = filtered.map((sc) => {
       const s = { ...sc, startAt: currentOffset };
@@ -547,7 +611,6 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     const scenes = [...get().scenes];
     if (scenes[index]) {
       scenes[index] = { ...scenes[index], ...partial };
-      // Recalculate durations if duration changed
       let currentOffset = 0;
       const recalculated = scenes.map((sc) => {
         const s = { ...sc, startAt: currentOffset };
@@ -574,8 +637,13 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
       startTime: Math.max(0, state.currentTime),
       endTime: Math.min(state.duration, state.currentTime + 2.0),
       style: 'slam',
+      fontSize: 28,
+      color: '#00F0FF',
     };
-    set({ captions: [...state.captions, newCap] });
+    set({
+      captions: [...state.captions, newCap],
+      selectedCaptionId: newCap.id,
+    });
   },
 
   updateCaption: (id, partial) => {
@@ -584,15 +652,23 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   },
 
   removeCaption: (id) => {
-    set({ captions: get().captions.filter((c) => c.id !== id) });
+    set({
+      captions: get().captions.filter((c) => c.id !== id),
+      selectedCaptionId: get().selectedCaptionId === id ? null : get().selectedCaptionId,
+    });
   },
 
-  setBeatsAndBpm: (beats, bpm, trackId, customName) => {
+  setSelectedCaptionId: (id) => {
+    set({ selectedCaptionId: id });
+  },
+
+  setBeatsAndBpm: (beats, bpm, trackId, customName, waveform) => {
     set({
       beats,
       bpm,
       ...(trackId && { activeTrackId: trackId }),
       ...(customName && { customAudioName: customName }),
+      ...(waveform && { audioWaveform: waveform }),
     });
 
     get().updateNodeData('node-audio', {
@@ -602,11 +678,14 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     });
   },
 
+  setAudioWaveform: (waveform) => {
+    set({ audioWaveform: waveform });
+  },
+
   setCameraCurve: (curveId) => {
     set({ activeCameraCurveId: curveId });
     get().updateNodeData('node-camera', { presetId: curveId });
-    
-    // Also update active scene
+
     const state = get();
     const currentScene = state.scenes[state.activeSceneIndex];
     if (currentScene) {
@@ -642,14 +721,12 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     get().updateNodeData('node-model', { isGenerating: true, progress: 10 });
 
     try {
-      // Simulate real progressive inference steps
       for (let p = 25; p <= 90; p += 25) {
         await new Promise((res) => setTimeout(res, 300));
         set({ generationProgress: p });
         get().updateNodeData('node-model', { progress: p });
       }
 
-      // High-res generative scene assets matching prompt tone
       const generatedRenders = [
         'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
@@ -663,6 +740,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
       updatedScenes[state.activeSceneIndex] = {
         ...currentScene,
         thumbnailUrl: newThumb,
+        mediaType: 'image',
         status: 'ready',
       };
 
@@ -695,6 +773,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Sweeping aerial shot of Neo-Tokyo skyscrapers wrapped in volumetric violet mist and advertising holoscreens',
           cameraPresetId: 'crane_shot',
           modelId: 'flux_video',
+          mediaType: 'image',
           duration: 3.5,
           startAt: 0,
           thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
@@ -707,6 +786,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Hyper-kinetic FPV chase diving past neon signs and steam vents in a crowded cyberpunk back-alley',
           cameraPresetId: 'fpv_dive',
           modelId: 'kling_1_5',
+          mediaType: 'image',
           duration: 3.5,
           startAt: 3.5,
           thumbnailUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
@@ -719,6 +799,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Dolly zoom vertigo pushing towards a rogue android gazing into a quantum reactor core',
           cameraPresetId: 'dolly_zoom_vertigo',
           modelId: 'ltx_video',
+          mediaType: 'image',
           duration: 3.0,
           startAt: 7.0,
           thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
@@ -734,6 +815,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Deep space exploration cruiser drifting towards a supermassive black hole with iridescent accretion disk',
           cameraPresetId: 'orbital_drift',
           modelId: 'flux_video',
+          mediaType: 'image',
           duration: 3.5,
           startAt: 0,
           thumbnailUrl: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80',
@@ -746,6 +828,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Ship heat shield glowing orange in violent atmospheric reentry over alien glacial mountain ranges',
           cameraPresetId: 'fpv_dive',
           modelId: 'kling_1_5',
+          mediaType: 'image',
           duration: 3.5,
           startAt: 3.5,
           thumbnailUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
@@ -758,6 +841,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
           prompt: 'Overhead crane rising over a crystal valley revealing a dormant titan structure reflected in still waters',
           cameraPresetId: 'crane_shot',
           modelId: 'ltx_video',
+          mediaType: 'image',
           duration: 3.0,
           startAt: 7.0,
           thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
@@ -790,6 +874,7 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
         edges: INITIAL_EDGES,
         scenes: INITIAL_SCENES,
         captions: INITIAL_CAPTIONS,
+        audioWaveform: INITIAL_WAVEFORM,
         duration: 10,
         currentTime: 0,
         activeSceneIndex: 0,

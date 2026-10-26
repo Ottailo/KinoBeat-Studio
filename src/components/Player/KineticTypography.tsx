@@ -3,12 +3,14 @@
 import React from 'react';
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 
-interface CaptionItem {
+export interface CaptionItem {
   id: string;
   text: string;
   startTime: number;
   endTime: number;
   style: 'slam' | 'glow' | 'split' | 'matrix';
+  fontSize?: number;
+  color?: string;
 }
 
 interface KineticTypographyProps {
@@ -39,13 +41,13 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
     frame: localFrame,
     fps,
     config: {
-      damping: 14,
+      damping: activeCaption.style === 'matrix' ? 8 : 14,
       mass: 0.6,
-      stiffness: 160,
+      stiffness: activeCaption.style === 'matrix' ? 240 : 160,
     },
   });
 
-  const scale = interpolate(entrance, [0, 1], [1.3, 1.0], {
+  const scale = interpolate(entrance, [0, 1], [1.35, 1.0], {
     extrapolateRight: 'clamp',
   });
 
@@ -53,14 +55,24 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
     extrapolateRight: 'clamp',
   });
 
-  const beatBump = isBeatHit ? 1.04 : 1.0;
+  const beatBump = isBeatHit ? 1.05 : 1.0;
+  const textColor = activeCaption.color || '#FFFFFF';
+  const fontSizePx = activeCaption.fontSize || 32;
+
+  // Style variations
+  const isGlow = activeCaption.style === 'glow';
+  const isGlitch = activeCaption.style === 'matrix';
 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-end pb-14 pointer-events-none select-none z-30">
       {/* HUD Chapter Eyebrow */}
-      <div className="flex items-center gap-2 mb-2 px-2.5 py-0.5 bg-black/70 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest text-zinc-300">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-        <span>CUE // {(currentTime).toFixed(2)}s</span>
+      <div className="flex items-center gap-2 mb-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest text-zinc-300">
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: textColor }}
+        />
+        <span>CUE // {currentTime.toFixed(2)}s</span>
+        <span className="text-zinc-500">[{activeCaption.style.toUpperCase()}]</span>
       </div>
 
       {/* Main Kinetic Headline */}
@@ -72,8 +84,14 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
         className="text-center px-8 transition-transform duration-75"
       >
         <h1
-          className="text-3xl md:text-4xl font-extrabold uppercase tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
-          style={{ letterSpacing: '-0.02em' }}
+          className={`font-black uppercase tracking-tight transition-all ${
+            isGlow ? 'drop-shadow-[0_0_20px_rgba(0,240,255,0.8)]' : 'drop-shadow-[0_4px_12px_rgba(0,0,0,0.95)]'
+          } ${isGlitch ? 'tracking-widest font-mono' : ''}`}
+          style={{
+            fontSize: `${fontSizePx}px`,
+            color: textColor,
+            letterSpacing: isGlitch ? '0.1em' : '-0.02em',
+          }}
         >
           {activeCaption.text}
         </h1>

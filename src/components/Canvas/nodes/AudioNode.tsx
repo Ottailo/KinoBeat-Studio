@@ -58,7 +58,7 @@ export const AudioNode: React.FC<{
       }
 
       const currentTrack = PRESET_TRACKS.find((t) => t.id === trackId);
-      setBeatsAndBpm(analysis.beats, analysis.bpm, trackId, currentTrack?.title);
+      setBeatsAndBpm(analysis.beats, analysis.bpm, trackId, currentTrack?.title, analysis.waveform);
     } catch (err) {
       console.error('Audio synthesis failed:', err);
     } finally {
@@ -85,7 +85,7 @@ export const AudioNode: React.FC<{
         setWaveform(analysis.peaks.slice(0, 16));
       }
 
-      setBeatsAndBpm(analysis.beats, analysis.bpm, 'custom-uploaded', file.name);
+      setBeatsAndBpm(analysis.beats, analysis.bpm, 'custom-uploaded', file.name, analysis.waveform);
     } catch (err) {
       console.error('Failed to parse uploaded audio file:', err);
     } finally {
@@ -105,7 +105,7 @@ export const AudioNode: React.FC<{
       const analysis = await beatDetector.analyzeBuffer(buffer);
 
       setBeatCount(analysis.beats.length);
-      setBeatsAndBpm(analysis.beats, analysis.bpm, 'tts-stem', 'TTS Voiceover Stem');
+      setBeatsAndBpm(analysis.beats, analysis.bpm, 'tts-stem', 'TTS Voiceover Stem', analysis.waveform);
 
       // Auto-create matching kinetic caption
       addCaption();
