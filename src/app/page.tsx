@@ -194,7 +194,7 @@ export default function StudioPage() {
   }, [audioVolume, isMuted]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0B0E14] text-zinc-100 font-sans select-none">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#080A0F] text-zinc-100 font-sans select-none">
       {/* Sleek Top Studio Header */}
       <Header
         onOpenExport={() => setIsExportOpen(true)}

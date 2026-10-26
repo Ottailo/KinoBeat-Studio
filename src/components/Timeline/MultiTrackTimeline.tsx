@@ -403,7 +403,7 @@ export const MultiTrackTimeline: React.FC = () => {
   );
 
   return (
-    <div className="w-full bg-[#0B0E14] border-t border-[#1E2638] select-none text-zinc-100 flex flex-col h-72 z-40 shadow-2xl relative">
+    <div className="w-full bg-[#080A0F] border-t border-[#1A2130] select-none text-zinc-100 flex flex-col h-72 z-40 shadow-2xl relative">
       {/* Hidden file input for custom media upload */}
       <input
         ref={fileInputRef}
@@ -421,13 +421,13 @@ export const MultiTrackTimeline: React.FC = () => {
       />
 
       {/* Timeline Controls Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[#1E2638] bg-[#12161F]">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[#1A2130] bg-[#0D1117]">
         <div className="flex items-center gap-3">
           {/* Rewind */}
           <button
             type="button"
             onClick={resetPlayback}
-            className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1.5 rounded-md hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
             title="Rewind to Start"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -437,35 +437,35 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => stepFrame(-1)}
-            className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1.5 rounded-md hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
             title="Step Back 1 Frame (Left Arrow)"
           >
             <StepBack className="w-3.5 h-3.5" />
           </button>
 
-          {/* Play/Pause */}
+          {/* Play/Pause Master */}
           <button
             type="button"
             onClick={togglePlay}
-            className="w-8 h-8 rounded-md flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-bold transition-colors shadow-md shadow-cyan-950/30"
+            className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-400 hover:bg-cyan-300 text-[#080A0F] font-bold transition-all shadow-md shadow-cyan-950/40 cursor-pointer"
             title="Play / Pause (Space)"
           >
-            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+            {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 ml-0.5 fill-current" />}
           </button>
 
           {/* Step Forward 1 Frame */}
           <button
             type="button"
             onClick={() => stepFrame(1)}
-            className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-1.5 rounded-md hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
             title="Step Forward 1 Frame (Right Arrow)"
           >
             <StepForward className="w-3.5 h-3.5" />
           </button>
 
-          {/* Timecode Readout */}
-          <div className="font-mono text-xs px-2.5 py-1 rounded bg-[#0D1119] border border-[#1E2638] text-zinc-200 flex items-center gap-1">
-            <span className="text-cyan-400 font-semibold">{formatTimecode(currentTime)}</span>
+          {/* Master Timecode Readout */}
+          <div className="font-mono text-xs px-2.5 py-1 rounded-md bg-[#080A0F] border border-[#1A2130] text-zinc-200 flex items-center gap-1 smpte-timecode">
+            <span className="text-cyan-400 font-bold">{formatTimecode(currentTime)}</span>
             <span className="text-zinc-600">/</span>
             <span className="text-zinc-400">{formatTimecode(duration)}</span>
           </div>
@@ -474,7 +474,7 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={splitSceneAtPlayhead}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
             title="Split Clip at Playhead (Cut)"
           >
             <Scissors className="w-3.5 h-3.5 text-cyan-400" />
@@ -483,22 +483,22 @@ export const MultiTrackTimeline: React.FC = () => {
 
           {/* BPM & FPS Badge */}
           <div className="flex items-center gap-2 text-[11px] font-mono text-zinc-400">
-            <span className="px-2 py-0.5 rounded bg-[#161B26] border border-[#1E2638] text-zinc-300">
-              {bpm} BPM
+            <span className="px-2 py-0.5 rounded bg-[#080A0F] border border-[#1A2130] text-zinc-300">
+              {bpm.toFixed(1)} BPM
             </span>
-            <span className="px-2 py-0.5 rounded bg-[#161B26] border border-[#1E2638] text-zinc-400">
+            <span className="px-2 py-0.5 rounded bg-[#080A0F] border border-[#1A2130] text-zinc-400">
               30 FPS
             </span>
           </div>
 
-          {/* Beat Snap Toggle */}
+          {/* Beat Snap Magnet Toggle */}
           <button
             type="button"
             onClick={toggleBeatSnap}
-            className={`flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono border transition-colors ${
+            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-mono border transition-all cursor-pointer ${
               autoBeatSnap
-                ? 'bg-cyan-950/60 border-cyan-500/80 text-cyan-300 font-semibold shadow-sm'
-                : 'bg-[#161B26] border-[#1E2638] text-zinc-500 hover:text-zinc-300'
+                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-bold shadow-sm'
+                : 'bg-[#080A0F] border-[#1A2130] text-zinc-500 hover:text-zinc-300'
             }`}
             title="Magnet-snap playhead and edits to nearest kick transient"
           >
@@ -513,10 +513,10 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsAssetBinOpen(!isAssetBinOpen)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition-all cursor-pointer ${
               isAssetBinOpen
-                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 font-semibold'
-                : 'bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-200'
+                ? 'bg-cyan-950/60 border-cyan-400 text-cyan-300 shadow-sm'
+                : 'bg-[#151B24] hover:bg-[#1E2638] border-[#222C40] text-zinc-200'
             }`}
             title="Toggle Left Asset Bin / Media Library"
           >
@@ -529,26 +529,26 @@ export const MultiTrackTimeline: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsAddShotMenuOpen(!isAddShotMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5 text-cyan-400" />
               <span>Add Shot</span>
             </button>
 
             {isAddShotMenuOpen && (
-              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#12161F] border border-[#1E2638] rounded-lg shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-150">
+              <div className="absolute right-0 bottom-full mb-2 w-56 bg-[#0D1117] border border-[#1E2638] rounded-xl shadow-2xl p-2 z-50 text-xs space-y-1 animate-in fade-in zoom-in-95 duration-100">
                 <button
                   type="button"
                   onClick={() => {
                     fileInputRef.current?.click();
                     setIsAddShotMenuOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded hover:bg-[#161B26] text-zinc-200 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#151B24] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Upload className="w-3.5 h-3.5 text-cyan-400" />
                   <div>
-                    <div className="font-medium text-xs">Upload Custom Media</div>
-                    <div className="text-[10px] text-zinc-500">MP4, WebM, PNG, JPEG</div>
+                    <div className="font-semibold text-xs text-white">Upload Custom Media</div>
+                    <div className="text-[10px] text-zinc-500 font-mono">MP4, WebM, PNG, JPEG</div>
                   </div>
                 </button>
 
@@ -558,12 +558,12 @@ export const MultiTrackTimeline: React.FC = () => {
                     addScene();
                     setIsAddShotMenuOpen(false);
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded hover:bg-[#161B26] text-zinc-200 transition-colors flex items-center gap-2"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-[#151B24] text-zinc-200 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                   <div>
-                    <div className="font-medium text-xs">Generate with AI</div>
-                    <div className="text-[10px] text-zinc-500">Flux / Kling prompt sequence</div>
+                    <div className="font-semibold text-xs text-white">Generate with AI</div>
+                    <div className="text-[10px] text-zinc-500 font-mono">DiT Wan / Flux sequence</div>
                   </div>
                 </button>
               </div>
@@ -574,19 +574,19 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => addCaption()}
-            className="flex items-center gap-1 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 hover:text-white text-xs font-semibold border border-[#222C40] transition-colors cursor-pointer"
           >
             <Type className="w-3.5 h-3.5 text-pink-400" />
             <span>Add Title</span>
           </button>
 
-          <div className="h-4 w-[1px] bg-[#1E2638] mx-1" />
+          <div className="h-4 w-[1px] bg-[#1A2130] mx-1" />
 
           {/* Zoom Controls */}
           <button
             type="button"
             onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
-            className="p-1 rounded hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
+            className="p-1 rounded-md hover:bg-[#151B24] hover:text-white transition-colors cursor-pointer"
             title="Zoom Out"
           >
             <ZoomOut className="w-3.5 h-3.5" />
@@ -595,7 +595,7 @@ export const MultiTrackTimeline: React.FC = () => {
           <button
             type="button"
             onClick={() => setZoom((z) => Math.min(2.5, z + 0.25))}
-            className="p-1 rounded hover:bg-zinc-800 hover:text-zinc-200 transition-colors"
+            className="p-1 rounded-md hover:bg-[#151B24] hover:text-white transition-colors cursor-pointer"
             title="Zoom In"
           >
             <ZoomIn className="w-3.5 h-3.5" />
@@ -607,17 +607,17 @@ export const MultiTrackTimeline: React.FC = () => {
       <div className="flex-1 flex overflow-hidden relative">
         {/* Left Collapsible Asset Bin / Media Manager */}
         {isAssetBinOpen && (
-          <div className="w-80 bg-[#12161F] border-r border-[#1E2638] flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-left duration-200">
-            <div className="p-3 border-b border-[#1E2638] flex items-center justify-between bg-[#161B26]">
+          <div className="w-80 bg-[#0D1117] border-r border-[#1A2130] flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-left duration-200">
+            <div className="p-3 border-b border-[#1A2130] flex items-center justify-between bg-[#151B24]">
               <div className="flex items-center gap-2">
                 <HardDrive className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-semibold text-zinc-100">Project Asset Bin</span>
+                <span className="text-xs font-semibold text-white">Project Asset Bin</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => assetFileInputRef.current?.click()}
-                  className="p-1 rounded hover:bg-zinc-800 text-cyan-400 transition-colors"
+                  className="p-1 rounded hover:bg-[#1E2638] text-cyan-400 transition-colors cursor-pointer"
                   title="Upload New Asset to Bin"
                 >
                   <Upload className="w-3.5 h-3.5" />
@@ -625,7 +625,7 @@ export const MultiTrackTimeline: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAssetBinOpen(false)}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#1E2638] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -633,16 +633,16 @@ export const MultiTrackTimeline: React.FC = () => {
             </div>
 
             {/* Asset Category Tabs */}
-            <div className="flex items-center px-3 py-1.5 border-b border-[#1E2638] text-[10px] gap-1 font-mono bg-[#0D1119]">
+            <div className="flex items-center px-3 py-1.5 border-b border-[#1A2130] text-[10px] gap-1 font-mono bg-[#080A0F]">
               {(['all', 'video', 'image', 'audio'] as const).map((tab) => (
                 <button
                   key={tab}
                   type="button"
                   onClick={() => setAssetTab(tab)}
-                  className={`px-2 py-0.5 rounded capitalize transition-colors ${
+                  className={`px-2 py-0.5 rounded capitalize transition-colors cursor-pointer ${
                     assetTab === tab
-                      ? 'bg-zinc-800 text-cyan-300 font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'bg-[#151B24] text-cyan-300 font-bold border border-cyan-500/30'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
                   {tab}
@@ -660,10 +660,10 @@ export const MultiTrackTimeline: React.FC = () => {
                 filteredAssets.map((asset) => (
                   <div
                     key={asset.id}
-                    className="p-2 rounded-lg bg-[#0D1119] border border-[#1E2638] hover:border-zinc-700 flex items-center justify-between text-xs group transition-colors"
+                    className="p-2 rounded-lg bg-[#080A0F] border border-[#1A2130] hover:border-zinc-700 flex items-center justify-between text-xs group transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center shrink-0 text-cyan-400">
+                      <div className="w-8 h-8 rounded-md bg-[#151B24] border border-[#222C40] flex items-center justify-center shrink-0 text-cyan-400">
                         {asset.type === 'video' ? (
                           <FileVideo className="w-4 h-4" />
                         ) : asset.type === 'audio' ? (
@@ -685,7 +685,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleAddAssetToTimeline(asset)}
-                      className="px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-cyan-300 hover:text-cyan-200 text-[10px] font-medium transition-colors shrink-0"
+                      className="px-2 py-1 rounded bg-[#151B24] hover:bg-[#1E2638] border border-[#222C40] text-cyan-300 hover:text-white text-[10px] font-semibold transition-colors shrink-0 cursor-pointer"
                       title={asset.type === 'audio' ? 'Load onto Track A1' : 'Add to Track V1'}
                     >
                       + Add
@@ -698,7 +698,7 @@ export const MultiTrackTimeline: React.FC = () => {
         )}
 
         {/* Track Headers (Left Column) */}
-        <div className="w-40 bg-[#0D1119] border-r border-[#1E2638] flex flex-col justify-start shrink-0 text-xs text-zinc-400 font-mono select-none">
+        <div className="w-40 bg-[#0A0D14] border-r border-[#1A2130] flex flex-col justify-start shrink-0 text-xs text-zinc-400 font-mono select-none">
           {/* Top Ruler Align Header */}
           <div className="h-6 px-3 bg-[#0E121B] border-b border-[#1E2638] flex items-center justify-between text-[10px] text-zinc-400 font-mono">
             <div className="flex items-center gap-1.5 text-cyan-400">
@@ -709,17 +709,19 @@ export const MultiTrackTimeline: React.FC = () => {
           </div>
 
           {/* V1 Video Track Header */}
-          <div className={`h-20 px-3 flex flex-col justify-center border-b border-[#1E2638]/60 transition-opacity ${isVideoMuted ? 'opacity-40' : ''}`}>
-            <div className="flex items-center justify-between font-semibold text-zinc-300">
+          <div className={`h-20 px-3 flex flex-col justify-center border-b border-[#1A2130] transition-opacity ${isVideoMuted ? 'opacity-40' : ''}`}>
+            <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <Video className="w-3.5 h-3.5 text-cyan-400" />
-                <span>V1 Video</span>
+                <span className="w-4 h-4 rounded bg-cyan-950/80 border border-cyan-500/40 text-[9px] text-cyan-400 flex items-center justify-center font-bold">
+                  V1
+                </span>
+                <span className="text-white font-sans text-xs">Video</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={toggleVideoMute}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isVideoMuted ? 'Show Video Layer' : 'Mute Video Layer'}
                 >
                   {isVideoMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-cyan-400" />}
@@ -727,28 +729,30 @@ export const MultiTrackTimeline: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleV1Lock}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isV1Locked ? 'Unlock Video Track' : 'Lock Video Track'}
                 >
                   {isV1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
                 </button>
               </div>
             </div>
-            <span className="text-[9px] text-zinc-500 mt-1">{scenes.length} Clips · 4K Deterministic</span>
+            <span className="text-[9px] text-zinc-500 mt-1">{scenes.length} Clips · 4K Master</span>
           </div>
 
           {/* T1 Title Track Header */}
-          <div className={`h-12 px-3 flex flex-col justify-center border-b border-[#1E2638]/60 transition-opacity ${isCaptionsMuted ? 'opacity-40' : ''}`}>
-            <div className="flex items-center justify-between font-semibold text-zinc-300">
+          <div className={`h-12 px-3 flex flex-col justify-center border-b border-[#1A2130] transition-opacity ${isCaptionsMuted ? 'opacity-40' : ''}`}>
+            <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <Type className="w-3.5 h-3.5 text-pink-400" />
-                <span>T1 Titles</span>
+                <span className="w-4 h-4 rounded bg-pink-950/80 border border-pink-500/40 text-[9px] text-pink-400 flex items-center justify-center font-bold">
+                  T1
+                </span>
+                <span className="text-white font-sans text-xs">Titles</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={toggleCaptionsMute}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isCaptionsMuted ? 'Show Titles' : 'Hide Titles'}
                 >
                   {isCaptionsMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-pink-400" />}
@@ -756,28 +760,30 @@ export const MultiTrackTimeline: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleT1Lock}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isT1Locked ? 'Unlock Titles Track' : 'Lock Titles Track'}
                 >
                   {isT1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
                 </button>
               </div>
             </div>
-            <span className="text-[9px] text-zinc-500">{captions.length} Cues · Kinetic Spring</span>
+            <span className="text-[9px] text-zinc-500">{captions.length} Kinetic Cues</span>
           </div>
 
           {/* A1 Audio Track Header with Volume Slider */}
           <div className={`h-16 px-3 flex flex-col justify-center transition-opacity ${isMuted ? 'opacity-40' : ''}`}>
-            <div className="flex items-center justify-between font-semibold text-zinc-300">
+            <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <Music className="w-3.5 h-3.5 text-emerald-400" />
-                <span>A1 Audio</span>
+                <span className="w-4 h-4 rounded bg-emerald-950/80 border border-emerald-500/40 text-[9px] text-emerald-400 flex items-center justify-center font-bold">
+                  A1
+                </span>
+                <span className="text-white font-sans text-xs">Audio</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={toggleMute}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
                 >
                   {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
@@ -785,7 +791,7 @@ export const MultiTrackTimeline: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleA1Lock}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isA1Locked ? 'Unlock Audio Track' : 'Lock Audio Track'}
                 >
                   {isA1Locked ? <Lock className="w-3 h-3 text-amber-400" /> : <Unlock className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />}
@@ -802,9 +808,9 @@ export const MultiTrackTimeline: React.FC = () => {
                 step="0.05"
                 value={isMuted ? 0 : audioVolume}
                 onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
-                className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-400"
+                className="w-full h-1 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-emerald-400 border border-[#1A2130]"
               />
-              <span className="text-[9px] font-mono text-zinc-500 w-8 text-right">
+              <span className="text-[9px] font-mono text-zinc-400 w-8 text-right">
                 {Math.round((isMuted ? 0 : audioVolume) * 100)}%
               </span>
             </div>
@@ -814,7 +820,7 @@ export const MultiTrackTimeline: React.FC = () => {
         {/* Track Timeline Area (Right Scrollable / Interactive Canvas with Drag-and-Drop) */}
         <div
           ref={timelineScrollRef}
-          className="flex-1 relative bg-[#0B0E14] overflow-x-auto overflow-y-hidden cursor-crosshair touch-none select-none"
+          className="flex-1 relative bg-[#080A0F] overflow-x-auto overflow-y-hidden cursor-crosshair touch-none select-none"
         >
           <div
             ref={timelineTrackRef}
@@ -840,7 +846,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     className="absolute top-0 bottom-0 flex flex-col justify-between pointer-events-none"
                   >
                     <div className="h-2 w-[1px] bg-zinc-600" />
-                    <span className="text-[8px] font-mono text-zinc-500 pl-0.5 leading-none">
+                    <span className="text-[8px] font-mono text-zinc-400 pl-0.5 leading-none font-semibold">
                       00:0{sec}
                     </span>
                   </div>
@@ -849,283 +855,283 @@ export const MultiTrackTimeline: React.FC = () => {
             </div>
 
             {/* Subtle Vertical Time Tick Marks */}
-            <div className="absolute inset-0 flex justify-between pointer-events-none opacity-20">
-            {Array.from({ length: 21 }).map((_, i) => (
-              <div key={i} className="h-full border-r border-zinc-700 w-full" />
-            ))}
-          </div>
-
-          {/* V1 Video Track: Scene Blocks with Reordering, Duplicate, and Trim Handles */}
-          <div className="h-20 p-1 flex items-center gap-1 border-b border-[#1E2638]/60">
-            {scenes.map((scene, idx) => {
-              const widthPct = (scene.duration / duration) * 100;
-              const isSelected = activeSceneIndex === idx;
-              const isVideo = scene.mediaType === 'video';
-
-              return (
-                <div
-                  key={scene.id}
-                  onClick={(e) => {
-                    selectScene(idx);
-                    setSelectedCaptionId(null);
-                    setIsShotInspectorOpen(true);
-                    seekTo(getTimeFromClientX(e.clientX));
-                  }}
-                  style={{ width: `${widthPct}%` }}
-                  className={`h-full rounded-md border relative overflow-hidden group transition-all flex flex-col justify-between p-1.5 select-none ${
-                    isSelected
-                      ? 'border-cyan-400 bg-[#162032] shadow-md ring-1 ring-cyan-400/50'
-                      : 'border-[#1E2638] bg-[#12161F] hover:border-zinc-600'
-                  }`}
-                >
-                  {/* Clip Thumbnail / Video Background */}
-                  <div
-                    className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-35 transition-opacity pointer-events-none"
-                    style={{ backgroundImage: `url(${scene.thumbnailUrl})` }}
-                  />
-
-                  {/* Header: Shot Title & Quick Actions */}
-                  <div className="relative z-10 flex items-center justify-between">
-                    <span className="text-[11px] font-semibold tracking-tight text-zinc-200 truncate flex items-center gap-1">
-                      {isVideo && (
-                        <span className="px-1 py-0.2 rounded bg-cyan-900/60 text-cyan-300 text-[9px] font-mono">
-                          MP4
-                        </span>
-                      )}
-                      <span>{scene.title}</span>
-                    </span>
-
-                    {/* Quick Reorder & Duplicate Controls for Selected Scene */}
-                    {!isV1Locked && isSelected && (
-                      <div className="flex items-center gap-0.5 bg-black/60 rounded px-1 py-0.5 border border-white/10">
-                        {idx > 0 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              reorderScene(idx, idx - 1);
-                            }}
-                            className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
-                            title="Move Earlier in Timeline"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                        )}
-                        {idx < scenes.length - 1 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              reorderScene(idx, idx + 1);
-                            }}
-                            className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
-                            title="Move Later in Timeline"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            duplicateScene(idx);
-                          }}
-                          className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
-                          title="Duplicate Shot"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </button>
-                        {scenes.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeScene(idx);
-                            }}
-                            className="p-0.5 rounded hover:bg-red-500/30 text-red-400"
-                            title="Delete Shot"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer: Camera Preset Badge & Duration */}
-                  <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-zinc-400">
-                    <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-cyan-300 truncate max-w-[120px]">
-                      {scene.cameraPresetId.replace('_', ' ')}
-                    </span>
-                    <span className="font-semibold text-zinc-200">{scene.duration.toFixed(1)}s</span>
-                  </div>
-
-                  {/* Draggable Trim-End Handle (Right Edge) */}
-                  {!isV1Locked && (
-                    <div
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        setTrimmingIndex(idx);
-                        setTrimInitialDuration(scene.duration);
-                        setTrimInitialClientX(e.clientX);
-                        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-                      }}
-                      onPointerUp={(e) => {
-                        try {
-                          (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-                        } catch {}
-                        setTrimmingIndex(null);
-                      }}
-                      className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
-                      title="Drag to Trim Clip Duration"
-                    >
-                      <div className="w-[2px] h-4 rounded-full bg-cyan-400/60 group-hover/trim:bg-cyan-300" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* T1 Title Track: Kinetic Caption Blocks with Drag Move & Trim */}
-          <div className="h-12 p-1 flex items-center relative border-b border-[#1E2638]/60">
-            {captions.map((cap) => {
-              const leftPct = (cap.startTime / duration) * 100;
-              const widthPct = ((cap.endTime - cap.startTime) / duration) * 100;
-              const isEditing = editingCaptionId === cap.id;
-              const isSelected = selectedCaptionId === cap.id;
-
-              return (
-                <div
-                  key={cap.id}
-                  onClick={(e) => {
-                    setSelectedCaptionId(cap.id);
-                    setIsShotInspectorOpen(false);
-                    seekTo(getTimeFromClientX(e.clientX));
-                  }}
-                  onDoubleClick={(e) => {
-                    e.stopPropagation();
-                    if (!isT1Locked) handleStartTitleEdit(cap);
-                  }}
-                  onPointerDown={(e) => {
-                    if (isEditing || isT1Locked) return;
-                    e.stopPropagation();
-                    setSelectedCaptionId(cap.id);
-                    setDragCaptionId(cap.id);
-                    setDragCaptionMode('move');
-                    setDragCaptionStartX(e.clientX);
-                    setDragCaptionInitialStart(cap.startTime);
-                    setDragCaptionInitialEnd(cap.endTime);
-                  }}
-                  style={{
-                    left: `${leftPct}%`,
-                    width: `${widthPct}%`,
-                    borderLeftColor: cap.color || '#00F0FF',
-                  }}
-                  className={`absolute h-8 rounded border text-zinc-100 px-2 flex items-center justify-between text-[10px] font-mono shadow-sm cursor-grab active:cursor-grabbing transition-all border-l-4 group/cap ${
-                    isSelected
-                      ? 'border-cyan-400 bg-zinc-800 ring-1 ring-cyan-400/50'
-                      : 'border-pink-500/40 bg-pink-950/30 hover:border-pink-400/80'
-                  }`}
-                  title="Drag to reposition, double-click to edit text"
-                >
-                  <div className="flex items-center gap-1 min-w-0">
-                    <Move className="w-2.5 h-2.5 text-zinc-500 opacity-60 group-hover/cap:opacity-100" />
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        autoFocus
-                        value={editingText}
-                        onChange={(e) => setEditingText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleSaveTitleEdit(cap.id);
-                          if (e.key === 'Escape') setEditingCaptionId(null);
-                        }}
-                        onBlur={() => handleSaveTitleEdit(cap.id)}
-                        className="w-full bg-[#0D1119] border border-cyan-400 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
-                      />
-                    ) : (
-                      <span className="truncate select-none font-semibold" style={{ color: cap.color || '#FFFFFF' }}>
-                        {cap.text}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Caption Trim-End Handle */}
-                  {!isT1Locked && (
-                    <div
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        setDragCaptionId(cap.id);
-                        setDragCaptionMode('trim-end');
-                        setDragCaptionStartX(e.clientX);
-                        setDragCaptionInitialStart(cap.startTime);
-                        setDragCaptionInitialEnd(cap.endTime);
-                      }}
-                      className="w-2 h-full cursor-ew-resize hover:bg-white/20 rounded-r flex items-center justify-center shrink-0"
-                      title="Drag to Extend/Shorten Duration"
-                    >
-                      <div className="w-[1.5px] h-3 bg-white/40" />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM (Zero Math.sin fake) */}
-          <div className="h-16 p-1 relative flex items-center">
-            <div className="w-full h-10 flex items-end gap-[2px]">
-              {audioWaveform.map((val, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-sm bg-gradient-to-t from-emerald-600 to-cyan-400 transition-all duration-150"
-                  style={{ height: `${Math.max(12, val * (isMuted ? 0.15 : audioVolume) * 100)}%` }}
-                />
+            <div className="absolute inset-0 flex justify-between pointer-events-none opacity-15">
+              {Array.from({ length: 21 }).map((_, i) => (
+                <div key={i} className="h-full border-r border-zinc-700 w-full" />
               ))}
             </div>
 
-            {/* Vertical Beat Marker Ticks (Cyan for kick, Pink for snare) */}
-            {beats.map((beat, i) => {
-              const posPct = (beat.timestamp / duration) * 100;
-              const isKick = beat.type === 'kick';
+            {/* V1 Video Track: Scene Blocks with Reordering, Duplicate, and Trim Handles */}
+            <div className="h-20 p-1 flex items-center gap-1 border-b border-[#1A2130]">
+              {scenes.map((scene, idx) => {
+                const widthPct = (scene.duration / duration) * 100;
+                const isSelected = activeSceneIndex === idx;
+                const isVideo = scene.mediaType === 'video';
 
-              return (
-                <div
-                  key={i}
-                  style={{ left: `${posPct}%` }}
-                  className={`absolute top-0 bottom-0 w-[1.5px] pointer-events-none ${
-                    isKick ? 'bg-cyan-400 opacity-90' : 'bg-pink-400 opacity-70'
-                  }`}
-                  title={`${beat.type.toUpperCase()} @ ${beat.timestamp.toFixed(2)}s`}
-                />
-              );
-            })}
-          </div>
+                return (
+                  <div
+                    key={scene.id}
+                    onClick={(e) => {
+                      selectScene(idx);
+                      setSelectedCaptionId(null);
+                      setIsShotInspectorOpen(true);
+                      seekTo(getTimeFromClientX(e.clientX));
+                    }}
+                    style={{ width: `${widthPct}%` }}
+                    className={`h-full rounded-md border relative overflow-hidden group transition-all flex flex-col justify-between p-1.5 select-none ${
+                      isSelected
+                        ? 'border-cyan-400 bg-[#141C2B] shadow-lg ring-1 ring-cyan-400/50'
+                        : 'border-[#1A2130] bg-[#0D1117] hover:border-[#2A354C]'
+                    }`}
+                  >
+                    {/* Clip Thumbnail / Video Background */}
+                    <div
+                      className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-35 transition-opacity pointer-events-none"
+                      style={{ backgroundImage: `url(${scene.thumbnailUrl})` }}
+                    />
 
-          {/* Smooth Playhead Scrubber with Drag Grip */}
-          <div
-            style={{ left: `${playheadPercent}%` }}
-            className="absolute top-0 bottom-0 w-[2px] bg-cyan-400 pointer-events-none z-30 transition-transform duration-75"
-          >
-            <div className="w-3.5 h-3.5 bg-cyan-400 -ml-[6px] -mt-1 rotate-45 rounded-[1px] shadow-lg shadow-cyan-400/60 border border-white" />
+                    {/* Header: Shot Title & Quick Actions */}
+                    <div className="relative z-10 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold tracking-tight text-white truncate flex items-center gap-1">
+                        {isVideo && (
+                          <span className="px-1 py-0.2 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-[9px] font-mono font-bold">
+                            MP4
+                          </span>
+                        )}
+                        <span>{scene.title}</span>
+                      </span>
+
+                      {/* Quick Reorder & Duplicate Controls for Selected Scene */}
+                      {!isV1Locked && isSelected && (
+                        <div className="flex items-center gap-0.5 bg-black/75 rounded px-1 py-0.5 border border-white/10 backdrop-blur-sm">
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                reorderScene(idx, idx - 1);
+                              }}
+                              className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
+                              title="Move Earlier in Timeline"
+                            >
+                              <ChevronLeft className="w-3 h-3" />
+                            </button>
+                          )}
+                          {idx < scenes.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                reorderScene(idx, idx + 1);
+                              }}
+                              className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
+                              title="Move Later in Timeline"
+                            >
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              duplicateScene(idx);
+                            }}
+                            className="p-0.5 rounded hover:bg-zinc-700 text-zinc-300"
+                            title="Duplicate Shot"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </button>
+                          {scenes.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeScene(idx);
+                              }}
+                              className="p-0.5 rounded hover:bg-red-500/30 text-red-400"
+                              title="Delete Shot"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer: Camera Preset Badge & Duration */}
+                    <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-zinc-400">
+                      <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-cyan-300 truncate max-w-[120px] font-medium">
+                        {scene.cameraPresetId.replace('_', ' ')}
+                      </span>
+                      <span className="font-semibold text-zinc-200">{scene.duration.toFixed(1)}s</span>
+                    </div>
+
+                    {/* Draggable Trim-End Handle (Right Edge) */}
+                    {!isV1Locked && (
+                      <div
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          setTrimmingIndex(idx);
+                          setTrimInitialDuration(scene.duration);
+                          setTrimInitialClientX(e.clientX);
+                          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                        }}
+                        onPointerUp={(e) => {
+                          try {
+                            (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+                          } catch {}
+                          setTrimmingIndex(null);
+                        }}
+                        className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
+                        title="Drag to Trim Clip Duration"
+                      >
+                        <div className="w-[2px] h-4 rounded-full bg-cyan-400/70 group-hover/trim:bg-cyan-300" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* T1 Title Track: Kinetic Caption Blocks with Drag Move & Trim */}
+            <div className="h-12 p-1 flex items-center relative border-b border-[#1A2130]">
+              {captions.map((cap) => {
+                const leftPct = (cap.startTime / duration) * 100;
+                const widthPct = ((cap.endTime - cap.startTime) / duration) * 100;
+                const isEditing = editingCaptionId === cap.id;
+                const isSelected = selectedCaptionId === cap.id;
+
+                return (
+                  <div
+                    key={cap.id}
+                    onClick={(e) => {
+                      setSelectedCaptionId(cap.id);
+                      setIsShotInspectorOpen(false);
+                      seekTo(getTimeFromClientX(e.clientX));
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      if (!isT1Locked) handleStartTitleEdit(cap);
+                    }}
+                    onPointerDown={(e) => {
+                      if (isEditing || isT1Locked) return;
+                      e.stopPropagation();
+                      setSelectedCaptionId(cap.id);
+                      setDragCaptionId(cap.id);
+                      setDragCaptionMode('move');
+                      setDragCaptionStartX(e.clientX);
+                      setDragCaptionInitialStart(cap.startTime);
+                      setDragCaptionInitialEnd(cap.endTime);
+                    }}
+                    style={{
+                      left: `${leftPct}%`,
+                      width: `${widthPct}%`,
+                      borderLeftColor: cap.color || '#00F0FF',
+                    }}
+                    className={`absolute h-8 rounded border text-zinc-100 px-2 flex items-center justify-between text-[10px] font-mono shadow-md cursor-grab active:cursor-grabbing transition-all border-l-4 group/cap ${
+                      isSelected
+                        ? 'border-cyan-400 bg-[#151B24] ring-1 ring-cyan-400/50'
+                        : 'border-pink-500/40 bg-pink-950/25 hover:border-pink-400/80'
+                    }`}
+                    title="Drag to reposition, double-click to edit text"
+                  >
+                    <div className="flex items-center gap-1 min-w-0">
+                      <Move className="w-2.5 h-2.5 text-zinc-500 opacity-60 group-hover/cap:opacity-100" />
+                      {isEditing ? (
+                        <input
+                          type="text"
+                          autoFocus
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveTitleEdit(cap.id);
+                            if (e.key === 'Escape') setEditingCaptionId(null);
+                          }}
+                          onBlur={() => handleSaveTitleEdit(cap.id)}
+                          className="w-full bg-[#080A0F] border border-cyan-400 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
+                        />
+                      ) : (
+                        <span className="truncate select-none font-semibold" style={{ color: cap.color || '#FFFFFF' }}>
+                          {cap.text}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Caption Trim-End Handle */}
+                    {!isT1Locked && (
+                      <div
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          setDragCaptionId(cap.id);
+                          setDragCaptionMode('trim-end');
+                          setDragCaptionStartX(e.clientX);
+                          setDragCaptionInitialStart(cap.startTime);
+                          setDragCaptionInitialEnd(cap.endTime);
+                        }}
+                        className="w-2 h-full cursor-ew-resize hover:bg-white/20 rounded-r flex items-center justify-center shrink-0"
+                        title="Drag to Extend/Shorten Duration"
+                      >
+                        <div className="w-[1.5px] h-3 bg-white/40" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* A1 Audio Track: REAL 64-BAR RMS WAVEFORM (Zero Math.sin fake) */}
+            <div className="h-16 p-1 relative flex items-center">
+              <div className="w-full h-10 flex items-end gap-[2px]">
+                {audioWaveform.map((val, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-xs bg-gradient-to-t from-emerald-600 to-cyan-400 transition-all duration-150"
+                    style={{ height: `${Math.max(12, val * (isMuted ? 0.15 : audioVolume) * 100)}%` }}
+                  />
+                ))}
+              </div>
+
+              {/* Vertical Beat Marker Ticks (Cyan for kick, Pink for snare) */}
+              {beats.map((beat, i) => {
+                const posPct = (beat.timestamp / duration) * 100;
+                const isKick = beat.type === 'kick';
+
+                return (
+                  <div
+                    key={i}
+                    style={{ left: `${posPct}%` }}
+                    className={`absolute top-0 bottom-0 w-[1.5px] pointer-events-none ${
+                      isKick ? 'bg-cyan-400 opacity-90' : 'bg-pink-400 opacity-70'
+                    }`}
+                    title={`${beat.type.toUpperCase()} @ ${beat.timestamp.toFixed(2)}s`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Smooth Playhead Scrubber with Drag Grip */}
+            <div
+              style={{ left: `${playheadPercent}%` }}
+              className="absolute top-0 bottom-0 w-[2px] bg-cyan-400 pointer-events-none z-30 transition-transform duration-75"
+            >
+              <div className="w-3.5 h-3.5 bg-cyan-400 -ml-[6px] -mt-1 rotate-45 rounded-[1px] shadow-lg shadow-cyan-400/60 border border-white" />
+            </div>
           </div>
         </div>
-      </div>
 
         {/* Title Properties Inspector Drawer (Opens when caption is selected) */}
         {selectedCaption && (
-          <div className="w-80 bg-[#12161F] border-l border-[#1E2638] p-3 text-xs flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-right duration-150">
-            <div className="space-y-2.5 overflow-y-auto pr-1">
-              <div className="flex items-center justify-between pb-1.5 border-b border-[#1E2638]">
-                <div className="flex items-center gap-1.5 font-semibold text-zinc-200">
+          <div className="w-80 bg-[#0D1117] border-l border-[#1A2130] p-3.5 text-xs flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-right duration-150">
+            <div className="space-y-3 overflow-y-auto pr-1">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1A2130]">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
                   <Sliders className="w-3.5 h-3.5 text-pink-400" />
                   <span>Title Inspector</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedCaptionId(null)}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -1133,21 +1139,21 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Title Text Content Input */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Text Content
                 </label>
                 <input
                   type="text"
                   value={selectedCaption.text}
                   onChange={(e) => updateCaption(selectedCaption.id, { text: e.target.value })}
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-pink-400"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-pink-400"
                 />
               </div>
 
               {/* Timing Controls */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                     Start (s)
                   </label>
                   <input
@@ -1159,11 +1165,11 @@ export const MultiTrackTimeline: React.FC = () => {
                     onChange={(e) =>
                       trimCaption(selectedCaption.id, parseFloat(e.target.value) || 0, selectedCaption.endTime)
                     }
-                    className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                     End (s)
                   </label>
                   <input
@@ -1175,14 +1181,14 @@ export const MultiTrackTimeline: React.FC = () => {
                     onChange={(e) =>
                       trimCaption(selectedCaption.id, selectedCaption.startTime, parseFloat(e.target.value) || 1)
                     }
-                    className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
                   />
                 </div>
               </div>
 
               {/* Kinetic Motion Style Dropdown */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Kinetic Motion Preset
                 </label>
                 <select
@@ -1192,7 +1198,7 @@ export const MultiTrackTimeline: React.FC = () => {
                       style: e.target.value as CaptionItem['style'],
                     })
                   }
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-pink-400 cursor-pointer"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-pink-400 cursor-pointer font-medium"
                 >
                   {KINETIC_STYLES.map((st) => (
                     <option key={st.id} value={st.id}>
@@ -1204,19 +1210,19 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Font Size Pills */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Font Size
                 </label>
-                <div className="grid grid-cols-4 gap-1">
+                <div className="grid grid-cols-4 gap-1.5">
                   {FONT_SIZES.map((fs) => (
                     <button
                       key={fs}
                       type="button"
                       onClick={() => updateCaption(selectedCaption.id, { fontSize: fs })}
-                      className={`py-1 text-[10px] font-mono rounded border transition-colors ${
+                      className={`py-1 text-[10px] font-mono rounded-md border transition-all cursor-pointer ${
                         (selectedCaption.fontSize || 28) === fs
-                          ? 'bg-zinc-700 border-pink-400 text-white font-semibold'
-                          : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200'
+                          ? 'bg-[#151B24] border-pink-400 text-pink-300 font-bold'
+                          : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-white'
                       }`}
                     >
                       {fs}px
@@ -1227,21 +1233,21 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Color Swatches */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1 flex items-center justify-between">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center justify-between">
                   <span>Color Theme</span>
                   <Palette className="w-3 h-3 text-zinc-500" />
                 </label>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   {COLOR_SWATCHES.map((sw) => (
                     <button
                       key={sw.hex}
                       type="button"
                       onClick={() => updateCaption(selectedCaption.id, { color: sw.hex })}
                       style={{ backgroundColor: sw.hex }}
-                      className={`w-5 h-5 rounded-full border transition-transform ${
+                      className={`w-6 h-6 rounded-full border transition-transform cursor-pointer ${
                         (selectedCaption.color || '#FFFFFF') === sw.hex
                           ? 'scale-115 ring-2 ring-white border-black'
-                          : 'border-black/40 hover:scale-105'
+                          : 'border-black/50 hover:scale-105'
                       }`}
                       title={sw.name}
                     />
@@ -1254,7 +1260,7 @@ export const MultiTrackTimeline: React.FC = () => {
             <button
               type="button"
               onClick={() => removeCaption(selectedCaption.id)}
-              className="w-full mt-3 py-1.5 rounded bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 font-medium text-xs flex items-center justify-center gap-1.5 transition-colors shrink-0"
+              className="w-full mt-3 py-2 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors shrink-0 cursor-pointer"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Delete Title Overlay</span>
@@ -1264,17 +1270,17 @@ export const MultiTrackTimeline: React.FC = () => {
 
         {/* Shot Properties Inspector Drawer (Opens when scene clip is selected) */}
         {!selectedCaption && isShotInspectorOpen && activeScene && (
-          <div className="w-80 bg-[#12161F] border-l border-[#1E2638] p-3 text-xs flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-right duration-150">
-            <div className="space-y-2.5 overflow-y-auto pr-1">
-              <div className="flex items-center justify-between pb-1.5 border-b border-[#1E2638]">
-                <div className="flex items-center gap-1.5 font-semibold text-zinc-200">
+          <div className="w-80 bg-[#0D1117] border-l border-[#1A2130] p-3.5 text-xs flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-right duration-150">
+            <div className="space-y-3 overflow-y-auto pr-1">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1A2130]">
+                <div className="flex items-center gap-1.5 font-semibold text-white">
                   <Camera className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Shot Inspector (0{activeSceneIndex + 1}/{scenes.length})</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsShotInspectorOpen(false)}
-                  className="p-1 rounded hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                  className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -1282,40 +1288,40 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Shot Title */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Shot Title
                 </label>
                 <input
                   type="text"
                   value={activeScene.title}
                   onChange={(e) => updateScene(activeSceneIndex, { title: e.target.value })}
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400"
                 />
               </div>
 
               {/* Shot Prompt */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Generative Prompt & Visual Directive
                 </label>
                 <textarea
                   rows={2}
                   value={activeScene.prompt}
                   onChange={(e) => updateScene(activeSceneIndex, { prompt: e.target.value })}
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 resize-none leading-relaxed"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 resize-none leading-relaxed"
                 />
               </div>
 
               {/* Camera Movement Preset */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1 flex items-center justify-between">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center justify-between">
                   <span>Cinematic Camera Kinematics</span>
                   <span className="text-[9px] text-cyan-400 font-mono">6-DOF</span>
                 </label>
                 <select
                   value={activeScene.cameraPresetId}
                   onChange={(e) => setCameraOptions({ presetId: e.target.value })}
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer font-medium"
                 >
                   {CINEMA_PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -1327,20 +1333,22 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Focal Length Pills */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1 flex items-center justify-between">
-                  <span>Lens Optics & FOV</span>
-                  <span className="text-[9px] text-zinc-500 font-mono">Perspective</span>
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center justify-between">
+                  <span>Lens Optics & Perspective</span>
+                  <span className="text-[9px] text-amber-400 font-mono font-bold">
+                    {activeScene.focalLength || '35mm'}
+                  </span>
                 </label>
-                <div className="grid grid-cols-4 gap-1">
+                <div className="grid grid-cols-4 gap-1.5">
                   {FOCAL_LENGTHS.map((foc) => (
                     <button
                       key={foc.mm}
                       type="button"
                       onClick={() => setCameraOptions({ focalLength: foc.mm })}
-                      className={`py-1 text-[10px] font-mono rounded border text-center transition-colors ${
+                      className={`py-1 text-[10px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                         (activeScene.focalLength || '35mm') === foc.mm
-                          ? 'bg-zinc-700 border-cyan-400 text-white font-semibold'
-                          : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200'
+                          ? 'bg-[#151B24] border-cyan-400 text-cyan-300 font-bold'
+                          : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-white'
                       }`}
                     >
                       {foc.mm}
@@ -1351,9 +1359,9 @@ export const MultiTrackTimeline: React.FC = () => {
 
               {/* Motion Speed Ramp Slider */}
               <div>
-                <div className="flex items-center justify-between text-[10px] text-zinc-400 uppercase font-medium mb-1">
-                  <span>Speed Ramp</span>
-                  <span className="font-mono text-cyan-300">{(activeScene.speedRamp || 1.25).toFixed(2)}x</span>
+                <div className="flex items-center justify-between text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
+                  <span>Speed Ramp Factor</span>
+                  <span className="font-mono text-cyan-400">{(activeScene.speedRamp || 1.25).toFixed(2)}x</span>
                 </div>
                 <input
                   type="range"
@@ -1362,19 +1370,19 @@ export const MultiTrackTimeline: React.FC = () => {
                   step={0.05}
                   value={activeScene.speedRamp || 1.25}
                   onChange={(e) => setCameraOptions({ speedRamp: parseFloat(e.target.value) })}
-                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                  className="w-full h-1.5 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-[#1A2130]"
                 />
               </div>
 
               {/* Clip Transition Preset */}
               <div>
-                <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   Clip Transition
                 </label>
                 <select
                   value={activeScene.transition || 'crossfade'}
                   onChange={(e) => updateScene(activeSceneIndex, { transition: e.target.value as any })}
-                  className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer font-medium"
                 >
                   {TRANSITION_PRESETS.map((tr) => (
                     <option key={tr.id} value={tr.id}>
@@ -1387,15 +1395,15 @@ export const MultiTrackTimeline: React.FC = () => {
               {/* Timing Duration */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                     Start Offset
                   </label>
-                  <div className="px-2 py-1 bg-[#0D1119] border border-[#1E2638] rounded text-zinc-300 font-mono text-xs">
+                  <div className="px-2.5 py-1.5 bg-[#080A0F] border border-[#1A2130] rounded-lg text-zinc-300 font-mono text-xs">
                     {activeScene.startAt.toFixed(2)}s
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-400 uppercase font-medium mb-1">
+                  <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                     Duration (s)
                   </label>
                   <input
@@ -1405,19 +1413,19 @@ export const MultiTrackTimeline: React.FC = () => {
                     max={20}
                     value={activeScene.duration}
                     onChange={(e) => trimScene(activeSceneIndex, parseFloat(e.target.value) || 1)}
-                    className="w-full bg-[#0D1119] border border-[#1E2638] rounded px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
                   />
                 </div>
               </div>
             </div>
 
             {/* Shot Actions Footer */}
-            <div className="pt-2 border-t border-[#1E2638] space-y-1.5 shrink-0">
+            <div className="pt-2.5 border-t border-[#1A2130] space-y-2 shrink-0">
               <button
                 type="button"
                 onClick={() => generateActiveScene()}
                 disabled={isGeneratingVideo}
-                className="w-full py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-zinc-950 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[#080A0F] font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-emerald-950/40 disabled:opacity-50 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{isGeneratingVideo ? 'Generating AI Shot...' : 'Regenerate AI Shot'}</span>
@@ -1427,7 +1435,7 @@ export const MultiTrackTimeline: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => duplicateScene(activeSceneIndex)}
-                  className="py-1 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs flex items-center justify-center gap-1 transition-colors"
+                  className="py-1.5 rounded-lg bg-[#151B24] hover:bg-[#1E2638] border border-[#222C40] text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                 >
                   <Copy className="w-3 h-3 text-zinc-400" />
                   <span>Duplicate</span>
@@ -1436,7 +1444,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => removeScene(activeSceneIndex)}
-                    className="py-1 rounded bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 text-xs flex items-center justify-center gap-1 transition-colors"
+                    className="py-1.5 rounded-lg bg-red-950/40 hover:bg-red-900/60 border border-red-500/40 text-red-300 text-xs font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3 h-3" />
                     <span>Delete</span>

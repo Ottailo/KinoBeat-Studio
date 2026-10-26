@@ -24,7 +24,6 @@ export const PromptNode: React.FC<{
   selected?: boolean;
 }> = ({ id, data, selected }) => {
   const updateNodeData = useStudioStore((s) => s.updateNodeData);
-  const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
   const globalAspectRatio = useStudioStore((s) => s.aspectRatio);
   const setStoreAspectRatio = useStudioStore((s) => s.setAspectRatio);
 
@@ -35,7 +34,7 @@ export const PromptNode: React.FC<{
   const [showNegative, setShowNegative] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState(data.negativePrompt || '');
 
-  // Synchronize internal state if data props change externally (e.g. via timeline scene selection)
+  // Synchronize internal state if data props change externally
   useEffect(() => {
     if (data.subject !== undefined) setSubject(data.subject);
   }, [data.subject]);
@@ -71,13 +70,13 @@ export const PromptNode: React.FC<{
 
   // MCSLA Prompt Enhancer
   const handleEnhancePrompt = () => {
-    const enhancedSubject = subject.includes('volumetric') 
-      ? subject 
+    const enhancedSubject = subject.includes('volumetric')
+      ? subject
       : `${subject.trim()}, volumetric atmospheric haze, hyper-detailed subsurface scattering`;
-    const enhancedAction = action.includes('cinematic') 
-      ? action 
+    const enhancedAction = action.includes('cinematic')
+      ? action
       : `${action.trim()}, cinematic shutter timing, continuous fluid motion`;
-    
+
     setSubject(enhancedSubject);
     setAction(enhancedAction);
     updateNodeData(id, { subject: enhancedSubject, action: enhancedAction });
@@ -88,41 +87,48 @@ export const PromptNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#0D1117] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
-          : 'border-[#1E2638] hover:border-zinc-700'
+          ? 'border-cyan-400 ring-1 ring-cyan-400/40 shadow-cyan-950/20'
+          : 'border-[#1A2130] hover:border-[#2A354C]'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#151B24] border-b border-[#1A2130]">
         <div className="flex items-center gap-2">
-          <Type className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-xs font-semibold tracking-wide text-zinc-200">
-            Prompt Core
-          </span>
+          <div className="w-5 h-5 rounded-md bg-[#080A0F] border border-[#1A2130] flex items-center justify-center">
+            <Type className="w-3 h-3 text-cyan-400" />
+          </div>
+          <div>
+            <span className="text-xs font-semibold tracking-wide text-zinc-100">
+              Prompt Core
+            </span>
+            <span className="text-[9px] font-mono text-zinc-500 block leading-none">
+              MCSLA SYNTHESIS
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={handleEnhancePrompt}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 text-[10px] text-cyan-300 font-mono transition-colors border border-zinc-700"
+            className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#080A0F] hover:bg-[#1A2130] text-[10px] text-cyan-300 font-mono transition-colors border border-cyan-500/30 cursor-pointer"
             title="Auto-enhance with cinematic modifiers"
           >
             <Sparkles className="w-2.5 h-2.5 text-cyan-400" />
             <span>Enhance</span>
           </button>
-          <span className="text-[10px] font-mono text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
-            {estimatedTokens} / 250 tkn
+          <span className="text-[10px] font-mono text-zinc-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130]">
+            {estimatedTokens} tkn
           </span>
         </div>
       </div>
 
       {/* Node Body */}
-      <div className="p-3 space-y-2.5 text-xs">
+      <div className="p-3.5 space-y-3 text-xs">
         {/* Subject & Scene */}
         <div>
-          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+          <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
             Subject & Visual Focus
           </label>
           <textarea
@@ -130,13 +136,13 @@ export const PromptNode: React.FC<{
             value={subject}
             onChange={(e) => handleSubjectChange(e.target.value)}
             placeholder="Describe subject, wardrobe, and primary elements..."
-            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 transition-colors resize-none leading-relaxed"
           />
         </div>
 
         {/* Dynamic Action */}
         <div>
-          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+          <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
             Motion & Choreography
           </label>
           <textarea
@@ -144,19 +150,19 @@ export const PromptNode: React.FC<{
             value={action}
             onChange={(e) => handleActionChange(e.target.value)}
             placeholder="Describe kinetic movements and physical actions..."
-            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 transition-colors resize-none leading-relaxed"
+            className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-cyan-500 transition-colors resize-none leading-relaxed"
           />
         </div>
 
         {/* Cinematic Look / Film Stock */}
         <div>
-          <label className="block text-[11px] font-medium text-zinc-400 mb-1">
+          <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
             Optics & Color Grade
           </label>
           <select
             value={look}
             onChange={(e) => handleLookChange(e.target.value)}
-            className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-cyan-500 cursor-pointer"
+            className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-cyan-500 cursor-pointer font-medium"
           >
             {LOOK_PRESETS.map((p) => (
               <option key={p.id} value={p.prompt}>
@@ -168,20 +174,22 @@ export const PromptNode: React.FC<{
 
         {/* Aspect Ratio Selector Pills */}
         <div>
-          <label className="block text-[11px] font-medium text-zinc-400 mb-1.5 flex items-center justify-between">
-            <span>Aspect Ratio</span>
-            <span className="text-[10px] text-zinc-500 font-mono">Format</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
+              Anamorphic Aspect Ratio
+            </span>
+            <span className="text-[10px] text-cyan-400 font-mono">{aspectRatio}</span>
+          </div>
           <div className="grid grid-cols-4 gap-1.5">
             {ASPECT_RATIOS.map((ratio) => (
               <button
                 key={ratio}
                 type="button"
                 onClick={() => handleAspectRatioChange(ratio)}
-                className={`py-1 text-[11px] font-mono rounded-md border text-center transition-colors ${
+                className={`py-1 text-[11px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                   aspectRatio === ratio
-                    ? 'bg-zinc-700 border-cyan-400/80 text-zinc-100 font-semibold shadow-sm'
-                    : 'bg-[#0D1119] border-[#1E2638] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
+                    ? 'bg-[#151B24] border-cyan-400 text-cyan-300 font-bold shadow-sm'
+                    : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-zinc-200 hover:border-[#2A354C]'
                 }`}
               >
                 {ratio}
@@ -190,19 +198,19 @@ export const PromptNode: React.FC<{
           </div>
         </div>
 
-        {/* Negative Prompt Toggle */}
-        <div className="pt-1 border-t border-[#1E2638]/70">
+        {/* Negative Prompt Filter */}
+        <div className="pt-2 border-t border-[#1A2130]">
           <button
             type="button"
             onClick={() => setShowNegative(!showNegative)}
-            className="flex items-center justify-between w-full text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="flex items-center justify-between w-full text-[11px] text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
           >
             <span className="flex items-center gap-1.5">
               <SlidersHorizontal className="w-3 h-3 text-zinc-500" />
-              Negative Prompt Filter
+              <span>Negative Prompt Filter</span>
             </span>
             <span className="text-[10px] font-mono text-zinc-500">
-              {showNegative ? '− Hide' : '+ Edit'}
+              {showNegative ? '− Collapse' : '+ Expand'}
             </span>
           </button>
           {showNegative && (
@@ -214,7 +222,7 @@ export const PromptNode: React.FC<{
                 updateNodeData(id, { negativePrompt: e.target.value });
               }}
               placeholder="Elements to avoid (e.g. blurry, watermarks, morphing)..."
-              className="mt-2 w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-400 placeholder-zinc-700 focus:outline-none focus:border-cyan-500 resize-none leading-relaxed"
+              className="mt-2 w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 placeholder-zinc-700 focus:outline-none focus:border-cyan-500 resize-none leading-relaxed"
             />
           )}
         </div>
@@ -225,7 +233,7 @@ export const PromptNode: React.FC<{
         type="source"
         position={Position.Right}
         id="prompt-out"
-        className="!bg-cyan-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-cyan-400 !w-2.5 !h-2.5 !border-[#0D1117]"
       />
     </div>
   );

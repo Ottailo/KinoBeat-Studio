@@ -47,7 +47,7 @@ const StudioCanvasInner: React.FC = () => {
         setSelectedNodeId(existing.id);
         const w = 170;
         const h = 130;
-        setCenter(existing.position.x + w, existing.position.y + h, { zoom: 0.95, duration: 450 });
+        setCenter(existing.position.x + w, existing.position.y + h, { zoom: 0.95, duration: 400 });
       } else {
         addNode(type);
       }
@@ -56,7 +56,7 @@ const StudioCanvasInner: React.FC = () => {
   );
 
   const handleFitView = useCallback(() => {
-    fitView({ duration: 450 });
+    fitView({ duration: 400 });
   }, [fitView]);
 
   const handleLoadPreset = useCallback(
@@ -67,15 +67,15 @@ const StudioCanvasInner: React.FC = () => {
   );
 
   return (
-    <div className="relative w-full h-full bg-[#0B0E14]">
-      {/* Sleek Top Studio Toolbar */}
+    <div className="relative w-full h-full bg-[#080A0F] studio-film-grain select-none">
+      {/* Floating Studio Nodes Toolbar */}
       <NodeToolbar
         onAddNode={handleFocusOrAddNode}
         onLoadPreset={handleLoadPreset}
         onFitView={handleFitView}
       />
 
-      {/* Fully Reactive React Flow Canvas */}
+      {/* Reactive Multi-Model Graph Canvas */}
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -94,31 +94,42 @@ const StudioCanvasInner: React.FC = () => {
       >
         <Background
           variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1}
-          color="#161B26"
+          gap={24}
+          size={1.2}
+          color="#161E2E"
         />
-        <Controls position="bottom-left" showInteractive={false} />
+        <Controls
+          position="bottom-left"
+          showInteractive={false}
+          className="!bg-[#0D1117] !border-[#1A2130] !shadow-xl"
+        />
         <MiniMap
           nodeColor={(node) => {
             switch (node.type) {
               case 'promptNode':
-                return '#38BDF8';
+                return '#00F0FF';
               case 'cameraNode':
-                return '#F59E0B';
+                return '#FFB800';
               case 'modelNode':
                 return '#10B981';
               case 'audioNode':
-                return '#EC4899';
+                return '#F43F5E';
               case 'timelineNode':
-                return '#8B5CF6';
+                return '#A855F7';
               default:
                 return '#1E2638';
             }
           }}
-          maskColor="rgba(11, 14, 20, 0.85)"
+          maskColor="rgba(8, 10, 15, 0.88)"
           position="bottom-right"
-          style={{ width: 140, height: 85, backgroundColor: '#0B0E14', border: '1px solid #1E2638', borderRadius: '8px' }}
+          style={{
+            width: 145,
+            height: 90,
+            backgroundColor: '#080A0F',
+            border: '1px solid #1A2130',
+            borderRadius: '10px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+          }}
         />
       </ReactFlow>
     </div>

@@ -137,19 +137,19 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   const progressPercent = Math.round((progressCount / steps.length) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-xl bg-[#12161F] border border-[#1E2638] shadow-2xl overflow-hidden text-zinc-100 font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+      <div className="w-full max-w-lg rounded-xl bg-[#0D1117] border border-[#1A2130] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E2638] bg-[#161B26]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1A2130] bg-[#151B24]">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-md bg-zinc-800 border border-zinc-700 text-cyan-400">
+            <div className="w-8 h-8 rounded-lg bg-[#080A0F] border border-[#1A2130] flex items-center justify-center text-cyan-400">
               <Compass className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold tracking-tight text-zinc-100">
+              <h2 className="text-sm font-bold tracking-tight text-white font-display">
                 Welcome to KinoBeat Studio
               </h2>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[10px] text-zinc-400 font-mono uppercase tracking-wider">
                 5-Persona Architecture & Interactive Directing Guide
               </p>
             </div>
@@ -157,23 +157,23 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+            className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-[#1E2638] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Progress Bar */}
-        <div className="px-5 py-2.5 bg-[#0D1119] border-b border-[#1E2638] flex items-center justify-between text-xs">
+        <div className="px-5 py-2.5 bg-[#080A0F] border-b border-[#1A2130] flex items-center justify-between text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] text-zinc-400">Setup Progress:</span>
-            <span className="font-mono text-cyan-400 font-medium">
+            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Setup Progress:</span>
+            <span className="text-cyan-400 font-bold">
               {progressCount} / {steps.length} Personas Explored
             </span>
           </div>
-          <div className="w-32 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+          <div className="w-32 h-1.5 bg-[#151B24] rounded-full overflow-hidden border border-[#1A2130]">
             <div
-              className="h-full bg-cyan-400 transition-all duration-300"
+              className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 transition-all duration-300"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -190,8 +190,8 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 onClick={() => toggleStep(s.id)}
                 className={`p-3 rounded-lg border transition-all cursor-pointer flex items-start gap-3 ${
                   isDone
-                    ? 'bg-[#161B26]/60 border-[#1E2638]'
-                    : 'bg-[#0D1119] border-zinc-800 hover:border-zinc-700'
+                    ? 'bg-[#151B24]/50 border-[#1A2130]'
+                    : 'bg-[#080A0F] border-[#1A2130] hover:border-[#2A354C]'
                 }`}
               >
                 <button
@@ -200,7 +200,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                     e.stopPropagation();
                     toggleStep(s.id);
                   }}
-                  className="mt-0.5 text-zinc-400 hover:text-zinc-200 transition-colors shrink-0"
+                  className="mt-0.5 text-zinc-400 hover:text-white transition-colors shrink-0 cursor-pointer"
                 >
                   {isDone ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -210,13 +210,13 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                 </button>
 
                 <div className="flex-1 space-y-1">
-                  <div className="text-[10px] font-mono text-cyan-400 font-semibold uppercase tracking-wider">
+                  <div className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
                     {s.persona}
                   </div>
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-xs font-semibold ${
-                        isDone ? 'text-zinc-300' : 'text-zinc-100'
+                        isDone ? 'text-zinc-300' : 'text-white'
                       }`}
                     >
                       {s.title}
@@ -228,7 +228,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
                           e.stopPropagation();
                           s.onAction?.();
                         }}
-                        className="text-[11px] text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 hover:underline ml-2"
+                        className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 hover:underline ml-2 cursor-pointer font-mono"
                       >
                         <span>{s.actionText}</span>
                         <ArrowRight className="w-3 h-3" />
@@ -245,18 +245,18 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-[#1E2638] bg-[#161B26] flex items-center justify-between">
+        <div className="px-5 py-3.5 border-t border-[#1A2130] bg-[#151B24] flex items-center justify-between">
           <button
             type="button"
             onClick={handleDismiss}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer font-medium"
           >
             Don&apos;t show again on startup
           </button>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-md bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-bold text-xs transition-colors shadow-md shadow-cyan-950/30"
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-[#00E5FF] hover:from-cyan-300 hover:to-cyan-400 text-[#080A0F] font-bold text-xs transition-all shadow-md shadow-cyan-950/40 cursor-pointer"
           >
             Enter Studio
           </button>

@@ -106,7 +106,6 @@ export const AudioNode: React.FC<{
     try {
       const ctx = beatDetector.getOrCreateContext();
       audioContextRef.current = ctx;
-      // Synthesize rhythmic speech track
       const buffer = await synthesizeAudioTrack('tokyo-drift-kinetic', ctx);
       cachedBufferRef.current = buffer;
       const analysis = await beatDetector.analyzeBuffer(buffer);
@@ -114,7 +113,6 @@ export const AudioNode: React.FC<{
       setBeatCount(analysis.beats.length);
       setBeatsAndBpm(analysis.beats, analysis.bpm, 'tts-stem', 'TTS Voiceover Stem', analysis.waveform);
 
-      // Auto-create matching kinetic caption with user's narration text
       addCaption(ttsText || 'Autonomous cinema synchronized to frequency.', 'slam');
     } catch (err) {
       console.error('TTS synthesis failed:', err);
@@ -156,32 +154,41 @@ export const AudioNode: React.FC<{
 
   return (
     <div
-      className={`w-84 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
+      className={`w-84 rounded-xl bg-[#0D1117] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
-          : 'border-[#1E2638] hover:border-zinc-700'
+          ? 'border-pink-500 ring-1 ring-pink-500/40 shadow-pink-950/20'
+          : 'border-[#1A2130] hover:border-[#2A354C]'
       }`}
     >
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#151B24] border-b border-[#1A2130]">
         <div className="flex items-center gap-2">
-          <Music className="w-3.5 h-3.5 text-pink-400" />
-          <span className="text-xs font-semibold tracking-wide text-zinc-200">
-            Audio & Beat Transient Core
-          </span>
+          <div className="w-5 h-5 rounded-md bg-[#080A0F] border border-[#1A2130] flex items-center justify-center">
+            <Music className="w-3 h-3 text-pink-400" />
+          </div>
+          <div>
+            <span className="text-xs font-semibold tracking-wide text-zinc-100">
+              Audio Transient DSP
+            </span>
+            <span className="text-[9px] font-mono text-zinc-500 block leading-none">
+              WEB AUDIO 48kHz FFT
+            </span>
+          </div>
         </div>
-        <span className="text-[10px] font-mono text-cyan-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
-          {activeBpm} BPM
+        <span className="text-[10px] font-mono text-pink-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130]">
+          {activeBpm.toFixed(1)} BPM
         </span>
       </div>
 
       {/* Mode Switcher Tabs */}
-      <div className="grid grid-cols-3 bg-[#0D1119] border-b border-[#1E2638] text-[11px] font-medium text-zinc-400">
+      <div className="grid grid-cols-3 bg-[#080A0F] border-b border-[#1A2130] text-[11px] font-mono text-zinc-400">
         <button
           type="button"
           onClick={() => setMode('stem')}
-          className={`py-1.5 text-center transition-colors ${
-            mode === 'stem' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#12161F]' : 'hover:text-zinc-200'
+          className={`py-2 text-center transition-colors cursor-pointer ${
+            mode === 'stem'
+              ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#0D1117] font-bold'
+              : 'hover:text-zinc-200'
           }`}
         >
           Preset Stems
@@ -189,17 +196,21 @@ export const AudioNode: React.FC<{
         <button
           type="button"
           onClick={() => setMode('upload')}
-          className={`py-1.5 text-center transition-colors ${
-            mode === 'upload' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#12161F]' : 'hover:text-zinc-200'
+          className={`py-2 text-center transition-colors cursor-pointer ${
+            mode === 'upload'
+              ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#0D1117] font-bold'
+              : 'hover:text-zinc-200'
           }`}
         >
-          Upload MP3
+          Custom Audio
         </button>
         <button
           type="button"
           onClick={() => setMode('tts')}
-          className={`py-1.5 text-center transition-colors ${
-            mode === 'tts' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#12161F]' : 'hover:text-zinc-200'
+          className={`py-2 text-center transition-colors cursor-pointer ${
+            mode === 'tts'
+              ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#0D1117] font-bold'
+              : 'hover:text-zinc-200'
           }`}
         >
           TTS Voice
@@ -207,20 +218,20 @@ export const AudioNode: React.FC<{
       </div>
 
       {/* Node Body */}
-      <div className="p-3 space-y-3 text-xs">
+      <div className="p-3.5 space-y-3 text-xs">
         {mode === 'stem' && (
           <div>
-            <label className="block text-[11px] font-medium text-zinc-400 mb-1 flex items-center justify-between">
+            <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <Radio className="w-3 h-3 text-zinc-500" />
-                Audio Stem Profile
+                Audio Master Stem
               </span>
-              <span className="text-[10px] font-mono text-zinc-500">Web Audio FFT</span>
+              <span className="text-[10px] font-mono text-zinc-500">48kHz PCM</span>
             </label>
             <select
               value={trackId}
               onChange={(e) => handleTrackChange(e.target.value)}
-              className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 font-medium cursor-pointer"
+              className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 font-medium cursor-pointer"
             >
               {PRESET_TRACKS.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -243,23 +254,27 @@ export const AudioNode: React.FC<{
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-3.5 rounded-md border-2 border-dashed border-[#1E2638] hover:border-cyan-500 bg-[#0D1119] flex flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="w-full py-3.5 rounded-lg border-2 border-dashed border-[#1A2130] hover:border-cyan-400/80 bg-[#080A0F] flex flex-col items-center justify-center gap-1 text-zinc-400 hover:text-white transition-all cursor-pointer"
             >
               <Upload className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-medium">
-                {customAudioName || 'Drop MP3/WAV or Click to Browse'}
+              <span className="text-xs font-semibold">
+                {customAudioName || 'Drop MP3 / WAV or Click to Browse'}
               </span>
-              <span className="text-[10px] text-zinc-500">Auto-detects kicks & transients</span>
+              <span className="text-[10px] text-zinc-500 font-mono">Real-time kick & snare transient detection</span>
             </button>
 
             {customAudioName && (
               <button
                 type="button"
                 onClick={handleTogglePreview}
-                className="w-full py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full py-1.5 rounded-md bg-[#151B24] hover:bg-[#1E2638] border border-[#222C40] text-zinc-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
-                {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5 text-cyan-400" />}
-                <span>{isPlayingPreview ? 'Pause Uploaded Audio' : 'Play Uploaded Audio'}</span>
+                {isPlayingPreview ? (
+                  <Pause className="w-3.5 h-3.5 text-cyan-400" />
+                ) : (
+                  <Play className="w-3.5 h-3.5 text-cyan-400" />
+                )}
+                <span>{isPlayingPreview ? 'Pause Audio Preview' : 'Play Uploaded Audio'}</span>
               </button>
             )}
           </div>
@@ -267,21 +282,21 @@ export const AudioNode: React.FC<{
 
         {mode === 'tts' && (
           <div className="space-y-2">
-            <label className="block text-[11px] font-medium text-zinc-400">
-              Voiceover Narration Script
+            <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
+              Voiceover Script & Narration
             </label>
             <textarea
               rows={2}
               value={ttsText}
               onChange={(e) => setTtsText(e.target.value)}
-              className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 resize-none"
+              className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 resize-none leading-relaxed"
             />
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleSynthesizeTts}
                 disabled={isProcessing}
-                className="flex-1 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-cyan-300 font-medium text-xs border border-zinc-700 flex items-center justify-center gap-1.5"
+                className="flex-1 py-1.5 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-cyan-300 font-semibold text-xs border border-cyan-500/30 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Synthesize & Add Caption</span>
@@ -289,10 +304,10 @@ export const AudioNode: React.FC<{
               <button
                 type="button"
                 onClick={handleTogglePreview}
-                className="px-3 py-1.5 rounded-md bg-[#0D1119] hover:bg-zinc-800 border border-[#1E2638] text-zinc-300 hover:text-white transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 rounded-md bg-[#080A0F] hover:bg-[#151B24] border border-[#1A2130] text-zinc-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                 title="Play Preview"
               >
-                {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5" />}
+                {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5 text-zinc-300" />}
               </button>
             </div>
           </div>
@@ -305,34 +320,34 @@ export const AudioNode: React.FC<{
               type="button"
               onClick={() => handleSynthesizePreset()}
               disabled={isProcessing}
-              className="flex-1 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs border border-zinc-700 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+              className="flex-1 py-1.5 rounded-md bg-[#151B24] hover:bg-[#1E2638] text-zinc-200 font-semibold text-xs border border-[#222C40] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               <Activity className="w-3.5 h-3.5 text-pink-400" />
-              <span>{isProcessing ? 'Analyzing FFT...' : 'Analyze Stem'}</span>
+              <span>{isProcessing ? 'Analyzing FFT Energy...' : 'Analyze Stem'}</span>
             </button>
             <button
               type="button"
               onClick={handleTogglePreview}
-              className="px-3 py-1.5 rounded-md bg-[#0D1119] hover:bg-zinc-800 border border-[#1E2638] text-zinc-300 hover:text-white transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 rounded-md bg-[#080A0F] hover:bg-[#151B24] border border-[#1A2130] text-zinc-300 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
               title="Play Preview"
             >
-              {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5" />}
+              {isPlayingPreview ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5 text-zinc-300" />}
             </button>
           </div>
         )}
 
-        {/* Live Audio Waveform Preview */}
+        {/* Live Audio Waveform Peak Bars */}
         <div>
-          <div className="flex items-center justify-between text-[11px] text-zinc-400 mb-1.5 font-mono">
-            <span>FFT Spectral Peaks</span>
-            <span className="text-zinc-500">{beatCount} onsets</span>
+          <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 mb-1.5">
+            <span className="uppercase tracking-wider">FFT Spectral Energy</span>
+            <span className="text-cyan-400 font-semibold">{beatCount} Transient Hits</span>
           </div>
-          <div className="h-10 bg-[#0D1119] border border-[#1E2638] rounded-md p-1.5 flex items-end justify-between gap-1">
+          <div className="h-10 bg-[#080A0F] border border-[#1A2130] rounded-lg p-1.5 flex items-end justify-between gap-1">
             {waveform.map((val, idx) => (
               <div
                 key={idx}
-                className="flex-1 rounded-sm bg-gradient-to-t from-zinc-700 to-cyan-400 transition-all duration-150"
-                style={{ height: `${Math.max(15, val * 100)}%` }}
+                className="flex-1 rounded-xs bg-gradient-to-t from-pink-600/40 via-cyan-500 to-cyan-300 transition-all duration-150"
+                style={{ height: `${Math.max(14, val * 100)}%` }}
               />
             ))}
           </div>
@@ -344,7 +359,7 @@ export const AudioNode: React.FC<{
         type="source"
         position={Position.Right}
         id="audio-out"
-        className="!bg-pink-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-pink-400 !w-2.5 !h-2.5 !border-[#0D1117]"
       />
     </div>
   );

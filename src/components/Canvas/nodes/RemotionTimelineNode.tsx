@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Film, Play, Pause } from 'lucide-react';
+import { Film, Play, Pause, Radio } from 'lucide-react';
 import { Player, PlayerRef } from '@remotion/player';
 import { KinoComposition } from '../../Player/KinoComposition';
 import { useStudioStore } from '../../../lib/store/studioStore';
@@ -76,10 +76,10 @@ export const RemotionTimelineNode: React.FC<{
 
   return (
     <div
-      className={`w-96 rounded-lg bg-[#12161F] border transition-all text-zinc-100 shadow-xl overflow-hidden ${
+      className={`w-96 rounded-xl bg-[#0D1117] border transition-all text-zinc-100 shadow-2xl overflow-hidden ${
         selected
-          ? 'border-cyan-400 ring-1 ring-cyan-400/40'
-          : 'border-[#1E2638] hover:border-zinc-700'
+          ? 'border-purple-400 ring-1 ring-purple-400/40 shadow-purple-950/20'
+          : 'border-[#1A2130] hover:border-[#2A354C]'
       }`}
     >
       {/* Input Handles for Model and Audio */}
@@ -88,29 +88,40 @@ export const RemotionTimelineNode: React.FC<{
         position={Position.Left}
         id="model-in"
         style={{ top: '35%' }}
-        className="!bg-emerald-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-emerald-400 !w-2.5 !h-2.5 !border-[#0D1117]"
       />
       <Handle
         type="target"
         position={Position.Left}
         id="audio-in"
         style={{ top: '65%' }}
-        className="!bg-pink-400 !w-2.5 !h-2.5 !border-[#12161F]"
+        className="!bg-pink-400 !w-2.5 !h-2.5 !border-[#0D1117]"
       />
 
       {/* Node Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-[#161B26] border-b border-[#1E2638]">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-[#151B24] border-b border-[#1A2130]">
         <div className="flex items-center gap-2">
-          <Film className="w-3.5 h-3.5 text-purple-400" />
-          <span className="text-xs font-semibold tracking-wide text-zinc-200">
-            Composition Preview
-          </span>
+          <div className="w-5 h-5 rounded-md bg-[#080A0F] border border-[#1A2130] flex items-center justify-center">
+            <Film className="w-3 h-3 text-purple-400" />
+          </div>
+          <div>
+            <span className="text-xs font-semibold tracking-wide text-zinc-100">
+              Program Monitor
+            </span>
+            <span className="text-[9px] font-mono text-zinc-500 block leading-none">
+              REMOTION 4.X RASTER
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="text-cyan-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+          <span className="flex items-center gap-1 text-rose-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130] font-bold">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+            LIVE
+          </span>
+          <span className="text-cyan-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130] font-semibold">
             Shot 0{activeSceneIndex + 1}/{scenes.length}
           </span>
-          <span className="text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
+          <span className="text-zinc-400 bg-[#080A0F] px-1.5 py-0.5 rounded border border-[#1A2130] uppercase">
             {aspectRatio}
           </span>
         </div>
@@ -119,7 +130,7 @@ export const RemotionTimelineNode: React.FC<{
       {/* Embedded Live Remotion Player with Dynamic Aspect Ratio */}
       <div
         onClick={togglePlay}
-        className={`relative bg-black overflow-hidden border-b border-[#1E2638] cursor-pointer group ${aspectClass}`}
+        className={`relative bg-black overflow-hidden border-b border-[#1A2130] cursor-pointer group ${aspectClass}`}
         title={isPlaying ? 'Click to Pause' : 'Click to Play'}
       >
         <Player
@@ -146,33 +157,33 @@ export const RemotionTimelineNode: React.FC<{
         />
 
         {/* Quick Play/Pause Overlay button on hover */}
-        <div className="absolute bottom-2 left-2 flex items-center gap-1.5 z-30">
+        <div className="absolute bottom-2.5 left-2.5 flex items-center gap-2 z-30">
           <button
             type="button"
             onClick={togglePlay}
-            className="p-1.5 rounded-full bg-black/70 hover:bg-black/90 text-white backdrop-blur-sm transition-colors border border-white/10"
+            className="p-1.5 rounded-full bg-black/80 hover:bg-black text-cyan-400 backdrop-blur-md transition-all border border-cyan-500/20 shadow-lg cursor-pointer"
             title={isPlaying ? 'Pause' : 'Play'}
           >
-            {isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
           </button>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/60 text-zinc-300 backdrop-blur-sm">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-black/75 text-zinc-200 backdrop-blur-md border border-white/10 smpte-timecode">
             {currentTime.toFixed(2)}s / {duration.toFixed(2)}s
           </span>
         </div>
       </div>
 
       {/* Node Controls Footer */}
-      <div className="p-2.5 bg-[#0D1119] flex items-center justify-between text-xs font-mono">
+      <div className="p-3 bg-[#080A0F] flex items-center justify-between text-xs font-mono">
         <div className="flex items-center gap-2 text-zinc-400 text-[11px]">
-          <span>{scenes.length} Shots</span>
-          <span>·</span>
-          <span>{duration.toFixed(1)}s Total</span>
-          <span>·</span>
-          <span className="text-cyan-400">{bpm} BPM</span>
+          <span>{scenes.length} Clips</span>
+          <span className="text-zinc-600">·</span>
+          <span>{duration.toFixed(1)}s Runtime</span>
+          <span className="text-zinc-600">·</span>
+          <span className="text-cyan-400 font-semibold">{bpm.toFixed(1)} BPM</span>
         </div>
 
-        <div className="text-[11px] text-zinc-500">
-          Remotion 4.x Engine
+        <div className="text-[10px] text-zinc-500 font-mono uppercase">
+          Client Thread Mux
         </div>
       </div>
     </div>

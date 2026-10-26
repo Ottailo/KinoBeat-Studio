@@ -1,114 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
 @layer base {
   :root {
-    --background: #0B0E14;
-    --foreground: #F4F4F5;
-    --surface-node: #12161F;
-    --surface-header: #161B26;
-    --surface-input: #0D1119;
-    --border-subtle: #1E2638;
-    --border-hover: #2E3A52;
+    /* Studio Obsidian Neutral Scale (OKLCH tinted toward cool graphite) */
+    --bg-canvas: #080A0F;
+    --bg-surface: #0D1117;
+    --bg-elevated: #151B24;
+    --bg-input: #0A0D13;
+    --bg-glass: rgba(13, 17, 23, 0.88);
+
+    /* High-Precision Borders */
+    --border-subtle: #1A2130;
+    --border-medium: #222C40;
+    --border-strong: #2E3A52;
     --border-focus: #3E4D6D;
+
+    /* Single Locked Studio Accents */
     --accent-cyan: #00F0FF;
-    --accent-blue: #2563EB;
-    --text-primary: #F4F4F5;
-    --text-secondary: #A1A1AA;
-    --text-muted: #71717A;
+    --accent-cyan-glow: rgba(0, 240, 255, 0.18);
+    --accent-amber: #FFB800;
+    --accent-amber-glow: rgba(255, 184, 0, 0.18);
+    --accent-emerald: #10B981;
+    --accent-rose: #F43F5E;
+
+    /* Typographic Spectrum */
+    --text-primary: #F4F4F6;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --text-dim: #475569;
+
+    /* Design Gate 7 Motion curves */
+    --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Geist", sans-serif;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+}
+
+/* Tabular Numerals on all timecodes, counters, and metrics (Gate 1 & Gate 7) */
+.font-mono,
+[data-numeric],
+.metric-value,
+.smpte-timecode,
+table td {
+  font-family: 'Geist Mono', 'SF Mono', Consolas, Monaco, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.font-display {
+  font-family: 'Space Grotesk', 'Geist', sans-serif;
+}
+
+/* Touch Action & Tap Highlight normalization (Gate 7) */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+button:active:not(:disabled), [role="button"]:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Reduced motion fallback (Gate 4 & Gate 7) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 /* React Flow Industrial Canvas Styling */
 .react-flow {
-  background: #0B0E14 !important;
+  background: var(--bg-canvas) !important;
 }
 
 .react-flow__background {
-  background-color: #0B0E14 !important;
+  background-color: var(--bg-canvas) !important;
 }
 
 .react-flow__node {
   border-radius: 8px;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .react-flow__node.selected {
-  box-shadow: 0 0 0 1px #00F0FF, 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 0 0 1px var(--accent-cyan), 0 10px 30px rgba(0, 0, 0, 0.75) !important;
 }
 
 .react-flow__handle {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  border: 1.5px solid #0B0E14;
+  border: 1.5px solid var(--bg-canvas);
   background-color: #3E4D6D;
   transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.3);
-  background-color: #00F0FF;
+  transform: scale(1.35);
+  background-color: var(--accent-cyan);
 }
 
 .react-flow__edge-path {
   stroke-width: 1.5;
-  stroke: #2E3A52;
+  stroke: var(--border-medium);
 }
 
 .react-flow__edge.animated path {
-  stroke: #3E4D6D;
+  stroke: var(--border-strong);
   stroke-dasharray: 4;
   animation: react-flow__dash 1.2s linear infinite;
 }
 
 .react-flow__controls {
-  background: #12161F !important;
-  border: 1px solid #1E2638 !important;
-  border-radius: 6px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
   overflow: hidden;
 }
 
 .react-flow__controls-button {
-  background: #12161F !important;
-  border-bottom: 1px solid #1E2638 !important;
-  fill: #71717A !important;
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  fill: var(--text-muted) !important;
 }
 
 .react-flow__controls-button:hover {
-  background: #1A202E !important;
-  fill: #E4E4E7 !important;
+  background: var(--bg-elevated) !important;
+  fill: var(--text-primary) !important;
 }
 
 .react-flow__minimap {
-  background-color: #0B0E14 !important;
-  border: 1px solid #1E2638 !important;
-  border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  background-color: var(--bg-canvas) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
   overflow: hidden;
 }
 
-/* Custom Scrollbar */
+/* Tactile Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0E14;
+  background: var(--bg-canvas);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E2638;
-  border-radius: 2px;
+  background: var(--border-subtle);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2E3A52;
+  background: var(--border-strong);
+}
+
+/* Subtle Film Grain Noise Overlay (Optional Texture) */
+.studio-film-grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 0);
+  background-size: 24px 24px;
 }
