@@ -1,5 +1,6 @@
 import { SceneClip, CaptionItem } from '../store/studioStore';
 import { BeatMarker } from '../audio/beatDetector';
+import { CAMERA_CURVES } from '../camera/cameraMath';
 
 export interface RenderOptions {
   resolution: '1080p' | '720p' | '4K-Cinema';
@@ -7,6 +8,7 @@ export interface RenderOptions {
   scenes: SceneClip[];
   captions: CaptionItem[];
   duration: number;
+  aspectRatio?: '16:9' | '9:16' | '1:1' | '21:9';
   beats?: BeatMarker[];
   audioBuffer?: AudioBuffer | null;
   onProgress?: (progress: number, frame: number, totalFrames: number, status: string) => void;
@@ -38,7 +40,6 @@ export class VideoRenderer {
       img.crossOrigin = 'anonymous';
       img.onload = () => resolve(img);
       img.onerror = () => {
-        // Fallback placeholder image on canvas
         const canvas = document.createElement('canvas');
         canvas.width = 1280;
         canvas.height = 720;
@@ -58,6 +59,64 @@ export class VideoRenderer {
   }
 
   /**
+   * Preload a video URL into an HTMLVideoElement
+   */
+  private static async preloadVideo(url: string): Promise<HTMLVideoElement> {
+    return new Promise((resolve) => {
+      const vid = document.createElement('video');
+      vid.crossOrigin = 'anonymous';
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.src = url;
+      vid.onloadeddata = () => resolve(vid);
+      vid.onerror = () => {
+        // Fallback to placeholder canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = 1280;
+        canvas.height = 720;
+        const ctx = canvas.getContext('2d')!;
+        ctx.fillStyle = '#0B0E14';
+        ctx.fillRect(0, 0, 1280, 720);
+        ctx.fillStyle = '#00F0FF';
+        ctx.font = 'bold 32px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('VIDEO STREAM ERROR', 640, 360);
+        resolve(vid);
+      };
+    });
+  }
+
+  /**
+   * Draw image or video covering the canvas preserving aspect ratio
+   */
+  private static drawMediaCover(
+    ctx: CanvasRenderingContext2D,
+    media: HTMLImageElement | HTMLVideoElement,
+    canvasW: number,
+    canvasH: number
+  ) {
+    const mediaW = media instanceof HTMLVideoElement ? media.videoWidth || 1920 : media.naturalWidth || 1920;
+    const mediaH = media instanceof HTMLVideoElement ? media.videoHeight || 1080 : media.naturalHeight || 1080;
+    const mediaRatio = mediaW / mediaH;
+    const canvasRatio = canvasW / canvasH;
+
+    let drawW = canvasW;
+    let drawH = canvasH;
+    let drawX = 0;
+    let drawY = 0;
+
+    if (mediaRatio > canvasRatio) {
+      drawW = canvasH * mediaRatio;
+      drawX = (canvasW - drawW) / 2;
+    } else {
+      drawH = canvasW / mediaRatio;
+      drawY = (canvasH - drawH) / 2;
+    }
+
+    ctx.drawImage(media, drawX, drawY, drawW, drawH);
+  }
+
+  /**
    * Deterministically renders the composition to a genuine playable video file
    */
   public static async renderToVideo(options: RenderOptions): Promise<RenderResult> {
@@ -67,21 +126,38 @@ export class VideoRenderer {
       scenes,
       captions,
       duration,
+      aspectRatio = '16:9',
+      beats = [],
       audioBuffer,
       onProgress,
       signal,
     } = options;
 
-    const { width, height } = this.RESOLUTION_MAP[resolution] || this.RESOLUTION_MAP['1080p'];
+    const baseRes = this.RESOLUTION_MAP[resolution] || this.RESOLUTION_MAP['1080p'];
+    let width = baseRes.width;
+    let height = baseRes.height;
+
+    if (aspectRatio === '9:16') {
+      width = baseRes.height;
+      height = baseRes.width;
+    } else if (aspectRatio === '1:1') {
+      width = Math.min(baseRes.width, baseRes.height);
+      height = width;
+    } else if (aspectRatio === '21:9') {
+      height = baseRes.height;
+      width = Math.round(height * (21 / 9));
+    }
+
     const totalFrames = Math.max(30, Math.ceil(duration * fps));
-    const frameIntervalMs = 1000 / fps;
 
     onProgress?.(0, 0, totalFrames, 'Preloading scene media and assets...');
 
-    // 1. Preload scene images / frames
-    const preloadedMedia: Record<string, HTMLImageElement> = {};
+    // 1. Preload scene images / videos
+    const preloadedMedia: Record<string, HTMLImageElement | HTMLVideoElement> = {};
     for (const sc of scenes) {
-      if (sc.thumbnailUrl) {
+      if (sc.mediaType === 'video' && sc.videoUrl) {
+        preloadedMedia[sc.id] = await this.preloadVideo(sc.videoUrl);
+      } else if (sc.thumbnailUrl) {
         preloadedMedia[sc.id] = await this.preloadImage(sc.thumbnailUrl);
       }
     }
@@ -183,64 +259,66 @@ export class VideoRenderer {
       ctx.fillStyle = '#0B0E14';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw Scene with 3D Camera Kinematics
-      ctx.save();
+      // Evaluate Camera Curve matching KinoComposition
+      const curve =
+        CAMERA_CURVES[activeScene?.cameraPresetId || 'orbital_drift'] ||
+        CAMERA_CURVES.orbital_drift;
 
-      let scale = 1.05;
-      let panX = 0;
-      let panY = 0;
-      let rotation = 0;
+      const camState = curve.evaluate(sceneProgress, {
+        focalLength: activeScene?.focalLength || '35mm',
+        speedRamp: activeScene?.speedRamp || 1.25,
+        easing: activeScene?.easing || 'Smoothstep (Ease In/Out)',
+      });
 
-      const preset = activeScene?.cameraPresetId || 'orbital_drift';
-      if (preset === 'orbital_drift') {
-        scale = 1.05 + 0.12 * sceneProgress;
-        panX = Math.sin(sceneProgress * Math.PI) * (width * 0.03);
-        panY = Math.cos(sceneProgress * Math.PI) * (height * 0.02);
-        rotation = Math.sin(sceneProgress * Math.PI) * 0.02;
-      } else if (preset === 'fpv_dive') {
-        const eased = Math.pow(sceneProgress, 1.6);
-        scale = 1.02 + 0.35 * eased;
-        panY = -eased * (height * 0.06);
-        rotation = Math.sin(sceneProgress * 2 * Math.PI) * 0.035;
-      } else if (preset === 'dolly_zoom_vertigo') {
-        scale = 1.0 + 0.28 * sceneProgress;
-        panX = (Math.random() - 0.5) * 2;
-      } else if (preset === 'roll_540') {
-        scale = 1.15 + 0.15 * Math.sin(sceneProgress * Math.PI);
-        rotation = sceneProgress * Math.PI * 3;
-      } else if (preset === 'crane_shot') {
-        scale = 1.08;
-        panY = (1 - sceneProgress) * (height * 0.08) - height * 0.04;
-      } else if (preset === 'rack_focus') {
-        scale = 1.06 + 0.04 * sceneProgress;
+      const isBeatHit = beats.some((b) => Math.abs(b.timestamp - t) < 0.08);
+      const beatScaleBump = isBeatHit ? 1.025 : 1.0;
+
+      // Transitions
+      const transition = activeScene?.transition || 'crossfade';
+      let transitionOpacity = 1.0;
+      let glitchOffset = 0;
+
+      if (transition === 'crossfade') {
+        if (sceneProgress < 0.12) {
+          transitionOpacity = Math.max(0, sceneProgress / 0.12);
+        }
+      } else if (transition === 'dip_black') {
+        if (sceneProgress < 0.1) {
+          transitionOpacity = sceneProgress / 0.1;
+        } else if (sceneProgress > 0.9) {
+          transitionOpacity = (1.0 - sceneProgress) / 0.1;
+        }
+      } else if (transition === 'glitch') {
+        if (sceneProgress < 0.15) {
+          glitchOffset = (Math.random() - 0.5) * 12;
+        }
       }
 
-      // Center pivot point
+      // Draw Scene with 3D Camera Kinematics
+      ctx.save();
+      ctx.globalAlpha = transitionOpacity;
+
+      // Camera 2D transforms approximating 3D camera angles
       ctx.translate(width / 2, height / 2);
-      ctx.scale(scale, scale);
-      ctx.rotate(rotation);
-      ctx.translate(-width / 2 + panX, -height / 2 + panY);
+      ctx.scale(camState.z * beatScaleBump, camState.z * beatScaleBump);
+      ctx.rotate((camState.roll * Math.PI) / 180);
+      ctx.translate(
+        -width / 2 + (camState.x + glitchOffset) * (width / 1920),
+        -height / 2 + camState.y * (height / 1080)
+      );
 
-      // Draw image
-      const mediaImg = activeScene ? preloadedMedia[activeScene.id] : null;
-      if (mediaImg) {
-        // Draw image covering the canvas
-        const imgRatio = mediaImg.width / mediaImg.height;
-        const canvasRatio = width / height;
-        let drawW = width;
-        let drawH = height;
-        let drawX = 0;
-        let drawY = 0;
-
-        if (imgRatio > canvasRatio) {
-          drawW = height * imgRatio;
-          drawX = (width - drawW) / 2;
-        } else {
-          drawH = width / imgRatio;
-          drawY = (height - drawH) / 2;
-        }
-
-        ctx.drawImage(mediaImg, drawX, drawY, drawW, drawH);
+      // Draw Media (Video or Image)
+      const media = activeScene ? preloadedMedia[activeScene.id] : null;
+      if (media instanceof HTMLVideoElement) {
+        const targetTime = sceneProgress * activeScene.duration;
+        media.currentTime = targetTime;
+        await new Promise((res) => {
+          media.onseeked = res;
+          setTimeout(res, 20);
+        });
+        this.drawMediaCover(ctx, media, width, height);
+      } else if (media instanceof HTMLImageElement) {
+        this.drawMediaCover(ctx, media, width, height);
       } else {
         ctx.fillStyle = '#161B26';
         ctx.fillRect(0, 0, width, height);
@@ -269,13 +347,12 @@ export class VideoRenderer {
         const capProgress = Math.max(0, Math.min(1, (t - cap.startTime) / capDuration));
 
         ctx.save();
-        const baseFontSize = (cap.fontSize || 28) * (height / 1080);
+        const baseFontSize = (cap.fontSize || 32) * (height / 1080);
         let kineticScale = 1.0;
-        let alpha = 1.0;
 
         if (cap.style === 'slam') {
           if (capProgress < 0.15) {
-            kineticScale = 1.6 - (capProgress / 0.15) * 0.6;
+            kineticScale = 1.45 - (capProgress / 0.15) * 0.45;
           } else {
             kineticScale = 1.0;
           }
@@ -286,7 +363,7 @@ export class VideoRenderer {
           kineticScale = 1.0 + 0.05 * Math.sin(capProgress * Math.PI * 2);
         }
 
-        ctx.font = `800 ${baseFontSize}px Inter, Geist, sans-serif`;
+        ctx.font = `800 ${baseFontSize * kineticScale}px Inter, Geist, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
@@ -298,71 +375,89 @@ export class VideoRenderer {
 
         // Draw pill background
         ctx.fillStyle = 'rgba(11, 14, 20, 0.85)';
-        ctx.strokeStyle = cap.color || '#00F0FF';
-        ctx.lineWidth = 2 * (width / 1920);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+        ctx.lineWidth = 1;
         ctx.beginPath();
-        const r = 8 * (width / 1920);
-        ctx.roundRect(pillX, pillY, pillW, pillH, r);
+        ctx.roundRect(pillX, pillY, pillW, pillH, 8);
         ctx.fill();
         ctx.stroke();
 
-        // Draw Text
-        ctx.translate(width / 2, height * 0.82);
-        ctx.scale(kineticScale, kineticScale);
+        // Draw text
         ctx.fillStyle = cap.color || '#FFFFFF';
-        ctx.fillText(cap.text, 0, 0);
+        ctx.fillText(cap.text, width / 2, height * 0.82);
 
         ctx.restore();
       }
 
-      // Render Clean Technical Burn-in Timecode (Bottom Left)
-      ctx.save();
-      ctx.font = `600 ${14 * (height / 1080)}px "JetBrains Mono", monospace`;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      const m = Math.floor(t / 60);
-      const s = Math.floor(t % 60);
-      const ff = Math.floor((t % 1) * fps);
-      const tcStr = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}:${ff.toString().padStart(2, '0')} // KINOBEAT STUDIO 4K // ${resolution}`;
-      ctx.fillText(tcStr, 32 * (width / 1920), height - 24 * (height / 1080));
-      ctx.restore();
+      // Letterbox Bars
+      ctx.fillStyle = '#000000';
+      const letterboxH = height * 0.045;
+      ctx.fillRect(0, 0, width, letterboxH);
+      ctx.fillRect(0, height - letterboxH, width, letterboxH);
 
-      // Report Progress
+      // Safe-Zone Corner Markers
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.lineWidth = 1.5;
+      const margin = width * 0.04;
+      const cornerLen = 16;
+      ctx.beginPath();
+      // Top Left
+      ctx.moveTo(margin, margin + cornerLen);
+      ctx.lineTo(margin, margin);
+      ctx.lineTo(margin + cornerLen, margin);
+      // Top Right
+      ctx.moveTo(width - margin - cornerLen, margin);
+      ctx.lineTo(width - margin, margin);
+      ctx.lineTo(width - margin, margin + cornerLen);
+      // Bottom Left
+      ctx.moveTo(margin, height - margin - cornerLen);
+      ctx.lineTo(margin, height - margin);
+      ctx.lineTo(margin + cornerLen, height - margin);
+      // Bottom Right
+      ctx.moveTo(width - margin - cornerLen, height - margin);
+      ctx.lineTo(width - margin, height - margin);
+      ctx.lineTo(width - margin, height - margin - cornerLen);
+      ctx.stroke();
+
+      // Technical Burn-in Timecode
+      ctx.font = `600 ${Math.max(10, Math.round(14 * (height / 1080)))}px monospace`;
+      ctx.fillStyle = '#00F0FF';
+      ctx.textAlign = 'left';
+      ctx.fillText(
+        `TC: ${t.toFixed(2)}s | ${fps}FPS | KINOBEAT STUDIO`,
+        margin,
+        height - letterboxH / 2 + 4
+      );
+
+      // Progress reporting
       const pct = Math.round(((f + 1) / totalFrames) * 100);
-      onProgress?.(pct, f + 1, totalFrames, `Encoding frame ${f + 1} of ${totalFrames}...`);
+      onProgress?.(pct, f + 1, totalFrames, `Encoding frames (${pct}%)...`);
 
-      // Allow recorder to consume frame
-      await new Promise((r) => setTimeout(r, Math.max(2, Math.floor(frameIntervalMs * 0.25))));
+      // Yield frame delay for MediaRecorder stream capture
+      await new Promise((r) => setTimeout(r, 10));
     }
 
-    onProgress?.(100, totalFrames, totalFrames, 'Finalizing video container mux...');
+    onProgress?.(95, totalFrames, totalFrames, 'Finalizing video stream container...');
 
-    // 6. Stop Recorder and compile Blob
     return new Promise((resolve, reject) => {
       recorder.onstop = () => {
         try {
           if (audioSource) audioSource.stop();
-          if (audioContext && audioContext.state !== 'closed') {
-            audioContext.close();
-          }
+          if (audioContext) audioContext.close();
 
-          const masterBlob = new Blob(chunks, { type: chosenMime });
-          const masterUrl = URL.createObjectURL(masterBlob);
-
+          const blob = new Blob(chunks, { type: chosenMime });
+          const url = URL.createObjectURL(blob);
           resolve({
-            blob: masterBlob,
-            url: masterUrl,
+            blob,
+            url,
             duration,
             width,
             height,
             mimeType: chosenMime,
           });
-        } catch (err) {
-          reject(err);
+        } catch (e) {
+          reject(e);
         }
-      };
-
-      recorder.onerror = (e) => {
-        reject(new Error(`MediaRecorder error: ${(e as any).error?.message || 'unknown'}`));
       };
 
       recorder.stop();

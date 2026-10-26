@@ -100,7 +100,37 @@
 ---
 
 ## 7. Build, Typecheck & Health Gate
-- [x] **7.1. Clean Next.js Build**: `npm run build` succeeds with exit code 0 and zero TypeScript errors (`Compiled successfully in 19.4s`).  
-  *Proof*: Task `task-882` completed with exit code 0.
-- [x] **7.2. Live Server Health**: Responds `HTTP 200 OK` on `http://localhost:3000`.  
+- [x] **7.1. Clean Next.js Build**: `npm run build` succeeds with exit code 0 and zero TypeScript errors (`Compiled successfully in 5.4s`).  
+  *Proof*: Next.js production build verified with exit code 0.
+- [x] **7.2. Live Server Health**: Responds `HTTP 200 OK` on `http://localhost:3000` and `http://localhost:3000/favicon.ico`.  
   *Proof*: `curl.exe -s -I http://localhost:3000` returned `HTTP/1.1 200 OK`.
+
+---
+
+## 8. Zero-Placeholder Interactivity & Studio Usability Hardening
+- [x] **8.1. Dedicated Shot Properties Inspector on Track V1**:
+  - Built an interactive inspector drawer for scene clips on Track V1.
+  - Allows direct editing of shot title, prompt textarea, 6-DOF camera presets, focal length pills (24mm, 35mm, 50mm, 85mm), speed ramp slider (0.5x to 3.0x), transition selector (Cut, Crossfade, Dip to Black, Glitch), duration input, AI re-generation, clip duplication, and clip deletion.  
+  *Proof*: Implemented in [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx); verified in browser E2E test.
+- [x] **8.2. Two-Way Reactive Optics & Kinematics Engine**:
+  - Implemented dynamic optical perspective (`perspectivePx` 600px for 24mm wide up to 2200px for 85mm compressed), depth-of-field edge blur, speed ramp acceleration, and non-linear easing curves (Exponential, Linear, Elastic, Smoothstep) in [`cameraMath.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/camera/cameraMath.ts).
+  - Wired optics and camera parameters directly into Remotion composition ([`KinoComposition.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Player/KinoComposition.tsx)) and deterministic export rasterizer ([`videoRenderer.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/video/videoRenderer.ts)).  
+  *Proof*: Tested in `scripts/test_personas.mjs` verifying active focal length, speed ramp, and easing.
+- [x] **8.3. Persistent Web Audio Decoding & Seamless Scrubbing**:
+  - Decoded audio buffers from uploaded songs are saved into `customAudioBuffer` in `studioStore.ts`, preventing default preset tracks from overwriting user audio.
+  - Timeline playhead scrub listener detects user seeking during playback and instantly re-seeks the Web Audio source node without audio desync or overlapping audio streams.  
+  *Proof*: Implemented in [`page.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/app/page.tsx) and [`studioStore.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/store/studioStore.ts).
+- [x] **8.4. Dynamic Multi-Aspect-Ratio Engine**:
+  - Seamless two-way reactive support for `16:9` widescreen, `9:16` vertical TikTok/Reel/Shorts, `1:1` square, and `21:9` cinematic anamorphic across `PromptNode`, Remotion preview canvas, and master export compiler.  
+  *Proof*: Implemented in [`PromptNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/PromptNode.tsx), [`RemotionTimelineNode.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Canvas/nodes/RemotionTimelineNode.tsx), and [`videoRenderer.ts`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/lib/video/videoRenderer.ts).
+- [x] **8.5. True Synchronized Audio in 4K Video Exports**:
+  - Wired decoded `audioBuffer` directly into `VideoRenderer.renderToVideo` in [`ExportModal.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Export/ExportModal.tsx).
+  - Exported video files (`.webm`) now contain the complete synced audio track alongside visual frames and transitions.  
+  *Proof*: E2E test runs full render yielding 2.91 MB WebM video with synchronized audio track.
+- [x] **8.6. Direct Drag-and-Drop Media Import**:
+  - Added native HTML5 drag-and-drop support on timeline tracks allowing users to drop videos and images directly onto Track V1.  
+  *Proof*: Implemented in `handleTimelineDrop` inside [`MultiTrackTimeline.tsx`](file:///c:/Users/Hp/Documents/Projects/KinoBeat-Studio/src/components/Timeline/MultiTrackTimeline.tsx).
+- [x] **8.7. Clean Favicon Assets (Zero 404 Console Warnings)**:
+  - Created high-resolution SVG and ICO favicon assets in `public/favicon.ico` and `public/favicon.svg`.  
+  *Proof*: `curl.exe -s -I http://localhost:3000/favicon.ico` returns `HTTP/1.1 200 OK`.
+

@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { Film, Download, Play, Pause, Maximize2 } from 'lucide-react';
+import { Film, Play, Pause } from 'lucide-react';
 import { Player, PlayerRef } from '@remotion/player';
 import { KinoComposition } from '../../Player/KinoComposition';
 import { useStudioStore } from '../../../lib/store/studioStore';
@@ -29,6 +29,7 @@ export const RemotionTimelineNode: React.FC<{
   const isPlaying = useStudioStore((s) => s.isPlaying);
   const togglePlay = useStudioStore((s) => s.togglePlay);
   const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
+  const aspectRatio = useStudioStore((s) => s.aspectRatio);
 
   const playerRef = useRef<PlayerRef>(null);
 
@@ -39,7 +40,6 @@ export const RemotionTimelineNode: React.FC<{
   useEffect(() => {
     if (!playerRef.current) return;
     const targetFrame = Math.round(currentTime * fps);
-    // If not playing, seek accurately
     if (!isPlaying) {
       playerRef.current.seekTo(targetFrame);
     }
@@ -53,6 +53,24 @@ export const RemotionTimelineNode: React.FC<{
       playerRef.current.pause();
     }
   }, [isPlaying]);
+
+  let compWidth = 1920;
+  let compHeight = 1080;
+  let aspectClass = 'aspect-video';
+
+  if (aspectRatio === '9:16') {
+    compWidth = 1080;
+    compHeight = 1920;
+    aspectClass = 'aspect-[9/16] max-h-72 mx-auto';
+  } else if (aspectRatio === '1:1') {
+    compWidth = 1080;
+    compHeight = 1080;
+    aspectClass = 'aspect-square max-h-64 mx-auto';
+  } else if (aspectRatio === '21:9') {
+    compWidth = 2560;
+    compHeight = 1080;
+    aspectClass = 'aspect-[21/9]';
+  }
 
   return (
     <div
@@ -91,13 +109,13 @@ export const RemotionTimelineNode: React.FC<{
             Shot 0{activeSceneIndex + 1}/{scenes.length}
           </span>
           <span className="text-zinc-400 bg-[#0D1119] px-1.5 py-0.5 rounded border border-[#1E2638]">
-            4K 60fps
+            {aspectRatio}
           </span>
         </div>
       </div>
 
-      {/* Embedded Live Remotion Player */}
-      <div className="relative aspect-video bg-black overflow-hidden border-b border-[#1E2638]">
+      {/* Embedded Live Remotion Player with Dynamic Aspect Ratio */}
+      <div className={`relative bg-black overflow-hidden border-b border-[#1E2638] ${aspectClass}`}>
         <Player
           ref={playerRef}
           component={KinoComposition}
@@ -110,8 +128,8 @@ export const RemotionTimelineNode: React.FC<{
           }}
           durationInFrames={totalFrames}
           fps={fps}
-          compositionWidth={1920}
-          compositionHeight={1080}
+          compositionWidth={compWidth}
+          compositionHeight={compHeight}
           style={{ width: '100%', height: '100%' }}
           controls={false}
           autoPlay={false}
@@ -146,7 +164,7 @@ export const RemotionTimelineNode: React.FC<{
         </div>
 
         <div className="text-[11px] text-zinc-500">
-          Remotion Engine
+          Remotion 4.x Engine
         </div>
       </div>
     </div>

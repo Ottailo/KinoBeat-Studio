@@ -16,7 +16,7 @@ interface CameraNodeData {
   easing?: string;
 }
 
-const CINEMA_PRESETS = [
+export const CINEMA_PRESETS = [
   { id: 'orbital_drift', name: '360° Orbital Drift', type: 'Arc / Orbit', desc: 'Smooth horizontal circular arc with center focal lock' },
   { id: 'fpv_dive', name: 'FPV Dive & Acro', type: 'High Kinetic', desc: 'Agile dynamic aerial descent with horizon banking' },
   { id: 'dolly_zoom_vertigo', name: 'Dolly Zoom (Vertigo)', type: 'Optical', desc: 'Counter-zoom warping background scale around subject' },
@@ -25,14 +25,14 @@ const CINEMA_PRESETS = [
   { id: 'rack_focus_push', name: 'Rack Focus & Push', type: 'Focus', desc: 'Depth plane transition from foreground texture to subject' },
 ];
 
-const FOCAL_LENGTHS = [
+export const FOCAL_LENGTHS = [
   { mm: '24mm', label: 'Wide' },
   { mm: '35mm', label: 'Standard' },
   { mm: '50mm', label: 'Cinematic' },
   { mm: '85mm', label: 'Portrait' },
 ];
 
-const EASING_CURVES = [
+export const EASING_CURVES = [
   'Smoothstep (Ease In/Out)',
   'Exponential Ramp',
   'Linear Constant',
@@ -46,6 +46,7 @@ export const CameraNode: React.FC<{
 }> = ({ id, data, selected }) => {
   const updateNodeData = useStudioStore((s) => s.updateNodeData);
   const setCameraCurve = useStudioStore((s) => s.setCameraCurve);
+  const setCameraOptions = useStudioStore((s) => s.setCameraOptions);
   const currentTime = useStudioStore((s) => s.currentTime);
   const duration = useStudioStore((s) => s.duration);
 
@@ -63,20 +64,40 @@ export const CameraNode: React.FC<{
     }
   }, [data.presetId]);
 
+  useEffect(() => {
+    if (data.focalLength && data.focalLength !== focalLength) {
+      setFocalLength(data.focalLength);
+    }
+  }, [data.focalLength]);
+
+  useEffect(() => {
+    if (data.speedRamp && data.speedRamp !== speedRamp) {
+      setSpeedRamp(data.speedRamp);
+    }
+  }, [data.speedRamp]);
+
   const handlePresetChange = (presetId: string) => {
     setSelectedPreset(presetId);
-    setCameraCurve(presetId);
+    setCameraOptions({ presetId, focalLength, speedRamp, easing });
     updateNodeData(id, { presetId, focalLength, speedRamp, easing });
   };
 
   const handleFocalLengthChange = (mm: string) => {
     setFocalLength(mm);
+    setCameraOptions({ presetId: selectedPreset, focalLength: mm, speedRamp, easing });
     updateNodeData(id, { presetId: selectedPreset, focalLength: mm, speedRamp, easing });
   };
 
   const handleSpeedRampChange = (val: number) => {
     setSpeedRamp(val);
+    setCameraOptions({ presetId: selectedPreset, focalLength, speedRamp: val, easing });
     updateNodeData(id, { presetId: selectedPreset, focalLength, speedRamp: val, easing });
+  };
+
+  const handleEasingChange = (val: string) => {
+    setEasing(val);
+    setCameraOptions({ presetId: selectedPreset, focalLength, speedRamp, easing: val });
+    updateNodeData(id, { presetId: selectedPreset, focalLength, speedRamp, easing: val });
   };
 
   const activePresetInfo = CINEMA_PRESETS.find((p) => p.id === selectedPreset) || CINEMA_PRESETS[0];
@@ -109,9 +130,10 @@ export const CameraNode: React.FC<{
     ctx.beginPath();
 
     const pointsCount = 40;
+    const curveOptions = { focalLength, speedRamp, easing };
     for (let i = 0; i <= pointsCount; i++) {
       const t = i / pointsCount;
-      const state = curve.evaluate(t);
+      const state = curve.evaluate(t, curveOptions);
       // Map x, y to canvas space
       const px = w / 2 + (state.x / 120) * (w * 0.4);
       const py = h / 2 + (state.y / 80) * (h * 0.4);
@@ -122,7 +144,7 @@ export const CameraNode: React.FC<{
 
     // Moving camera head at current time
     const tCurrent = (currentTime % 3.5) / 3.5;
-    const curState = curve.evaluate(tCurrent);
+    const curState = curve.evaluate(tCurrent, curveOptions);
     const curX = w / 2 + (curState.x / 120) * (w * 0.4);
     const curY = h / 2 + (curState.y / 80) * (h * 0.4);
 
@@ -138,7 +160,7 @@ export const CameraNode: React.FC<{
     ctx.moveTo(curX, curY);
     ctx.lineTo(curX + Math.cos(curState.yaw * 0.05) * 8, curY + Math.sin(curState.pitch * 0.05) * 8);
     ctx.stroke();
-  }, [selectedPreset, currentTime]);
+  }, [selectedPreset, focalLength, speedRamp, easing, currentTime]);
 
   return (
     <div
@@ -251,10 +273,7 @@ export const CameraNode: React.FC<{
           </label>
           <select
             value={easing}
-            onChange={(e) => {
-              setEasing(e.target.value);
-              updateNodeData(id, { presetId: selectedPreset, focalLength, speedRamp, easing: e.target.value });
-            }}
+            onChange={(e) => handleEasingChange(e.target.value)}
             className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-300 focus:outline-none focus:border-cyan-500 cursor-pointer"
           >
             {EASING_CURVES.map((curve) => (

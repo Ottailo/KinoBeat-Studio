@@ -16,6 +16,8 @@ import {
 import confetti from 'canvas-confetti';
 import { useStudioStore } from '../../lib/store/studioStore';
 import { VideoRenderer, RenderResult } from '../../lib/video/videoRenderer';
+import { beatDetector } from '../../lib/audio/beatDetector';
+import { synthesizeAudioTrack } from '../../lib/audio/audioSynthesizer';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -29,6 +31,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
   const activeCameraCurveId = useStudioStore((s) => s.activeCameraCurveId);
   const captions = useStudioStore((s) => s.captions);
   const beats = useStudioStore((s) => s.beats);
+  const aspectRatio = useStudioStore((s) => s.aspectRatio);
+  const customAudioBuffer = useStudioStore((s) => s.customAudioBuffer);
+  const activeTrackId = useStudioStore((s) => s.activeTrackId);
 
   const [resolution, setResolution] = useState<'1080p' | '4K-Cinema' | '720p'>('1080p');
   const [fps, setFps] = useState<30 | 60>(30);
@@ -52,13 +57,26 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
     abortControllerRef.current = abortController;
 
     try {
+      // Prepare audio buffer for render
+      let audioBuffer = customAudioBuffer;
+      if (!audioBuffer) {
+        try {
+          const ctx = beatDetector.getOrCreateContext();
+          audioBuffer = await synthesizeAudioTrack(activeTrackId, ctx);
+        } catch (e) {
+          console.warn('Audio synthesis for render deferred:', e);
+        }
+      }
+
       const result = await VideoRenderer.renderToVideo({
         resolution,
         fps,
         scenes,
         captions,
         duration,
+        aspectRatio,
         beats,
+        audioBuffer,
         signal: abortController.signal,
         onProgress: (pct, frame, total, status) => {
           setProgress(pct);
@@ -179,7 +197,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, durat
                   controls
                   autoPlay
                   playsInline
-                  className="w-full aspect-video object-contain"
+                  className="w-full max-h-72 object-contain mx-auto"
                 />
               </div>
 

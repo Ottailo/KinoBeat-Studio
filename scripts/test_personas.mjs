@@ -23,6 +23,10 @@ async function runPersonaTestSuite() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
 
+  const logs = [];
+  page.on('console', (msg) => logs.push(`[${msg.type()}] ${msg.text()}`));
+  page.on('pageerror', (err) => logs.push(`[pageerror] ${err.toString()}`));
+
   console.log('Navigating to http://localhost:3000 ...');
   await page.goto('http://localhost:3000', { waitUntil: 'networkidle2', timeout: 30000 });
   await new Promise((r) => setTimeout(r, 2000));
@@ -46,9 +50,9 @@ async function runPersonaTestSuite() {
   await new Promise((r) => setTimeout(r, 1000));
 
   // ==========================================
-  // PERSONA 1: Solo Content Creator (Upload + Trim + Split Clip + Inline Title Edit)
+  // PERSONA 1: Solo Content Creator (Upload + Shot Inspector + Trim + Split Clip + Inline Title Edit)
   // ==========================================
-  console.log('\n[Persona 1] Testing Custom Media Upload, Trimming, Razor Split & Title Edit...');
+  console.log('\n[Persona 1] Testing Custom Media Upload, Shot Inspector, Trimming, Razor Split & Title Edit...');
 
   // 1. Upload custom media file into the timeline
   const fileInput = await page.$('input[type="file"][accept*="video"]');
@@ -58,7 +62,24 @@ async function runPersonaTestSuite() {
     await new Promise((r) => setTimeout(r, 1000));
   }
 
-  // 2. Double click the first title block on Track T1
+  // 2. Click a scene clip to open the new Shot Inspector
+  console.log('Clicking scene clip to test Shot Inspector drawer...');
+  await page.evaluate(() => {
+    const clips = document.querySelectorAll('.h-full.rounded-md.border');
+    if (clips[0]) clips[0].click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+
+  // Test modifying shot parameters in the Shot Inspector
+  await page.evaluate(() => {
+    const focalBtns = Array.from(document.querySelectorAll('button')).filter((b) =>
+      b.textContent?.trim() === '24mm'
+    );
+    if (focalBtns[0]) focalBtns[0].click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+
+  // 3. Double click the first title block on Track T1
   console.log('Double clicking on title block to edit inline...');
   await page.evaluate(() => {
     const titleBlock = document.querySelector('.border-pink-500\\/40, .h-8.rounded.border');
@@ -84,7 +105,7 @@ async function runPersonaTestSuite() {
   });
   await new Promise((r) => setTimeout(r, 800));
 
-  // 3. Test Razor Split Clip tool at playhead
+  // 4. Test Razor Split Clip tool at playhead
   console.log('Testing Razor Cut "Split Clip" tool...');
   await page.evaluate(() => {
     const buttons = Array.from(document.querySelectorAll('button'));
@@ -100,9 +121,18 @@ async function runPersonaTestSuite() {
   console.log('✓ Captured persona_1_custom_media.png');
 
   // ==========================================
-  // PERSONA 2: AI Filmmaker (Prompt Calibration, FPV Camera & Generative Shot)
+  // PERSONA 2: AI Filmmaker (Aspect Ratio, Camera Kinematics & Generative Shot)
   // ==========================================
-  console.log('\n[Persona 2] Testing Generative DiT Shot & Camera Kinematics...');
+  console.log('\n[Persona 2] Testing Aspect Ratio Switcher, DiT Shot & Camera Kinematics...');
+
+  // Select 9:16 Aspect Ratio pill in PromptNode
+  await page.evaluate(() => {
+    const ratioBtns = Array.from(document.querySelectorAll('button')).filter(
+      (b) => b.textContent?.trim() === '9:16'
+    );
+    if (ratioBtns[0]) ratioBtns[0].click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
 
   // Select FPV Dive Camera preset
   await page.evaluate(() => {
@@ -119,6 +149,7 @@ async function runPersonaTestSuite() {
     const enhanceBtn = buttons.find((b) => b.textContent?.includes('Enhance'));
     if (enhanceBtn) enhanceBtn.click();
   });
+  await new Promise((r) => setTimeout(r, 600));
 
   // Click "Generate Video Shot" in DiT Model node
   await page.evaluate(() => {
@@ -126,7 +157,7 @@ async function runPersonaTestSuite() {
     const genBtn = buttons.find((b) => b.textContent?.includes('Generate Video Shot'));
     if (genBtn) genBtn.click();
   });
-  await new Promise((r) => setTimeout(r, 1600));
+  await new Promise((r) => setTimeout(r, 1800));
 
   await page.screenshot({
     path: path.join(outDir, 'persona_2_generative_shot.png'),
@@ -163,16 +194,30 @@ async function runPersonaTestSuite() {
     if (snapBtn) snapBtn.click();
   });
 
-  // Scrub timeline
+  // Continuous pointer scrub timeline
   await page.evaluate(() => {
-    const timeline = document.querySelector('.bg-\\[\\#0B0E14\\].overflow-hidden.cursor-pointer');
+    const timeline = document.querySelector('.cursor-crosshair');
     if (timeline) {
-      const clickEvent = new MouseEvent('click', {
-        clientX: timeline.getBoundingClientRect().left + 250,
-        clientY: timeline.getBoundingClientRect().top + 20,
+      const rect = timeline.getBoundingClientRect();
+      const clientX = rect.left + rect.width * 0.4;
+      const downEvent = new PointerEvent('pointerdown', {
+        clientX,
+        clientY: rect.top + 20,
         bubbles: true,
       });
-      timeline.dispatchEvent(clickEvent);
+      timeline.dispatchEvent(downEvent);
+      const moveEvent = new PointerEvent('pointermove', {
+        clientX: clientX + 80,
+        clientY: rect.top + 20,
+        bubbles: true,
+      });
+      timeline.dispatchEvent(moveEvent);
+      const upEvent = new PointerEvent('pointerup', {
+        clientX: clientX + 80,
+        clientY: rect.top + 20,
+        bubbles: true,
+      });
+      timeline.dispatchEvent(upEvent);
     }
   });
   await new Promise((r) => setTimeout(r, 600));

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 import { SceneClip } from '../../lib/store/studioStore';
 import { BeatMarker } from '../../lib/audio/beatDetector';
@@ -26,6 +26,7 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   let activeSceneIndex = 0;
   for (let i = 0; i < scenes.length; i++) {
@@ -40,29 +41,69 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
     Math.min(1.0, (currentTime - currentScene.startAt) / Math.max(0.1, currentScene.duration))
   );
 
-  const activeCurve = CAMERA_CURVES[cameraCurveId] || CAMERA_CURVES.orbital_drift;
-  const cameraState = activeCurve.evaluate(sceneLocalTime);
+  const activeCurve =
+    CAMERA_CURVES[currentScene.cameraPresetId] ||
+    CAMERA_CURVES[cameraCurveId] ||
+    CAMERA_CURVES.orbital_drift;
+
+  const cameraState = activeCurve.evaluate(sceneLocalTime, {
+    focalLength: currentScene.focalLength || '35mm',
+    speedRamp: currentScene.speedRamp || 1.25,
+    easing: currentScene.easing || 'Smoothstep (Ease In/Out)',
+  });
 
   const isBeatHit = beats.some(
     (b) => Math.abs(b.timestamp - currentTime) < 0.08
   );
 
-  const beatScaleBump = isBeatHit ? 1.02 : 1.0;
+  const beatScaleBump = isBeatHit ? 1.025 : 1.0;
+
+  // Frame-accurate video playback seeking
+  const isVideo = currentScene.mediaType === 'video' && !!currentScene.videoUrl;
+  useEffect(() => {
+    if (isVideo && videoRef.current) {
+      const targetSec = sceneLocalTime * currentScene.duration;
+      if (Math.abs(videoRef.current.currentTime - targetSec) > 0.12) {
+        videoRef.current.currentTime = targetSec;
+      }
+    }
+  }, [isVideo, sceneLocalTime, currentScene.duration]);
+
+  // Transition calculations
+  const transition = currentScene.transition || 'crossfade';
+  let transitionOpacity = 1.0;
+  let glitchOffset = 0;
+
+  if (transition === 'crossfade') {
+    if (sceneLocalTime < 0.12 && activeSceneIndex > 0) {
+      transitionOpacity = Math.max(0, sceneLocalTime / 0.12);
+    }
+  } else if (transition === 'dip_black') {
+    if (sceneLocalTime < 0.1) {
+      transitionOpacity = sceneLocalTime / 0.1;
+    } else if (sceneLocalTime > 0.9) {
+      transitionOpacity = (1.0 - sceneLocalTime) / 0.1;
+    }
+  } else if (transition === 'glitch') {
+    if (sceneLocalTime < 0.15) {
+      glitchOffset = (Math.random() - 0.5) * 8;
+    }
+  }
 
   const transformStyle: React.CSSProperties = {
     transform: `
-      perspective(1000px)
-      translate3d(${cameraState.x}px, ${cameraState.y}px, 0px)
+      perspective(${cameraState.perspectivePx || 950}px)
+      translate3d(${cameraState.x + glitchOffset}px, ${cameraState.y}px, 0px)
       scale(${cameraState.z * beatScaleBump})
       rotateX(${cameraState.pitch * 0.3}deg)
       rotateY(${cameraState.yaw * 0.3}deg)
       rotateZ(${cameraState.roll * 0.8}deg)
     `,
-    transition: 'transform 0.05s linear',
+    filter: cameraState.blurPx > 0 ? `blur(${cameraState.blurPx}px)` : 'none',
+    opacity: transitionOpacity,
+    transition: 'transform 0.04s linear',
     transformOrigin: 'center center',
   };
-
-  const isVideo = currentScene.mediaType === 'video' && !!currentScene.videoUrl;
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-black select-none font-sans">
@@ -70,6 +111,7 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
       <div className="absolute inset-0 w-full h-full" style={transformStyle}>
         {isVideo ? (
           <video
+            ref={videoRef}
             src={currentScene.videoUrl}
             autoPlay
             loop
@@ -109,8 +151,14 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
             </span>
           )}
         </div>
-        <div className="text-zinc-500 text-[9px] mt-0.5">
-          {activeCurve.name} · {currentScene.modelId.toUpperCase()}
+        <div className="text-zinc-500 text-[9px] mt-0.5 flex items-center gap-1.5">
+          <span>{activeCurve.name}</span>
+          <span>·</span>
+          <span className="text-cyan-400">{currentScene.focalLength || '35mm'}</span>
+          <span>·</span>
+          <span>{(currentScene.speedRamp || 1.25).toFixed(1)}x speed</span>
+          <span>·</span>
+          <span>{currentScene.modelId.toUpperCase()}</span>
         </div>
       </div>
 

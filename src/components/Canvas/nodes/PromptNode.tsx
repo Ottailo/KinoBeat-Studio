@@ -25,11 +25,13 @@ export const PromptNode: React.FC<{
 }> = ({ id, data, selected }) => {
   const updateNodeData = useStudioStore((s) => s.updateNodeData);
   const activeSceneIndex = useStudioStore((s) => s.activeSceneIndex);
+  const globalAspectRatio = useStudioStore((s) => s.aspectRatio);
+  const setStoreAspectRatio = useStudioStore((s) => s.setAspectRatio);
 
   const [subject, setSubject] = useState(data.subject || '');
   const [action, setAction] = useState(data.action || '');
   const [look, setLook] = useState(data.look || LOOK_PRESETS[1].prompt);
-  const [aspectRatio, setAspectRatio] = useState(data.aspectRatio || '16:9');
+  const [aspectRatio, setAspectRatio] = useState(globalAspectRatio || data.aspectRatio || '16:9');
   const [showNegative, setShowNegative] = useState(false);
   const [negativePrompt, setNegativePrompt] = useState(data.negativePrompt || '');
 
@@ -41,6 +43,10 @@ export const PromptNode: React.FC<{
   useEffect(() => {
     if (data.action !== undefined) setAction(data.action);
   }, [data.action]);
+
+  useEffect(() => {
+    if (globalAspectRatio) setAspectRatio(globalAspectRatio);
+  }, [globalAspectRatio]);
 
   const handleSubjectChange = (val: string) => {
     setSubject(val);
@@ -59,6 +65,7 @@ export const PromptNode: React.FC<{
 
   const handleAspectRatioChange = (ratio: '16:9' | '9:16' | '1:1' | '21:9') => {
     setAspectRatio(ratio);
+    setStoreAspectRatio(ratio);
     updateNodeData(id, { aspectRatio: ratio });
   };
 

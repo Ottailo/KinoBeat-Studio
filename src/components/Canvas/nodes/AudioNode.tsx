@@ -22,6 +22,7 @@ export const AudioNode: React.FC<{
   selected?: boolean;
 }> = ({ id, data, selected }) => {
   const setBeatsAndBpm = useStudioStore((s) => s.setBeatsAndBpm);
+  const setCustomAudio = useStudioStore((s) => s.setCustomAudio);
   const activeBpm = useStudioStore((s) => s.bpm);
   const customAudioName = useStudioStore((s) => s.customAudioName);
   const addCaption = useStudioStore((s) => s.addCaption);
@@ -43,12 +44,12 @@ export const AudioNode: React.FC<{
   const cachedBufferRef = useRef<AudioBuffer | null>(null);
 
   // Synthesize Preset Track
-  const handleSynthesizePreset = async () => {
+  const handleSynthesizePreset = async (targetTrackId = trackId) => {
     setIsProcessing(true);
     try {
       const ctx = beatDetector.getOrCreateContext();
       audioContextRef.current = ctx;
-      const buffer = await synthesizeAudioTrack(trackId, ctx);
+      const buffer = await synthesizeAudioTrack(targetTrackId, ctx);
       cachedBufferRef.current = buffer;
       const analysis = await beatDetector.analyzeBuffer(buffer);
 
@@ -57,13 +58,18 @@ export const AudioNode: React.FC<{
         setWaveform(analysis.peaks.slice(0, 16));
       }
 
-      const currentTrack = PRESET_TRACKS.find((t) => t.id === trackId);
-      setBeatsAndBpm(analysis.beats, analysis.bpm, trackId, currentTrack?.title, analysis.waveform);
+      const currentTrack = PRESET_TRACKS.find((t) => t.id === targetTrackId);
+      setBeatsAndBpm(analysis.beats, analysis.bpm, targetTrackId, currentTrack?.title, analysis.waveform);
     } catch (err) {
       console.error('Audio synthesis failed:', err);
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleTrackChange = (newTrackId: string) => {
+    setTrackId(newTrackId);
+    handleSynthesizePreset(newTrackId);
   };
 
   // Custom File Upload & FFT Analysis
@@ -85,6 +91,7 @@ export const AudioNode: React.FC<{
         setWaveform(analysis.peaks.slice(0, 16));
       }
 
+      setCustomAudio(audioBuffer, file.name, URL.createObjectURL(file));
       setBeatsAndBpm(analysis.beats, analysis.bpm, 'custom-uploaded', file.name, analysis.waveform);
     } catch (err) {
       console.error('Failed to parse uploaded audio file:', err);
@@ -212,7 +219,7 @@ export const AudioNode: React.FC<{
             </label>
             <select
               value={trackId}
-              onChange={(e) => setTrackId(e.target.value)}
+              onChange={(e) => handleTrackChange(e.target.value)}
               className="w-full bg-[#0D1119] border border-[#1E2638] rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-500 font-medium cursor-pointer"
             >
               {PRESET_TRACKS.map((t) => (
@@ -275,7 +282,7 @@ export const AudioNode: React.FC<{
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={handleSynthesizePreset}
+              onClick={() => handleSynthesizePreset()}
               disabled={isProcessing}
               className="flex-1 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium text-xs border border-zinc-700 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
             >

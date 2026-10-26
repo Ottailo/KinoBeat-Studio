@@ -18,6 +18,9 @@ export interface SceneClip {
   title: string;
   prompt: string;
   cameraPresetId: string;
+  focalLength?: string;  // e.g. '24mm' | '35mm' | '50mm' | '85mm'
+  speedRamp?: number;    // e.g. 0.5 to 3.0
+  easing?: string;       // e.g. 'Smoothstep (Ease In/Out)'
   modelId: string;
   duration: number; // in seconds
   startAt: number;   // timeline offset in seconds
@@ -27,6 +30,7 @@ export interface SceneClip {
   customUploadName?: string;
   captionText: string;
   status?: 'idle' | 'generating' | 'ready';
+  transition?: 'cut' | 'crossfade' | 'glitch' | 'dip_black';
 }
 
 export interface CaptionItem {
@@ -68,6 +72,9 @@ export interface StudioStore {
   isPlaying: boolean;
   activeSceneIndex: number;
   activeCameraCurveId: string;
+  activeFocalLength: string;
+  activeSpeedRamp: number;
+  activeEasing: string;
   aspectRatio: '16:9' | '9:16' | '1:1' | '21:9';
   fps: number;
   autoBeatSnap: boolean;
@@ -80,6 +87,8 @@ export interface StudioStore {
   // Audio & Beat State
   activeTrackId: string;
   customAudioName: string | null;
+  customAudioBuffer: AudioBuffer | null;
+  customAudioUrl: string | null;
   bpm: number;
   beats: BeatMarker[];
   audioWaveform: number[]; // Real 64-bar RMS waveform
@@ -107,16 +116,21 @@ export interface StudioStore {
   updateScene: (index: number, partial: Partial<SceneClip>) => void;
   trimScene: (index: number, newDuration: number) => void;
   splitSceneAtPlayhead: () => void;
+  reorderScene: (fromIndex: number, toIndex: number) => void;
+  duplicateScene: (index: number) => void;
   addMediaAsset: (asset: MediaAsset) => void;
   removeMediaAsset: (id: string) => void;
   setAudioVolume: (volume: number) => void;
   addCaption: () => void;
   updateCaption: (id: string, partial: Partial<CaptionItem>) => void;
+  trimCaption: (id: string, newStartTime: number, newEndTime: number) => void;
   removeCaption: (id: string) => void;
   setSelectedCaptionId: (id: string | null) => void;
   setBeatsAndBpm: (beats: BeatMarker[], bpm: number, trackId?: string, customName?: string, waveform?: number[]) => void;
   setAudioWaveform: (waveform: number[]) => void;
+  setCustomAudio: (buffer: AudioBuffer, name: string, url?: string) => void;
   setCameraCurve: (curveId: string) => void;
+  setCameraOptions: (options: { presetId?: string; focalLength?: string; speedRamp?: number; easing?: string }) => void;
   setAspectRatio: (ratio: '16:9' | '9:16' | '1:1' | '21:9') => void;
   toggleMute: () => void;
   toggleBeatSnap: () => void;
@@ -170,6 +184,10 @@ export const INITIAL_SCENES: SceneClip[] = [
     title: 'Neon Cyberpunk Arrival',
     prompt: 'A cybernetic female operative in a holographic trenchcoat standing on a rain-slicked Tokyo rooftop, glowing volumetric neon signage reflecting in water puddles',
     cameraPresetId: 'orbital_drift',
+    focalLength: '35mm',
+    speedRamp: 1.25,
+    easing: 'Smoothstep (Ease In/Out)',
+    transition: 'crossfade',
     modelId: 'flux_video',
     mediaType: 'image',
     duration: 3.5,
@@ -183,6 +201,10 @@ export const INITIAL_SCENES: SceneClip[] = [
     title: 'Hyper-Speed FPV Dive',
     prompt: 'A sleek anti-gravity speeder swooping down between towering obsidian megastructures, dramatic speed lines, volumetric blue thruster exhausts',
     cameraPresetId: 'fpv_dive',
+    focalLength: '24mm',
+    speedRamp: 1.5,
+    easing: 'Exponential Ramp',
+    transition: 'glitch',
     modelId: 'kling_1_5',
     mediaType: 'image',
     duration: 3.5,
@@ -196,6 +218,10 @@ export const INITIAL_SCENES: SceneClip[] = [
     title: 'Monolith Core Ignition',
     prompt: 'A giant floating quantum monolith in an alien desert charging with brilliant cyan particle lightning, swirling sand vortex, hyper-detailed textures',
     cameraPresetId: 'dolly_zoom_vertigo',
+    focalLength: '50mm',
+    speedRamp: 1.0,
+    easing: 'Smoothstep (Ease In/Out)',
+    transition: 'crossfade',
     modelId: 'ltx_video',
     mediaType: 'image',
     duration: 3.0,
@@ -351,6 +377,9 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
   isPlaying: false,
   activeSceneIndex: 0,
   activeCameraCurveId: 'orbital_drift',
+  activeFocalLength: '35mm',
+  activeSpeedRamp: 1.25,
+  activeEasing: 'Smoothstep (Ease In/Out)',
   aspectRatio: '16:9',
   fps: 30,
   autoBeatSnap: true,
@@ -361,6 +390,8 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
 
   activeTrackId: 'cyberpunk-neon-drift',
   customAudioName: null,
+  customAudioBuffer: null,
+  customAudioUrl: null,
   bpm: 120,
   beats: INITIAL_BEATS,
   audioWaveform: INITIAL_WAVEFORM,
@@ -480,9 +511,10 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     if (id === 'node-prompt' && currentScene) {
       const subject = partialData.subject ?? (updatedNodes.find((n) => n.id === 'node-prompt')?.data.subject as string);
       const action = partialData.action ?? (updatedNodes.find((n) => n.id === 'node-prompt')?.data.action as string);
+      const look = partialData.look ?? (updatedNodes.find((n) => n.id === 'node-prompt')?.data.look as string);
 
-      if (typeof partialData.subject === 'string' || typeof partialData.action === 'string') {
-        const fullPrompt = `${subject || ''}${action ? `, ${action}` : ''}`;
+      if (typeof partialData.subject === 'string' || typeof partialData.action === 'string' || typeof partialData.look === 'string') {
+        const fullPrompt = `${subject || ''}${action ? `, ${action}` : ''}${look ? `, ${look}` : ''}`.trim();
         const updatedScenes = [...state.scenes];
         updatedScenes[state.activeSceneIndex] = {
           ...currentScene,
@@ -496,18 +528,28 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
       }
     }
 
-    if (id === 'node-camera') {
-      if (typeof partialData.presetId === 'string') {
-        set({ activeCameraCurveId: partialData.presetId });
-        if (currentScene) {
-          const updatedScenes = [...state.scenes];
-          updatedScenes[state.activeSceneIndex] = {
-            ...currentScene,
-            cameraPresetId: partialData.presetId,
-          };
-          set({ scenes: updatedScenes });
-        }
-      }
+    if (id === 'node-camera' && currentScene) {
+      const presetId = (partialData.presetId as string) || currentScene.cameraPresetId;
+      const focalLength = (partialData.focalLength as string) || currentScene.focalLength || '35mm';
+      const speedRamp = typeof partialData.speedRamp === 'number' ? partialData.speedRamp : (currentScene.speedRamp || 1.25);
+      const easing = (partialData.easing as string) || currentScene.easing || 'Smoothstep (Ease In/Out)';
+
+      set({
+        activeCameraCurveId: presetId,
+        activeFocalLength: focalLength,
+        activeSpeedRamp: speedRamp,
+        activeEasing: easing,
+      });
+
+      const updatedScenes = [...state.scenes];
+      updatedScenes[state.activeSceneIndex] = {
+        ...currentScene,
+        cameraPresetId: presetId,
+        focalLength,
+        speedRamp,
+        easing,
+      };
+      set({ scenes: updatedScenes });
     }
   },
 
@@ -559,7 +601,13 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     const scene = get().scenes[index];
     if (scene) {
       get().seekTo(scene.startAt);
-      set({ activeSceneIndex: index, activeCameraCurveId: scene.cameraPresetId });
+      set({
+        activeSceneIndex: index,
+        activeCameraCurveId: scene.cameraPresetId,
+        activeFocalLength: scene.focalLength || '35mm',
+        activeSpeedRamp: scene.speedRamp || 1.25,
+        activeEasing: scene.easing || 'Smoothstep (Ease In/Out)',
+      });
 
       // Synchronize PromptNode and CameraNode to the selected scene
       get().updateNodeData('node-prompt', {
@@ -567,6 +615,9 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
       });
       get().updateNodeData('node-camera', {
         presetId: scene.cameraPresetId,
+        focalLength: scene.focalLength || '35mm',
+        speedRamp: scene.speedRamp || 1.25,
+        easing: scene.easing || 'Smoothstep (Ease In/Out)',
       });
     }
   },
@@ -767,6 +818,56 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     });
   },
 
+  reorderScene: (fromIndex: number, toIndex: number) => {
+    const scenes = [...get().scenes];
+    if (!scenes[fromIndex] || toIndex < 0 || toIndex >= scenes.length) return;
+    const [moved] = scenes.splice(fromIndex, 1);
+    scenes.splice(toIndex, 0, moved);
+
+    let currentOffset = 0;
+    const recalculated = scenes.map((sc) => {
+      const s = { ...sc, startAt: currentOffset };
+      currentOffset += sc.duration;
+      return s;
+    });
+
+    set({
+      scenes: recalculated,
+      duration: currentOffset,
+      activeSceneIndex: toIndex,
+      activeCameraCurveId: recalculated[toIndex]?.cameraPresetId || 'orbital_drift',
+    });
+    get().seekTo(recalculated[toIndex]?.startAt || 0);
+  },
+
+  duplicateScene: (index: number) => {
+    const scenes = [...get().scenes];
+    const target = scenes[index];
+    if (!target) return;
+
+    const duplicated: SceneClip = {
+      ...target,
+      id: `scene-dup-${Date.now()}`,
+      title: `${target.title} (Copy)`,
+    };
+
+    scenes.splice(index + 1, 0, duplicated);
+
+    let currentOffset = 0;
+    const recalculated = scenes.map((sc) => {
+      const s = { ...sc, startAt: currentOffset };
+      currentOffset += sc.duration;
+      return s;
+    });
+
+    set({
+      scenes: recalculated,
+      duration: currentOffset,
+      activeSceneIndex: index + 1,
+    });
+    get().seekTo(recalculated[index + 1]?.startAt || 0);
+  },
+
   setAudioVolume: (volume: number) => {
     set({ audioVolume: Math.max(0, Math.min(1.5, volume)) });
   },
@@ -801,6 +902,22 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     set({ captions: updated });
   },
 
+  trimCaption: (id: string, newStartTime: number, newEndTime: number) => {
+    const updated = get().captions.map((c) => {
+      if (c.id === id) {
+        const safeStart = Math.max(0, Math.min(newStartTime, newEndTime - 0.2));
+        const safeEnd = Math.max(safeStart + 0.2, newEndTime);
+        return {
+          ...c,
+          startTime: Number(safeStart.toFixed(2)),
+          endTime: Number(safeEnd.toFixed(2)),
+        };
+      }
+      return c;
+    });
+    set({ captions: updated });
+  },
+
   removeCaption: (id) => {
     set({
       captions: get().captions.filter((c) => c.id !== id),
@@ -832,17 +949,49 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     set({ audioWaveform: waveform });
   },
 
-  setCameraCurve: (curveId) => {
-    set({ activeCameraCurveId: curveId });
-    get().updateNodeData('node-camera', { presetId: curveId });
+  setCustomAudio: (buffer, name, url) => {
+    set({
+      customAudioBuffer: buffer,
+      customAudioName: name,
+      customAudioUrl: url || null,
+      activeTrackId: 'custom-uploaded',
+    });
+  },
 
+  setCameraCurve: (curveId) => {
+    get().setCameraOptions({ presetId: curveId });
+  },
+
+  setCameraOptions: (options) => {
     const state = get();
     const currentScene = state.scenes[state.activeSceneIndex];
+    const presetId = options.presetId || state.activeCameraCurveId;
+    const focalLength = options.focalLength || state.activeFocalLength;
+    const speedRamp = typeof options.speedRamp === 'number' ? options.speedRamp : state.activeSpeedRamp;
+    const easing = options.easing || state.activeEasing;
+
+    set({
+      activeCameraCurveId: presetId,
+      activeFocalLength: focalLength,
+      activeSpeedRamp: speedRamp,
+      activeEasing: easing,
+    });
+
+    get().updateNodeData('node-camera', {
+      presetId,
+      focalLength,
+      speedRamp,
+      easing,
+    });
+
     if (currentScene) {
       const updatedScenes = [...state.scenes];
       updatedScenes[state.activeSceneIndex] = {
         ...currentScene,
-        cameraPresetId: curveId,
+        cameraPresetId: presetId,
+        focalLength,
+        speedRamp,
+        easing,
       };
       set({ scenes: updatedScenes });
     }
@@ -867,29 +1016,59 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
     const currentScene = state.scenes[state.activeSceneIndex];
     if (!currentScene) return;
 
-    set({ isGeneratingVideo: true, generationProgress: 10 });
-    get().updateNodeData('node-model', { isGenerating: true, progress: 10 });
+    set({ isGeneratingVideo: true, generationProgress: 15 });
+    get().updateNodeData('node-model', { isGenerating: true, progress: 15 });
 
     try {
-      for (let p = 25; p <= 90; p += 25) {
-        await new Promise((res) => setTimeout(res, 300));
+      const promptNode = state.nodes.find((n) => n.type === 'promptNode');
+      const modelNode = state.nodes.find((n) => n.type === 'modelNode');
+      const cameraNode = state.nodes.find((n) => n.type === 'cameraNode');
+      const subject = (promptNode?.data.subject as string) || currentScene.prompt;
+      const action = (promptNode?.data.action as string) || '';
+      const look = (promptNode?.data.look as string) || '';
+      const cameraName = (cameraNode?.data.name as string) || currentScene.cameraPresetId;
+      const fullPrompt = `${subject}${action ? `, ${action}` : ''}${look ? `, ${look}` : ''}, ${cameraName} dynamic cinematography`.trim();
+      const seed = (modelNode?.data.seed as number) || Math.floor(Math.random() * 99999999);
+
+      for (let p = 30; p <= 85; p += 20) {
+        await new Promise((res) => setTimeout(res, 200));
         set({ generationProgress: p });
         get().updateNodeData('node-model', { progress: p });
       }
 
-      const generatedRenders = [
-        'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=1200&q=80',
-      ];
-      const newThumb = generatedRenders[Math.floor(Math.random() * generatedRenders.length)];
+      // Compute aspect ratio dimensions
+      const ar = state.aspectRatio || '16:9';
+      let genWidth = 1280;
+      let genHeight = 720;
+      if (ar === '9:16') {
+        genWidth = 720;
+        genHeight = 1280;
+      } else if (ar === '1:1') {
+        genWidth = 1024;
+        genHeight = 1024;
+      } else if (ar === '21:9') {
+        genWidth = 1440;
+        genHeight = 616;
+      }
+
+      // Live AI Generation using Pollinations AI (free, prompt-accurate, instant preview)
+      const encodedPrompt = encodeURIComponent(fullPrompt.slice(0, 280));
+      const aiImageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${genWidth}&height=${genHeight}&seed=${seed}&nologo=true`;
+
+      // Preload image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = aiImageUrl;
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = () => resolve(null);
+      });
 
       const updatedScenes = [...state.scenes];
       updatedScenes[state.activeSceneIndex] = {
         ...currentScene,
-        thumbnailUrl: newThumb,
+        thumbnailUrl: aiImageUrl,
+        prompt: fullPrompt,
         mediaType: 'image',
         status: 'ready',
       };
@@ -1029,8 +1208,149 @@ export const useStudioStore = create<StudioStore>((set, get) => ({
         currentTime: 0,
         activeSceneIndex: 0,
         activeCameraCurveId: 'orbital_drift',
+        aspectRatio: '16:9',
         bpm: 120,
       });
+    } else if (presetKey === 'film_trailer') {
+      const trailerScenes: SceneClip[] = [
+        {
+          id: 'trailer-1',
+          title: 'Brutalist Citadel Approach',
+          prompt: 'Wide anamorphic establishing shot of an ancient brutalist desert citadel shrouded in volumetric atmospheric haze',
+          cameraPresetId: 'crane_shot',
+          modelId: 'flux_video',
+          mediaType: 'image',
+          duration: 3.5,
+          startAt: 0,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'IN A WORLD OF SHADOWS',
+          status: 'ready',
+        },
+        {
+          id: 'trailer-2',
+          title: 'Protagonist Awakening',
+          prompt: 'Close-up of a cloaked cybernetic nomad turning towards a gathering sand vortex, dynamic lens flares',
+          cameraPresetId: 'orbital_drift',
+          modelId: 'kling_1_5',
+          mediaType: 'image',
+          duration: 3.5,
+          startAt: 3.5,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'ONE WARRIOR RISES',
+          status: 'ready',
+        },
+        {
+          id: 'trailer-3',
+          title: 'Core Resonator Ignition',
+          prompt: 'Dolly zoom vertigo into a floating quantum monolith charging with brilliant cyan lightning',
+          cameraPresetId: 'dolly_zoom_vertigo',
+          modelId: 'wan_2_1',
+          mediaType: 'image',
+          duration: 3.5,
+          startAt: 7.0,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'TO UNLOCK THE CORE',
+          status: 'ready',
+        },
+        {
+          id: 'trailer-4',
+          title: 'Canyon Barrel Escape',
+          prompt: 'Dynamic 540 roll through a collapsing crystalline canyon as shockwaves shatter the horizon',
+          cameraPresetId: 'roll_540',
+          modelId: 'ltx_video',
+          mediaType: 'image',
+          duration: 3.5,
+          startAt: 10.5,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'COMING THIS WINTER',
+          status: 'ready',
+        },
+      ];
+
+      const trailerCaptions: CaptionItem[] = [
+        { id: 'tcap-1', text: 'IN A WORLD OF SHADOWS', startTime: 0.5, endTime: 3.0, style: 'slam', fontSize: 32, color: '#FFFFFF' },
+        { id: 'tcap-2', text: 'ONE WARRIOR RISES', startTime: 4.0, endTime: 6.5, style: 'glow', fontSize: 28, color: '#00F0FF' },
+        { id: 'tcap-3', text: 'TO UNLOCK THE CORE', startTime: 7.5, endTime: 10.0, style: 'split', fontSize: 32, color: '#FACC15' },
+        { id: 'tcap-4', text: 'COMING THIS WINTER', startTime: 11.0, endTime: 13.5, style: 'matrix', fontSize: 36, color: '#F472B6' },
+      ];
+
+      set({
+        scenes: trailerScenes,
+        captions: trailerCaptions,
+        duration: 14.0,
+        currentTime: 0,
+        activeSceneIndex: 0,
+        activeCameraCurveId: 'crane_shot',
+        aspectRatio: '21:9',
+        bpm: 90,
+      });
+
+      get().updateNodeData('node-prompt', { subject: trailerScenes[0].prompt, aspectRatio: '21:9' });
+      get().updateNodeData('node-camera', { presetId: 'crane_shot' });
+      get().updateNodeData('node-timeline', { duration: 14.0, sceneCount: 4 });
+    } else if (presetKey === 'tiktok_speedrun') {
+      const tiktokScenes: SceneClip[] = [
+        {
+          id: 'tt-1',
+          title: 'FPV Neon Market Dive',
+          prompt: 'First-person acrobatic dive into an illuminated neon Tokyo street market, rain reflections and speed blur',
+          cameraPresetId: 'fpv_dive',
+          modelId: 'kling_1_5',
+          mediaType: 'image',
+          duration: 3.0,
+          startAt: 0,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'WAIT FOR THE DROP',
+          status: 'ready',
+        },
+        {
+          id: 'tt-2',
+          title: 'High-Velocity Drift',
+          prompt: 'Fast 360 orbital camera drifting around a futuristic neon drift car generating holographic sparks',
+          cameraPresetId: 'orbital_drift',
+          modelId: 'flux_video',
+          mediaType: 'image',
+          duration: 3.0,
+          startAt: 3.0,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'MAX VELOCITY SPEEDRUN',
+          status: 'ready',
+        },
+        {
+          id: 'tt-3',
+          title: 'Skyline Ascent',
+          prompt: 'Overhead crane rising over hyper-dense skyscraper skyline as fireworks ignite across the clouds',
+          cameraPresetId: 'crane_shot',
+          modelId: 'ltx_video',
+          mediaType: 'image',
+          duration: 3.0,
+          startAt: 6.0,
+          thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80',
+          captionText: 'NEVER LOOK BACK',
+          status: 'ready',
+        },
+      ];
+
+      const tiktokCaptions: CaptionItem[] = [
+        { id: 'ttcap-1', text: 'WAIT FOR THE DROP', startTime: 0.2, endTime: 2.8, style: 'slam', fontSize: 32, color: '#00F0FF' },
+        { id: 'ttcap-2', text: 'MAX VELOCITY SPEEDRUN', startTime: 3.2, endTime: 5.8, style: 'glow', fontSize: 28, color: '#FACC15' },
+        { id: 'ttcap-3', text: 'NEVER LOOK BACK', startTime: 6.2, endTime: 8.8, style: 'matrix', fontSize: 36, color: '#34D399' },
+      ];
+
+      set({
+        scenes: tiktokScenes,
+        captions: tiktokCaptions,
+        duration: 9.0,
+        currentTime: 0,
+        activeSceneIndex: 0,
+        activeCameraCurveId: 'fpv_dive',
+        aspectRatio: '9:16',
+        bpm: 140,
+      });
+
+      get().updateNodeData('node-prompt', { subject: tiktokScenes[0].prompt, aspectRatio: '9:16' });
+      get().updateNodeData('node-camera', { presetId: 'fpv_dive' });
+      get().updateNodeData('node-timeline', { duration: 9.0, sceneCount: 3 });
     }
   },
 }));

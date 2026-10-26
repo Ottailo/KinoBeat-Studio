@@ -17,6 +17,8 @@ export default function StudioPage() {
   const isPlaying = useStudioStore((s) => s.isPlaying);
   const activeTrackId = useStudioStore((s) => s.activeTrackId);
   const isMuted = useStudioStore((s) => s.isMuted);
+  const audioVolume = useStudioStore((s) => s.audioVolume);
+  const customAudioBuffer = useStudioStore((s) => s.customAudioBuffer);
 
   const seekTo = useStudioStore((s) => s.seekTo);
   const togglePlay = useStudioStore((s) => s.togglePlay);
@@ -29,6 +31,7 @@ export default function StudioPage() {
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioBufferRef = useRef<AudioBuffer | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const playbackStartRef = useRef<number>(0);
   const animFrameRef = useRef<number | null>(null);
 
@@ -71,13 +74,19 @@ export default function StudioPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [togglePlay, stepFrame]);
 
-  // Preload and analyze audio on mount
+  // Preload and analyze audio on mount or track change
   useEffect(() => {
     let isMounted = true;
     const initAudio = async () => {
       try {
         const ctx = beatDetector.getOrCreateContext();
         audioContextRef.current = ctx;
+
+        if (customAudioBuffer) {
+          audioBufferRef.current = customAudioBuffer;
+          return;
+        }
+
         const buffer = await synthesizeAudioTrack(activeTrackId, ctx);
         if (isMounted) {
           audioBufferRef.current = buffer;
@@ -94,31 +103,55 @@ export default function StudioPage() {
     return () => {
       isMounted = false;
     };
-  }, [activeTrackId, setBeatsAndBpm]);
+  }, [activeTrackId, customAudioBuffer, setBeatsAndBpm]);
 
-  // Audio Playback Transport Loop
+  // Audio Playback Transport Loop with Scrub-Seeking
+  const lastKnownTimeRef = useRef<number>(currentTime);
   useEffect(() => {
+    lastKnownTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  useEffect(() => {
+    const startAudioSourceAt = (startTime: number) => {
+      if (isMuted || !audioBufferRef.current || !audioContextRef.current) return;
+      try {
+        if (audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
+        activeSourceRef.current?.stop();
+      } catch {}
+
+      try {
+        const src = audioContextRef.current.createBufferSource();
+        src.buffer = audioBufferRef.current;
+        const gain = audioContextRef.current.createGain();
+        gain.gain.value = isMuted ? 0 : audioVolume;
+        src.connect(gain);
+        gain.connect(audioContextRef.current.destination);
+        gainNodeRef.current = gain;
+        src.start(0, Math.max(0, startTime));
+        activeSourceRef.current = src;
+      } catch (e) {
+        console.warn('Audio playback start exception:', e);
+      }
+    };
+
     if (isPlaying) {
       playbackStartRef.current = performance.now() - currentTime * 1000;
-
-      // Start Web Audio playback if unmuted and buffer available
-      if (!isMuted && audioBufferRef.current && audioContextRef.current) {
-        try {
-          if (audioContextRef.current.state === 'suspended') {
-            audioContextRef.current.resume();
-          }
-          const src = audioContextRef.current.createBufferSource();
-          src.buffer = audioBufferRef.current;
-          src.connect(audioContextRef.current.destination);
-          src.start(0, Math.max(0, currentTime));
-          activeSourceRef.current = src;
-        } catch (e) {
-          console.warn('Audio playback start exception:', e);
-        }
-      }
+      startAudioSourceAt(currentTime);
 
       const updateFrame = () => {
         const elapsedSec = (performance.now() - playbackStartRef.current) / 1000;
+
+        // Check if user manually scrubbed playhead during playback
+        if (Math.abs(elapsedSec - lastKnownTimeRef.current) > 0.45) {
+          const newTime = lastKnownTimeRef.current;
+          playbackStartRef.current = performance.now() - newTime * 1000;
+          startAudioSourceAt(newTime);
+          animFrameRef.current = requestAnimationFrame(updateFrame);
+          return;
+        }
+
         if (elapsedSec >= duration) {
           seekTo(0);
           setIsPlaying(false);
@@ -151,7 +184,14 @@ export default function StudioPage() {
         activeSourceRef.current = null;
       } catch {}
     };
-  }, [isPlaying, isMuted, duration, seekTo, setIsPlaying]);
+  }, [isPlaying, isMuted, audioVolume, duration, seekTo, setIsPlaying]);
+
+  // Live Audio Gain Volume Sync
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = isMuted ? 0 : audioVolume;
+    }
+  }, [audioVolume, isMuted]);
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0B0E14] text-zinc-100 font-sans select-none">
