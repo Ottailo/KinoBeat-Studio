@@ -67,9 +67,9 @@ const TRANSITION_PRESETS = [
 
 const COLOR_SWATCHES = [
   { hex: '#FFFFFF', name: 'Studio White' },
-  { hex: '#00F0FF', name: 'Electric Cyan' },
-  { hex: '#F472B6', name: 'Hot Pink' },
-  { hex: '#FACC15', name: 'Cyber Amber' },
+  { hex: '#38BDF8', name: 'Electric Cyan' },
+  { hex: '#F59E0B', name: 'Cyber Amber' },
+  { hex: '#A1A1AA', name: 'Slate Gray' },
   { hex: '#34D399', name: 'Emerald' },
 ];
 
@@ -610,14 +610,14 @@ export const MultiTrackTimeline: React.FC = () => {
           <div className="w-80 bg-[#0D1117] border-r border-[#1A2130] flex flex-col justify-between shrink-0 shadow-2xl z-30 animate-in slide-in-from-left duration-200">
             <div className="p-3 border-b border-[#1A2130] flex items-center justify-between bg-[#151B24]">
               <div className="flex items-center gap-2">
-                <HardDrive className="w-4 h-4 text-cyan-400" />
+                <HardDrive className="w-4 h-4 text-zinc-300" />
                 <span className="text-xs font-semibold text-white">Project Asset Bin</span>
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => assetFileInputRef.current?.click()}
-                  className="p-1 rounded hover:bg-[#1E2638] text-cyan-400 transition-colors cursor-pointer"
+                  className="p-1 rounded hover:bg-[#1E2638] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title="Upload New Asset to Bin"
                 >
                   <Upload className="w-3.5 h-3.5" />
@@ -641,7 +641,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   onClick={() => setAssetTab(tab)}
                   className={`px-2 py-0.5 rounded capitalize transition-colors cursor-pointer ${
                     assetTab === tab
-                      ? 'bg-[#151B24] text-cyan-300 font-bold border border-cyan-500/30'
+                      ? 'bg-[#18202C] text-zinc-100 font-semibold border border-[#2A374E]'
                       : 'text-zinc-400 hover:text-white'
                   }`}
                 >
@@ -663,13 +663,13 @@ export const MultiTrackTimeline: React.FC = () => {
                     className="p-2 rounded-lg bg-[#080A0F] border border-[#1A2130] hover:border-zinc-700 flex items-center justify-between text-xs group transition-colors"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-md bg-[#151B24] border border-[#222C40] flex items-center justify-center shrink-0 text-cyan-400">
+                      <div className="w-8 h-8 rounded-md bg-[#151B24] border border-[#222C40] flex items-center justify-center shrink-0 text-zinc-300">
                         {asset.type === 'video' ? (
                           <FileVideo className="w-4 h-4" />
                         ) : asset.type === 'audio' ? (
-                          <Music2 className="w-4 h-4 text-emerald-400" />
+                          <Music2 className="w-4 h-4 text-zinc-400" />
                         ) : (
-                          <ImageIcon className="w-4 h-4 text-pink-400" />
+                          <ImageIcon className="w-4 h-4 text-zinc-400" />
                         )}
                       </div>
                       <div className="min-w-0">
@@ -685,7 +685,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleAddAssetToTimeline(asset)}
-                      className="px-2 py-1 rounded bg-[#151B24] hover:bg-[#1E2638] border border-[#222C40] text-cyan-300 hover:text-white text-[10px] font-semibold transition-colors shrink-0 cursor-pointer"
+                      className="px-2 py-1 rounded bg-[#161C26] hover:bg-[#202737] border border-[#242E40] text-zinc-200 hover:text-white text-[10px] font-semibold transition-colors shrink-0 cursor-pointer"
                       title={asset.type === 'audio' ? 'Load onto Track A1' : 'Add to Track V1'}
                     >
                       + Add
@@ -701,7 +701,7 @@ export const MultiTrackTimeline: React.FC = () => {
         <div className="w-40 bg-[#0A0D14] border-r border-[#1A2130] flex flex-col justify-start shrink-0 text-xs text-zinc-400 font-mono select-none">
           {/* Top Ruler Align Header */}
           <div className="h-6 px-3 bg-[#0E121B] border-b border-[#1E2638] flex items-center justify-between text-[10px] text-zinc-400 font-mono">
-            <div className="flex items-center gap-1.5 text-cyan-400">
+            <div className="flex items-center gap-1.5 text-zinc-300">
               <Clock className="w-3 h-3" />
               <span className="font-semibold">{formatTimecode(currentTime)}</span>
             </div>
@@ -712,7 +712,7 @@ export const MultiTrackTimeline: React.FC = () => {
           <div className={`h-20 px-3 flex flex-col justify-center border-b border-[#1A2130] transition-opacity ${isVideoMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-cyan-950/80 border border-cyan-500/40 text-[9px] text-cyan-400 flex items-center justify-center font-bold">
+                <span className="w-4.5 h-4.5 rounded bg-[#161C26] border border-[#242E40] text-[10px] text-zinc-300 flex items-center justify-center font-bold font-mono">
                   V1
                 </span>
                 <span className="text-white font-sans text-xs">Video</span>
@@ -724,7 +724,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isVideoMuted ? 'Show Video Layer' : 'Mute Video Layer'}
                 >
-                  {isVideoMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-cyan-400" />}
+                  {isVideoMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-zinc-400 hover:text-zinc-200" />}
                 </button>
                 <button
                   type="button"
@@ -743,7 +743,7 @@ export const MultiTrackTimeline: React.FC = () => {
           <div className={`h-12 px-3 flex flex-col justify-center border-b border-[#1A2130] transition-opacity ${isCaptionsMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-pink-950/80 border border-pink-500/40 text-[9px] text-pink-400 flex items-center justify-center font-bold">
+                <span className="w-4.5 h-4.5 rounded bg-[#161C26] border border-[#242E40] text-[10px] text-zinc-300 flex items-center justify-center font-bold font-mono">
                   T1
                 </span>
                 <span className="text-white font-sans text-xs">Titles</span>
@@ -755,7 +755,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isCaptionsMuted ? 'Show Titles' : 'Hide Titles'}
                 >
-                  {isCaptionsMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-pink-400" />}
+                  {isCaptionsMuted ? <EyeOff className="w-3 h-3 text-red-400" /> : <Eye className="w-3 h-3 text-zinc-400 hover:text-zinc-200" />}
                 </button>
                 <button
                   type="button"
@@ -774,7 +774,7 @@ export const MultiTrackTimeline: React.FC = () => {
           <div className={`h-16 px-3 flex flex-col justify-center transition-opacity ${isMuted ? 'opacity-40' : ''}`}>
             <div className="flex items-center justify-between font-semibold text-zinc-200">
               <div className="flex items-center gap-1.5">
-                <span className="w-4 h-4 rounded bg-emerald-950/80 border border-emerald-500/40 text-[9px] text-emerald-400 flex items-center justify-center font-bold">
+                <span className="w-4.5 h-4.5 rounded bg-[#161C26] border border-[#242E40] text-[10px] text-zinc-300 flex items-center justify-center font-bold font-mono">
                   A1
                 </span>
                 <span className="text-white font-sans text-xs">Audio</span>
@@ -786,7 +786,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   className="p-1 rounded hover:bg-[#151B24] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
                 >
-                  {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
+                  {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-zinc-400 hover:text-zinc-200" />}
                 </button>
                 <button
                   type="button"
@@ -808,7 +808,7 @@ export const MultiTrackTimeline: React.FC = () => {
                 step="0.05"
                 value={isMuted ? 0 : audioVolume}
                 onChange={(e) => setAudioVolume(parseFloat(e.target.value))}
-                className="w-full h-1 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-emerald-400 border border-[#1A2130]"
+                className="w-full h-1 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1A2130]"
               />
               <span className="text-[9px] font-mono text-zinc-400 w-8 text-right">
                 {Math.round((isMuted ? 0 : audioVolume) * 100)}%
@@ -880,7 +880,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     style={{ width: `${widthPct}%` }}
                     className={`h-full rounded-md border relative overflow-hidden group transition-all flex flex-col justify-between p-1.5 select-none ${
                       isSelected
-                        ? 'border-cyan-400 bg-[#141C2B] shadow-lg ring-1 ring-cyan-400/50'
+                        ? 'border-zinc-200 bg-[#161C26] shadow-sm ring-1 ring-white/10'
                         : 'border-[#1A2130] bg-[#0D1117] hover:border-[#2A354C]'
                     }`}
                   >
@@ -894,7 +894,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     <div className="relative z-10 flex items-center justify-between">
                       <span className="text-[11px] font-semibold tracking-tight text-white truncate flex items-center gap-1">
                         {isVideo && (
-                          <span className="px-1 py-0.2 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 text-[9px] font-mono font-bold">
+                          <span className="px-1 py-0.2 rounded bg-[#161C26] border border-[#242E40] text-zinc-300 text-[9px] font-mono font-bold">
                             MP4
                           </span>
                         )}
@@ -960,7 +960,7 @@ export const MultiTrackTimeline: React.FC = () => {
 
                     {/* Footer: Camera Preset Badge & Duration */}
                     <div className="relative z-10 flex items-center justify-between text-[10px] font-mono text-zinc-400">
-                      <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-cyan-300 truncate max-w-[120px] font-medium">
+                      <span className="px-1 py-0.2 rounded bg-black/60 border border-white/10 text-zinc-300 truncate max-w-[120px] font-medium">
                         {scene.cameraPresetId.replace('_', ' ')}
                       </span>
                       <span className="font-semibold text-zinc-200">{scene.duration.toFixed(1)}s</span>
@@ -982,10 +982,10 @@ export const MultiTrackTimeline: React.FC = () => {
                           } catch {}
                           setTrimmingIndex(null);
                         }}
-                        className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-cyan-400/40 z-20 flex items-center justify-center transition-colors group/trim"
+                        className="absolute inset-y-0 right-0 w-3 cursor-ew-resize hover:bg-white/15 z-20 flex items-center justify-center transition-colors group/trim"
                         title="Drag to Trim Clip Duration"
                       >
-                        <div className="w-[2px] h-4 rounded-full bg-cyan-400/70 group-hover/trim:bg-cyan-300" />
+                        <div className="w-[2px] h-4 rounded-full bg-zinc-400 group-hover/trim:bg-white" />
                       </div>
                     )}
                   </div>
@@ -1026,16 +1026,19 @@ export const MultiTrackTimeline: React.FC = () => {
                     style={{
                       left: `${leftPct}%`,
                       width: `${widthPct}%`,
-                      borderLeftColor: cap.color || '#00F0FF',
                     }}
-                    className={`absolute h-8 rounded border text-zinc-100 px-2 flex items-center justify-between text-[10px] font-mono shadow-md cursor-grab active:cursor-grabbing transition-all border-l-4 group/cap ${
+                    className={`absolute h-8 rounded border text-zinc-100 px-2 flex items-center justify-between text-[10px] font-mono shadow-sm cursor-grab active:cursor-grabbing transition-all group/cap ${
                       isSelected
-                        ? 'border-cyan-400 bg-[#151B24] ring-1 ring-cyan-400/50'
-                        : 'border-pink-500/40 bg-pink-950/25 hover:border-pink-400/80'
+                        ? 'border-zinc-200 bg-[#18202C] ring-1 ring-white/10'
+                        : 'border-[#242E40] bg-[#10141B] hover:border-[#323E56]'
                     }`}
                     title="Drag to reposition, double-click to edit text"
                   >
-                    <div className="flex items-center gap-1 min-w-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: cap.color || '#FFFFFF' }}
+                      />
                       <Move className="w-2.5 h-2.5 text-zinc-500 opacity-60 group-hover/cap:opacity-100" />
                       {isEditing ? (
                         <input
@@ -1048,7 +1051,7 @@ export const MultiTrackTimeline: React.FC = () => {
                             if (e.key === 'Escape') setEditingCaptionId(null);
                           }}
                           onBlur={() => handleSaveTitleEdit(cap.id)}
-                          className="w-full bg-[#080A0F] border border-cyan-400 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
+                          className="w-full bg-[#080A0F] border border-zinc-400 rounded px-1.5 py-0.5 text-[10px] text-white focus:outline-none"
                         />
                       ) : (
                         <span className="truncate select-none font-semibold" style={{ color: cap.color || '#FFFFFF' }}>
@@ -1125,7 +1128,7 @@ export const MultiTrackTimeline: React.FC = () => {
             <div className="space-y-3 overflow-y-auto pr-1">
               <div className="flex items-center justify-between pb-2 border-b border-[#1A2130]">
                 <div className="flex items-center gap-1.5 font-semibold text-white">
-                  <Sliders className="w-3.5 h-3.5 text-pink-400" />
+                  <Sliders className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Title Inspector</span>
                 </div>
                 <button
@@ -1146,7 +1149,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   type="text"
                   value={selectedCaption.text}
                   onChange={(e) => updateCaption(selectedCaption.id, { text: e.target.value })}
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-pink-400"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-300"
                 />
               </div>
 
@@ -1165,7 +1168,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     onChange={(e) =>
                       trimCaption(selectedCaption.id, parseFloat(e.target.value) || 0, selectedCaption.endTime)
                     }
-                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-zinc-300"
                   />
                 </div>
                 <div>
@@ -1181,7 +1184,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     onChange={(e) =>
                       trimCaption(selectedCaption.id, selectedCaption.startTime, parseFloat(e.target.value) || 1)
                     }
-                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-pink-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-zinc-300"
                   />
                 </div>
               </div>
@@ -1198,7 +1201,7 @@ export const MultiTrackTimeline: React.FC = () => {
                       style: e.target.value as CaptionItem['style'],
                     })
                   }
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-pink-400 cursor-pointer font-medium"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
                 >
                   {KINETIC_STYLES.map((st) => (
                     <option key={st.id} value={st.id}>
@@ -1221,7 +1224,7 @@ export const MultiTrackTimeline: React.FC = () => {
                       onClick={() => updateCaption(selectedCaption.id, { fontSize: fs })}
                       className={`py-1 text-[10px] font-mono rounded-md border transition-all cursor-pointer ${
                         (selectedCaption.fontSize || 28) === fs
-                          ? 'bg-[#151B24] border-pink-400 text-pink-300 font-bold'
+                          ? 'bg-[#18202C] border-zinc-200 text-white font-bold'
                           : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-white'
                       }`}
                     >
@@ -1274,7 +1277,7 @@ export const MultiTrackTimeline: React.FC = () => {
             <div className="space-y-3 overflow-y-auto pr-1">
               <div className="flex items-center justify-between pb-2 border-b border-[#1A2130]">
                 <div className="flex items-center gap-1.5 font-semibold text-white">
-                  <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                  <Camera className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Shot Inspector (0{activeSceneIndex + 1}/{scenes.length})</span>
                 </div>
                 <button
@@ -1295,7 +1298,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   type="text"
                   value={activeScene.title}
                   onChange={(e) => updateScene(activeSceneIndex, { title: e.target.value })}
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-zinc-300"
                 />
               </div>
 
@@ -1308,7 +1311,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   rows={2}
                   value={activeScene.prompt}
                   onChange={(e) => updateScene(activeSceneIndex, { prompt: e.target.value })}
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 resize-none leading-relaxed"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 resize-none leading-relaxed"
                 />
               </div>
 
@@ -1316,12 +1319,12 @@ export const MultiTrackTimeline: React.FC = () => {
               <div>
                 <label className="block text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1 flex items-center justify-between">
                   <span>Cinematic Camera Kinematics</span>
-                  <span className="text-[9px] text-cyan-400 font-mono">6-DOF</span>
+                  <span className="text-[9px] text-zinc-400 font-mono">6-DOF</span>
                 </label>
                 <select
                   value={activeScene.cameraPresetId}
                   onChange={(e) => setCameraOptions({ presetId: e.target.value })}
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer font-medium"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
                 >
                   {CINEMA_PRESETS.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -1347,7 +1350,7 @@ export const MultiTrackTimeline: React.FC = () => {
                       onClick={() => setCameraOptions({ focalLength: foc.mm })}
                       className={`py-1 text-[10px] font-mono rounded-md border text-center transition-all cursor-pointer ${
                         (activeScene.focalLength || '35mm') === foc.mm
-                          ? 'bg-[#151B24] border-cyan-400 text-cyan-300 font-bold'
+                          ? 'bg-[#18202C] border-zinc-200 text-white font-bold'
                           : 'bg-[#080A0F] border-[#1A2130] text-zinc-400 hover:text-white'
                       }`}
                     >
@@ -1361,7 +1364,7 @@ export const MultiTrackTimeline: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between text-[10px] font-mono font-semibold uppercase tracking-wider text-zinc-400 mb-1">
                   <span>Speed Ramp Factor</span>
-                  <span className="font-mono text-cyan-400">{(activeScene.speedRamp || 1.25).toFixed(2)}x</span>
+                  <span className="font-mono text-zinc-200">{(activeScene.speedRamp || 1.25).toFixed(2)}x</span>
                 </div>
                 <input
                   type="range"
@@ -1370,7 +1373,7 @@ export const MultiTrackTimeline: React.FC = () => {
                   step={0.05}
                   value={activeScene.speedRamp || 1.25}
                   onChange={(e) => setCameraOptions({ speedRamp: parseFloat(e.target.value) })}
-                  className="w-full h-1.5 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-cyan-400 border border-[#1A2130]"
+                  className="w-full h-1.5 bg-[#080A0F] rounded-lg appearance-none cursor-pointer accent-zinc-200 border border-[#1A2130]"
                 />
               </div>
 
@@ -1382,7 +1385,7 @@ export const MultiTrackTimeline: React.FC = () => {
                 <select
                   value={activeScene.transition || 'crossfade'}
                   onChange={(e) => updateScene(activeSceneIndex, { transition: e.target.value as any })}
-                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-cyan-400 cursor-pointer font-medium"
+                  className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-zinc-300 cursor-pointer font-medium"
                 >
                   {TRANSITION_PRESETS.map((tr) => (
                     <option key={tr.id} value={tr.id}>
@@ -1413,7 +1416,7 @@ export const MultiTrackTimeline: React.FC = () => {
                     max={20}
                     value={activeScene.duration}
                     onChange={(e) => trimScene(activeSceneIndex, parseFloat(e.target.value) || 1)}
-                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400"
+                    className="w-full bg-[#080A0F] border border-[#1A2130] rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-zinc-300"
                   />
                 </div>
               </div>

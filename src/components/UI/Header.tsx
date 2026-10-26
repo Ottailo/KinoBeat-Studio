@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
               <line x1="16" y1="29" x2="12" y2="12" stroke="#64748B" strokeWidth="1.2" strokeOpacity="0.8" />
               <line x1="5" y1="23" x2="20" y2="12" stroke="#64748B" strokeWidth="1.2" strokeOpacity="0.8" />
               <line x1="5" y1="9" x2="16" y2="12" stroke="#64748B" strokeWidth="1.2" strokeOpacity="0.8" />
-              <circle cx="16" cy="16" r="2.5" fill="#38BDF8" />
+              <circle cx="16" cy="16" r="2.5" fill="#F59E0B" />
             </svg>
           </div>
 
@@ -138,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({
               />
               <span
                 className={`w-1 rounded-xs transition-all duration-75 ${
-                  isPlaying ? 'bg-sky-400 h-3' : 'bg-zinc-700 h-1.5'
+                  isPlaying ? 'bg-amber-400 h-3' : 'bg-zinc-700 h-1.5'
                 }`}
               />
               <span

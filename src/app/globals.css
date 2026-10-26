@@ -15,12 +15,12 @@
     --border-subtle: #1C2331;
     --border-medium: #242E40;
     --border-strong: #313D54;
-    --border-focus: #38BDF8;
+    --border-focus: #F59E0B;
 
     /* Laser-Restrained Pro Studio Accents (<5% Screen Area) */
-    --accent-sky: #38BDF8;
-    --accent-slate: #94A3B8;
+    --accent-primary: #F59E0B;
     --accent-amber: #F59E0B;
+    --accent-slate: #94A3B8;
     --accent-rose: #F43F5E;
 
     /* Typographic Ink Spectrum (High Contrast & Legibility) */
@@ -53,7 +53,7 @@
 }
 
 :focus-visible {
-  outline: 2px solid #38BDF8;
+  outline: 2px solid #F59E0B;
   outline-offset: 1px;
 }
 

@@ -161,7 +161,7 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
         <div className="text-zinc-200 font-medium uppercase tracking-wider flex items-center gap-2">
           <span>{currentScene.title}</span>
           {isVideo && (
-            <span className="px-1.5 py-0.2 rounded bg-cyan-950/80 border border-cyan-500/60 text-cyan-300 text-[9px]">
+            <span className="px-1.5 py-0.2 rounded bg-[#161C26] border border-[#242E40] text-zinc-300 text-[9px]">
               MP4 RAW
             </span>
           )}
@@ -169,7 +169,7 @@ export const KinoComposition: React.FC<KinoCompositionProps> = ({
         <div className="text-zinc-500 text-[9px] mt-0.5 flex items-center gap-1.5">
           <span>{activeCurve.name}</span>
           <span>·</span>
-          <span className="text-cyan-400">{currentScene.focalLength || '35mm'}</span>
+          <span className="text-zinc-300">{currentScene.focalLength || '35mm'}</span>
           <span>·</span>
           <span>{(currentScene.speedRamp || 1.25).toFixed(1)}x speed</span>
           <span>·</span>
