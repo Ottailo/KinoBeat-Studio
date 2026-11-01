@@ -1,49 +1,73 @@
-# DESIGN.md — KinoBeat Studio Surface Expression
+# DESIGN.md — KinoBeat Studio Surface Expression & Design Contract
 
-## 1. Design Read
-> *Reading this as: professional NLE workstation for film editors and generative creators, leaning toward precision-tool dark — quiet, dense, the chrome disappears and the work remains.*
-
-### Dials
-- **Mode**: `Operate`
-- **VARIANCE**: `4` (balanced modular control grid)
-- **MOTION**: `3` (restrained, functional, sub-250ms transitions)
-- **DENSITY**: `7` (pro technical density, aligned SMPTE readouts, compact drawers)
+> **Framework**: Next.js 15, React 19, Motion (`motion/react`), Remotion 4.x, Tailwind CSS v4, Web Audio API  
+> **Governing Skill**: [`design`](../../.agents/skills/design/SKILL.md)  
+> **Design Archetype**: **Archetype H (Monochrome + One / Tactile Hardware Precision)** intertwined with **Archetype D (Alive / Kinetic Spring Physics)**
 
 ---
 
-## 2. Color System: Studio Dark (Graphite + Amber Accent)
+## 1. MANDATORY GATE 0: THE DESIGN CONTRACT
 
-Purged all first-order and second-order AI tells (banned: neon cyan `#00F0FF`, neon magenta `#FF00FF`, rainbow track icons, fuzzy glows).
+```text
+DESIGN CONTRACT
+───────────────
+Product Truth    : KinoBeat is an industrial, local-first generative AI video and audio-reactive NLE workstation that synchronizes multi-model DiT prompts and 6-DOF optical camera paths directly to real Web Audio transient waveforms for filmmakers, motion designers, and beatmakers.
+Surface Mode     : OPERATE
+Design Read      : Tactile hardware video editing console combining Teenage Engineering / Ableton physical studio precision with cinematic anamorphic director monitors, spring-reactive jog-shuttle transport, and live 48kHz audio transient bloom.
+Chosen Archetype : Archetype H (Monochrome + One / Tactile Hardware Precision) + Archetype D (Alive / Kinetic Spring Physics)
+MOTION_INTENSITY : 8/10 — Framer Motion (`motion/react`) zero-re-render pointer physics, spring micro-interactions (stiffness: 350, damping: 28), and dynamic audio FFT pulse
+VISUAL_DENSITY   : 8/10 — Professional NLE workstation density with aligned SMPTE timecodes, physical rotary/slider jog controls, track header badges, and compact camera optics drawers
+Signature Element: Kinetic Anamorphic Jog-Shuttle Scrubber with Dynamic FFT Waveform Bloom & Tactile Spring Frame Snapping
+Typography       : Space Grotesk (Display) / Geist (UI & Body) / Geist Mono (SMPTE Timecodes, Tabular Metrics)
+Accent Color     : #FF5500 (Teenage Engineering Signal Orange, oklch(0.68 0.24 38))
+Anti-defaults    : Rejected generic SaaS dark obsidian glow cards with rainbow borders; rejected static motionless grids in favor of physical tactile hardware surfaces with spring-physics micro-interactions
+```
 
-| Role | Token / Hex | OKLCH Equiv | Purpose |
+---
+
+## 2. Semantic Token Architecture (OKLCH Light / Dark & Hardware Bedrock)
+
+Defined in perceptual OKLCH color space for lightness fidelity:
+
+| Semantic Token | Value / Hex | OKLCH Equiv | Purpose |
 |---|---|---|---|
-| Canvas Background | `--bg-canvas: #090B0E` | `oklch(0.11 0.007 255)` | Base viewport and graph background |
-| Panel Surface | `--bg-surface: #10141B` | `oklch(0.14 0.007 255)` | Node cards, toolbar, drawers |
-| Elevated Surface | `--bg-elevated: #161C26` | `oklch(0.18 0.008 255)` | Buttons, hover states, inputs |
-| Hairline Border | `--border-subtle: #1C2331` | `oklch(1 0 0 / 0.07)` | 1px clean card and header borders |
-| Strong Border | `--border-strong: #242E40` | `oklch(1 0 0 / 0.13)` | Active selections and focus boundaries |
-| Primary Text (Ink) | `--text-primary: #F1F4F9` | `oklch(0.93 0.006 80)` | High-contrast readable typography |
-| Secondary Text | `--text-secondary: #94A0B4` | `oklch(0.68 0.007 80)` | Labels, metadata, units |
-| Muted Text | `--text-muted: #626F84` | `oklch(0.50 0.005 80)` | Inactive icons, timestamps |
-| Primary Accent | `--accent-primary: #F59E0B` | `oklch(0.76 0.11 75)` | Single studio amber accent (<5% area) |
-| Semantic Success | `--status-success: #10B981` | `oklch(0.55 0.14 155)` | Engine Ready indicator, render complete |
+| `--bg-canvas` | `#121317` | `oklch(0.14 0.006 250)` | Deep carbon bedrock and graph canvas |
+| `--bg-surface` | `#191B22` | `oklch(0.18 0.008 250)` | Machined slate panels, drawers, toolbars |
+| `--bg-elevated` | `#21242E` | `oklch(0.22 0.010 250)` | Raised control decks, active buttons, pills |
+| `--bg-recessed` | `#0D0E12` | `oklch(0.11 0.005 250)` | Recessed machine cutouts, wells, jog dial |
+| `--border-subtle` | `rgba(255,255,255,0.08)` | `oklch(1 0 0 / 0.08)` | Hairline structural borders (1px) |
+| `--border-medium` | `rgba(255,255,255,0.14)` | `oklch(1 0 0 / 0.14)` | Interactive element boundaries |
+| `--border-strong` | `rgba(255,255,255,0.24)` | `oklch(1 0 0 / 0.24)` | Active selections and focused headers |
+| `--accent-primary` | `#FF5500` | `oklch(0.68 0.24 38)` | The ONE Accent: Signal Orange (<5% screen area) |
+| `--accent-glow` | `rgba(255,85,0,0.35)` | `oklch(0.68 0.24 38 / 0.35)` | Tally lamp and transient peak glow |
+| `--text-primary` | `#FFFFFF` | `oklch(0.98 0 0)` | Pure structural ink |
+| `--text-secondary`| `#E2E8F0` | `oklch(0.85 0.006 240)` | High-contrast readable typography |
+| `--text-muted` | `#94A3B8` | `oklch(0.65 0.008 240)` | Secondary metadata, units, focal lengths |
+| `--text-dim` | `#64748B` | `oklch(0.48 0.008 240)` | Inactive icons, subtle grid marks |
 
 ---
 
-## 3. Typography System
-- **Display Face**: `Space Grotesk` (500, 600) — used for brand mark and modal headers.
-- **UI & Controls**: `Geist` — clean, neutral grotesque with high legibility at 11–13px.
-- **Telemetry & Numerics**: `Geist Mono` with `font-variant-numeric: tabular-nums` enforced on all SMPTE clocks, frame counters, BPM values, and timestamps.
+## 3. Kinetic Motion & Micro-Interactions
+
+* **Framer Motion (`motion/react`)**:
+  - Tactile controls: `{ stiffness: 350, damping: 28 }`
+  - Playful spring pulses: `{ stiffness: 300, damping: 15 }`
+  - Modal entrances: `{ stiffness: 350, damping: 28 }`
+* **Zero-Re-Render Pointer Physics**:
+  - Implemented in `ShowcaseView.tsx` (`SpotlightTemplateCard`) with continuous mouse coordinates tracking (`useMotionValue` + `useSpring` + `useTransform`).
+* **Signature Element**:
+  - `CinemaDirectorView.tsx`: Interactive Rotary Jog-Shuttle Wheel with rotary dragging, degree indicators, frame delta tick marks, sub-frame step jog, and frame inertia.
+  - Anamorphic framing overlays: 2.39:1 Cinemascope crop lines, 3×3 Rule of Thirds grid, Optical Reticle with active focal length reading.
 
 ---
 
-## 4. Radius & Elevation
-- **Radius Scale**: Locked to 8px (`rounded-lg` for cards, `rounded-md` for controls). No mixing of pill buttons with brutalist square cards.
-- **Depth**: Surface tone separation over heavy drop shadows. Crisp 1px borders without colored halos.
+## 4. Typography Rules & The Craft Floor
 
----
-
-## 5. Motion Personality
-- Archetype: **Snappy** for toggles and buttons (150–180ms, `cubic-bezier(0.2, 0, 0, 1)`).
-- Drawers and Modals: **Smooth** (240ms, `cubic-bezier(0.16, 1, 0.3, 1)`).
-- Reduced Motion: Instant state change fallback via `@media (prefers-reduced-motion: reduce)`.
+* **Display Face**: `Space Grotesk` (600, 700, 800) — Used on brand wordmarks, hero headings, and section titles.
+* **UI & Body**: `Geist` — Clean, neutral grotesque with high legibility across 11–13px control labels.
+* **Telemetry & Numerics**: `Geist Mono` with `font-variant-numeric: tabular-nums` enforced on all SMPTE clocks (`HH:MM:SS:FF`), frame counters, BPM values, and timestamps.
+* **Browser Surfaces**:
+  - Custom text selection in Signal Orange tint (`rgba(255, 85, 0, 0.30)`).
+  - Custom caret color (`#FF5500`).
+  - Tactile custom scrollbars with Signal Orange hover state.
+  - Accessible focus rings: `outline: 2px solid #FF5500; outline-offset: 1px;`.

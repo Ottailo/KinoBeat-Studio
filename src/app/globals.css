@@ -1,38 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "@xyflow/react/dist/style.css";
 
 @layer base {
   :root {
-    /* Tactile Studio Carbon Palette (Teenage Engineering / Ableton Studio Precision) */
-    --bg-canvas: #121317;
-    --bg-surface: #191B22;
-    --bg-elevated: #21242E;
-    --bg-input: #0D0E12;
+    /* ==========================================================================
+       Semantic Design Tokens (OKLCH Light/Dark & Hardware Bedrock)
+       ========================================================================== */
+    /* Hardware Bedrock & Surfaces */
+    --bg-canvas: #121317;           /* oklch(0.14 0.006 250) Deep carbon bedrock */
+    --bg-surface: #191B22;          /* oklch(0.18 0.008 250) Machined slate surface */
+    --bg-elevated: #21242E;         /* oklch(0.22 0.010 250) Raised control decks */
+    --bg-recessed: #0D0E12;         /* oklch(0.11 0.005 250) Recessed machine cutouts */
     --bg-glass: rgba(25, 27, 34, 0.94);
 
     /* Hairline Precision Borders */
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-medium: rgba(255, 255, 255, 0.14);
-    --border-strong: rgba(255, 255, 255, 0.24);
+    --border-subtle: rgba(255, 255, 255, 0.08);  /* oklch(1 0 0 / 0.08) */
+    --border-medium: rgba(255, 255, 255, 0.14);  /* oklch(1 0 0 / 0.14) */
+    --border-strong: rgba(255, 255, 255, 0.24);  /* oklch(1 0 0 / 0.24) */
     --border-focus: #FF5500;
 
     /* The ONE Accent: Teenage Engineering Signal Orange (<5% screen area) */
+    --accent: #FF5500;              /* oklch(0.68 0.24 38) Signal Orange */
+    --accent-fg: #000000;
     --accent-primary: #FF5500;
     --accent-orange: #FF5500;
     --accent-titanium: #FFFFFF;
-    --accent-ruby: #EF4444;
-    --accent-emerald: #10B981;
+    --accent-glow: rgba(255, 85, 0, 0.35);
 
-    /* Typographic Ink Spectrum (High Contrast & Legibility) */
-    --text-primary: #FFFFFF;
-    --text-secondary: #E2E8F0;
-    --text-muted: #94A3B8;
-    --text-dim: #64748B;
+    /* Status Telemetry */
+    --status-success: #10B981;      /* oklch(0.62 0.16 145) */
+    --status-warning: #F59E0B;      /* oklch(0.72 0.15 65) */
+    --status-danger: #EF4444;       /* oklch(0.58 0.18 25) */
 
-    /* Mechanical Transitions */
-    --ease-out-quart: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+    /* Typographic Ink Spectrum */
+    --text-primary: #FFFFFF;        /* oklch(0.98 0 0) Pure ink */
+    --text-secondary: #E2E8F0;      /* oklch(0.85 0.006 240) Clean structural ink */
+    --text-muted: #94A3B8;          /* oklch(0.65 0.008 240) Muted secondary ink */
+    --text-dim: #64748B;            /* oklch(0.48 0.008 240) Subtle hardware ink */
+
+    /* Radii Scale */
+    --radius-xs: 3px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+
+    /* Spring Physics Parameters */
+    --spring-tight: cubic-bezier(0.16, 1, 0.3, 1);
+    --spring-snappy: cubic-bezier(0.2, 0, 0, 1);
   }
 
   body {
@@ -47,20 +63,32 @@
   }
 }
 
-/* Browser Surfaces (impeccable craft floor § Browser surfaces) */
+/* ==========================================================================
+   Browser Surfaces Theming (The Craft Floor)
+   ========================================================================== */
+
+/* Custom Text Selection in Signal Orange Tint */
 ::selection {
-  background: rgba(255, 85, 0, 0.28);
+  background: rgba(255, 85, 0, 0.30);
   color: #FFFFFF;
 }
 
+/* Caret Color in Signal Orange */
+input, textarea {
+  caret-color: var(--accent);
+}
+
+/* Accessible Focus Ring with Offset */
 :focus-visible {
-  outline: 2px solid #FF5500;
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
 /* Tabular Numerals on all timecodes, counters, and metrics */
 .font-mono,
 [data-numeric],
+[data-tabular],
+.numeric-data,
 .metric-value,
 .smpte-timecode,
 table td {
@@ -79,8 +107,20 @@ button, a, [role="button"] {
   user-select: none;
 }
 
-button:active:not(:disabled), [role="button"]:active:not(:disabled) {
-  transform: scale(0.985);
+/* Tactile Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 85, 0, 0.4);
 }
 
 /* Reduced motion fallback */
@@ -91,7 +131,9 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
   }
 }
 
-/* React Flow Industrial Canvas Styling */
+/* ==========================================================================
+   React Flow Industrial Canvas Styling
+   ========================================================================== */
 .react-flow {
   background: var(--bg-canvas) !important;
 }
@@ -101,31 +143,31 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
 }
 
 .react-flow__node {
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .react-flow__node.selected {
-  box-shadow: 0 0 0 1px #FF5500, 0 16px 40px rgba(0, 0, 0, 0.85) !important;
+  box-shadow: 0 0 0 1.5px #FF5500, 0 16px 40px rgba(0, 0, 0, 0.85) !important;
 }
 
 .react-flow__handle {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: 1.5px solid var(--bg-canvas);
+  border: 2px solid var(--bg-canvas);
   background-color: #64748B;
   transition: transform 0.12s ease, background-color 0.12s ease;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.3);
+  transform: scale(1.35);
   background-color: #FF5500;
 }
 
 .react-flow__edge-path {
   stroke-width: 1.5;
-  stroke: rgba(255, 255, 255, 0.15);
+  stroke: rgba(255, 255, 255, 0.18);
 }
 
 .react-flow__edge.animated path {
@@ -137,7 +179,7 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
 .react-flow__controls {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-radius: 8px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
   overflow: hidden;
 }
@@ -156,29 +198,51 @@ button:active:not(:disabled), [role="button"]:active:not(:disabled) {
 .react-flow__minimap {
   background-color: var(--bg-canvas) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
   overflow: hidden;
 }
 
-/* Tactile Custom Scrollbars */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-canvas);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
+/* ==========================================================================
+   Hardware Studio Surface Textures & Knurled Aesthetics
+   ========================================================================= */
 
-/* Subtle Film Grain Texture */
+/* Studio Film Grain Texture */
 .studio-film-grain {
   background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 0);
   background-size: 24px 24px;
+}
+
+/* Brushed Carbon Hardware Panel */
+.hardware-panel {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Recessed Machine Cutout */
+.recessed-well {
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Physical Rotary Jog Dial */
+.jog-dial-ring {
+  background: conic-gradient(
+    from 0deg,
+    #21242E 0deg,
+    #191B22 90deg,
+    #21242E 180deg,
+    #191B22 270deg,
+    #21242E 360deg
+  );
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+/* Anamorphic Framing Crosshair Lines */
+.cinema-guide-line {
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0.22);
 }

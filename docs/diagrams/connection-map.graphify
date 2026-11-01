@@ -1,0 +1,17 @@
+{
+  "title": "Connection Map - KinoBeat-Studio",
+  "diagramType": "connection-map",
+  "generator": "update-docs-engine",
+  "nodes": [
+    {
+      "id": "cm",
+      "label": "System Links",
+      "sub": "Internal & External",
+      "x": 50,
+      "y": 50,
+      "color": "#1E293B",
+      "border": "#38BDF8"
+    }
+  ],
+  "edges": []
+}

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Play, Pause, Sparkles, ArrowRight, Music, Film, Compass, Cpu, Check, Volume2 } from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { useStudioStore, SceneClip, CaptionItem } from '../../lib/store/studioStore';
 import { beatDetector } from '../../lib/audio/beatDetector';
 import { synthesizeAudioTrack } from '../../lib/audio/audioSynthesizer';
@@ -287,6 +288,155 @@ const TEMPLATES: TemplateReel[] = [
   },
 ];
 
+// Spotlight Card component with zero-re-render pointer physics (§ motion-physics.md)
+function SpotlightTemplateCard({
+  template,
+  isPlaying,
+  isLoaded,
+  onToggleAudio,
+  onLoad,
+}: {
+  template: TemplateReel;
+  isPlaying: boolean;
+  isLoaded: boolean;
+  onToggleAudio: () => void;
+  onLoad: () => void;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(-1000);
+  const mouseY = useMotionValue(-1000);
+  const smoothX = useSpring(mouseX, { stiffness: 350, damping: 35 });
+  const smoothY = useSpring(mouseY, { stiffness: 350, damping: 35 });
+
+  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
+  }
+
+  function handlePointerLeave() {
+    mouseX.set(-1000);
+    mouseY.set(-1000);
+  }
+
+  const spotlightBg = useTransform(
+    [smoothX, smoothY],
+    ([x, y]) => `radial-gradient(380px circle at ${x}px ${y}px, rgba(255, 85, 0, 0.12), transparent 80%)`
+  );
+
+  return (
+    <div
+      ref={cardRef}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      className="group relative bg-[#191B22] border border-white/[0.08] hover:border-white/[0.22] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col"
+    >
+      <motion.div className="pointer-events-none absolute inset-0 z-10" style={{ background: spotlightBg }} />
+
+      {/* Cover Image & Live Overlay */}
+      <div className="relative aspect-video w-full overflow-hidden bg-[#0D0E12]">
+        <img
+          src={template.coverImage}
+          alt={template.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#191B22] via-transparent to-black/50" />
+
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20">
+          <span className="px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md border border-white/10 text-[10px] font-mono uppercase tracking-wider text-zinc-200">
+            {template.genre}
+          </span>
+          <span className="px-2.5 py-1 rounded-md bg-[#FF5500] text-black font-semibold text-[10px] font-mono tracking-wider shadow-sm">
+            {template.bpm} BPM
+          </span>
+        </div>
+
+        {/* Audio Preview Button */}
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.95 }}
+          type="button"
+          onClick={onToggleAudio}
+          className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg backdrop-blur-md border text-xs font-mono flex items-center gap-2 transition-all cursor-pointer z-20 ${
+            isPlaying
+              ? 'bg-[#FF5500] text-black border-[#FF5500] font-semibold shadow-[0_0_12px_rgba(255,85,0,0.5)]'
+              : 'bg-black/80 text-white border-white/15 hover:bg-white/15'
+          }`}
+        >
+          {isPlaying ? (
+            <>
+              <Pause className="w-3.5 h-3.5 fill-current" />
+              <span>Previewing Beat...</span>
+              {/* Animated Equalizer Bars */}
+              <span className="flex items-end gap-0.5 h-3 ml-1">
+                <span className="w-0.5 h-3 bg-black rounded-full animate-bounce" />
+                <span className="w-0.5 h-2 bg-black rounded-full animate-bounce [animation-delay:150ms]" />
+                <span className="w-0.5 h-2.5 bg-black rounded-full animate-bounce [animation-delay:300ms]" />
+              </span>
+            </>
+          ) : (
+            <>
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>Audition Stem</span>
+            </>
+          )}
+        </motion.button>
+      </div>
+
+      {/* Body */}
+      <div className="p-5 flex-1 flex flex-col justify-between space-y-4 relative z-20">
+        <div>
+          <h3 className="text-lg font-bold font-display text-white tracking-tight mb-1.5 flex items-center justify-between">
+            <span>{template.title}</span>
+            <span className="text-[11px] font-mono font-normal text-zinc-500">
+              {template.scenes.length} Scenes · 10.0s
+            </span>
+          </h3>
+          <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+            {template.tagline}
+          </p>
+
+          {/* Metadata Matrix */}
+          <div className="grid grid-cols-2 gap-2 text-[11px] font-mono bg-[#0D0E12] p-3 rounded-lg border border-white/[0.06]">
+            <div>
+              <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Optics Curve</span>
+              <span className="text-zinc-200">{template.camera}</span>
+            </div>
+            <div>
+              <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Generative Model</span>
+              <span className="text-zinc-200">{template.model}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action CTA */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="button"
+          onClick={onLoad}
+          disabled={isLoaded}
+          className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-[#FF5500] text-white hover:text-black font-semibold text-xs font-mono transition-all duration-200 flex items-center justify-center gap-2 border border-white/10 hover:border-[#FF5500] cursor-pointer shadow-sm"
+        >
+          {isLoaded ? (
+            <>
+              <Check className="w-4 h-4 stroke-[2]" />
+              <span>Loading Sequence...</span>
+            </>
+          ) : (
+            <>
+              <span>Load Template into Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </>
+          )}
+        </motion.button>
+      </div>
+    </div>
+  );
+}
+
 export const ShowcaseView: React.FC = () => {
   const setWorkspaceView = useStudioStore((s) => s.setWorkspaceView);
   const setBeatsAndBpm = useStudioStore((s) => s.setBeatsAndBpm);
@@ -361,7 +511,7 @@ export const ShowcaseView: React.FC = () => {
       {/* Hero Header */}
       <div className="max-w-6xl mx-auto mb-10">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse shadow-[0_0_8px_#FF5500]" />
           <span className="text-[11px] font-mono tracking-widest uppercase text-zinc-400">
             CINEMATIC PRESETS & REELS ARCHIVE
           </span>
@@ -375,100 +525,18 @@ export const ShowcaseView: React.FC = () => {
         </p>
       </div>
 
-      {/* Grid of Templates */}
+      {/* Grid of Templates with Pointer Physics */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {TEMPLATES.map((tmpl) => {
-          const isPlayingThis = playingTrackId === tmpl.trackId;
-          const isLoaded = loadedTemplateId === tmpl.id;
-
-          return (
-            <div
-              key={tmpl.id}
-              className="group bg-[#191B22] border border-white/[0.08] hover:border-white/[0.18] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col"
-            >
-              {/* Cover Image & Live Overlay */}
-              <div className="relative aspect-video w-full overflow-hidden bg-[#0D0E12]">
-                <img
-                  src={tmpl.coverImage}
-                  alt={tmpl.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#191B22] via-transparent to-black/40" />
-
-                {/* Top Badges */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[10px] font-mono uppercase tracking-wider text-zinc-200">
-                    {tmpl.genre}
-                  </span>
-                  <span className="px-2.5 py-1 rounded-md bg-[#FF5500]/90 text-black font-semibold text-[10px] font-mono tracking-wider">
-                    {tmpl.bpm} BPM
-                  </span>
-                </div>
-
-                {/* Audio Preview Button */}
-                <button
-                  type="button"
-                  onClick={() => handleToggleAudioPreview(tmpl.trackId)}
-                  className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg backdrop-blur-md border text-xs font-mono flex items-center gap-2 transition-all cursor-pointer ${
-                    isPlayingThis
-                      ? 'bg-[#FF5500] text-black border-[#FF5500] font-semibold'
-                      : 'bg-black/80 text-white border-white/15 hover:bg-white/15'
-                  }`}
-                >
-                  {isPlayingThis ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
-                  <span>{isPlayingThis ? 'Previewing Beat...' : 'Audition Stem'}</span>
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div>
-                  <h3 className="text-lg font-bold font-display text-white tracking-tight mb-1.5 flex items-center justify-between">
-                    <span>{tmpl.title}</span>
-                    <span className="text-[11px] font-mono font-normal text-zinc-500">
-                      {tmpl.scenes.length} Scenes · 10.0s
-                    </span>
-                  </h3>
-                  <p className="text-xs text-zinc-400 leading-relaxed mb-4">
-                    {tmpl.tagline}
-                  </p>
-
-                  {/* Metadata Matrix */}
-                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono bg-[#0D0E12] p-3 rounded-lg border border-white/[0.06]">
-                    <div>
-                      <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Optics Curve</span>
-                      <span className="text-zinc-200">{tmpl.camera}</span>
-                    </div>
-                    <div>
-                      <span className="text-zinc-500 block text-[9px] uppercase tracking-wider">Generative Model</span>
-                      <span className="text-zinc-200">{tmpl.model}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action CTA */}
-                <button
-                  type="button"
-                  onClick={() => handleLoadTemplate(tmpl)}
-                  disabled={isLoaded}
-                  className="w-full py-2.5 px-4 rounded-lg bg-white/10 hover:bg-[#FF5500] text-white hover:text-black font-semibold text-xs font-mono transition-all duration-200 flex items-center justify-center gap-2 border border-white/10 hover:border-[#FF5500] cursor-pointer shadow-sm active:scale-98"
-                >
-                  {isLoaded ? (
-                    <>
-                      <Check className="w-4 h-4 stroke-[2]" />
-                      <span>Loading Sequence...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Load Template into Studio</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          );
-        })}
+        {TEMPLATES.map((tmpl) => (
+          <SpotlightTemplateCard
+            key={tmpl.id}
+            template={tmpl}
+            isPlaying={playingTrackId === tmpl.trackId}
+            isLoaded={loadedTemplateId === tmpl.id}
+            onToggleAudio={() => handleToggleAudioPreview(tmpl.trackId)}
+            onLoad={() => handleLoadTemplate(tmpl)}
+          />
+        ))}
       </div>
     </div>
   );

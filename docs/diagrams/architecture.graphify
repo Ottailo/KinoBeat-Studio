@@ -1,0 +1,17 @@
+{
+  "title": "System Architecture - KinoBeat-Studio",
+  "diagramType": "architecture",
+  "generator": "update-docs-engine",
+  "nodes": [
+    {
+      "id": "core",
+      "label": "KinoBeat-Studio Core",
+      "sub": "55 files, ~11595 LOC",
+      "x": 50,
+      "y": 50,
+      "color": "#065F46",
+      "border": "#10B981"
+    }
+  ],
+  "edges": []
+}

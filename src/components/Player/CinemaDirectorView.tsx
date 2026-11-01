@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -15,7 +15,12 @@ import {
   ChevronRight,
   Plus,
   Maximize2,
+  Grid,
+  Crosshair,
+  Crop,
+  RotateCw,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Player, PlayerRef } from '@remotion/player';
 import { KinoComposition } from './KinoComposition';
 import { useStudioStore } from '../../lib/store/studioStore';
@@ -47,6 +52,18 @@ export const CinemaDirectorView: React.FC = () => {
   const activeScene = scenes[activeSceneIndex] || scenes[0];
   const playerRef = useRef<PlayerRef>(null);
   const fps = 30;
+
+  // Anamorphic Framing Guides Overlays
+  const [showGrid, setShowGrid] = useState(false);
+  const [showReticle, setShowReticle] = useState(true);
+  const [showScopeGuides, setShowScopeGuides] = useState(false);
+  const [showTitleSafe, setShowTitleSafe] = useState(false);
+
+  // Signature Element: Tactile Jog-Shuttle Wheel State
+  const [jogRotation, setJogRotation] = useState(0);
+  const [isJogDragging, setIsJogDragging] = useState(false);
+  const jogDragStartRef = useRef<{ x: number; y: number; time: number; angle: number }>({ x: 0, y: 0, time: 0, angle: 0 });
+  const jogWheelRef = useRef<HTMLDivElement>(null);
 
   // Sync player seek
   useEffect(() => {
@@ -84,6 +101,13 @@ export const CinemaDirectorView: React.FC = () => {
     updateScene(activeSceneIndex, { prompt: enhanced });
   };
 
+  const handleAddPromptModifier = (mod: string) => {
+    if (!activeScene) return;
+    if (activeScene.prompt.includes(mod)) return;
+    const newPrompt = activeScene.prompt.trim() ? `${activeScene.prompt.trim()}, ${mod}` : mod;
+    updateScene(activeSceneIndex, { prompt: newPrompt });
+  };
+
   const handleGenerateShot = () => {
     useStudioStore.setState({ isGeneratingVideo: true, generationProgress: 10 });
     setTimeout(() => useStudioStore.setState({ generationProgress: 50 }), 400);
@@ -91,6 +115,36 @@ export const CinemaDirectorView: React.FC = () => {
       useStudioStore.setState({ isGeneratingVideo: false, generationProgress: 100 });
       updateScene(activeSceneIndex, { status: 'ready' });
     }, 900);
+  };
+
+  // Jog-Wheel Rotary Scrubbing Mechanics
+  const handleJogPointerDown = (e: React.PointerEvent) => {
+    setIsJogDragging(true);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    jogDragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      time: currentTime,
+      angle: jogRotation,
+    };
+  };
+
+  const handleJogPointerMove = (e: React.PointerEvent) => {
+    if (!isJogDragging) return;
+    const dx = e.clientX - jogDragStartRef.current.x;
+    // 1 frame per 10 pixels moved
+    const frameDelta = Math.round(dx / 8);
+    const timeDelta = frameDelta / fps;
+    const newTime = Math.max(0, Math.min(duration, jogDragStartRef.current.time + timeDelta));
+    seekTo(newTime);
+    setJogRotation(jogDragStartRef.current.angle + dx * 1.5);
+  };
+
+  const handleJogPointerUp = (e: React.PointerEvent) => {
+    setIsJogDragging(false);
+    try {
+      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
   let compWidth = 1920;
@@ -111,6 +165,14 @@ export const CinemaDirectorView: React.FC = () => {
     aspectStyle = 'aspect-[21/9]';
   }
 
+  const PROMPT_MODIFIERS = [
+    'volumetric lighting',
+    '35mm bloom',
+    'anamorphic blue flare',
+    'Kodak 5219 grain',
+    'hyper-detailed',
+  ];
+
   return (
     <div className="flex-1 flex overflow-hidden bg-[#121317] text-zinc-100 select-none">
       {/* Left/Center Cinema Viewport Stage */}
@@ -119,29 +181,66 @@ export const CinemaDirectorView: React.FC = () => {
         <div className="h-10 px-4 flex items-center justify-between border-b border-white/[0.08] bg-[#191B22]/90 backdrop-blur-md text-xs font-mono">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 bg-[#21242E] px-2.5 py-1 rounded-md border border-white/[0.08]">
-              <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-[#FF5500] animate-pulse' : 'bg-zinc-500'}`} />
+              <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-[#FF5500] animate-pulse shadow-[0_0_8px_#FF5500]' : 'bg-zinc-500'}`} />
               <span className="font-semibold text-zinc-200">MASTER MONITOR</span>
             </div>
             <span className="text-zinc-600">|</span>
             <span className="text-zinc-400">4K CINEMA (3840×2160) · 30 FPS · DCI SCOPE</span>
           </div>
 
-          {/* Aspect Ratio Switcher */}
-          <div className="flex items-center gap-1 bg-[#0D0E12] p-0.5 rounded-md border border-white/[0.08]">
-            {(['16:9', '9:16', '1:1', '21:9'] as const).map((r) => (
+          {/* Monitor Overlay Tools & Aspect Switcher */}
+          <div className="flex items-center gap-3">
+            {/* Anamorphic Framing Overlays Toggles */}
+            <div className="flex items-center gap-1 bg-[#0D0E12] p-0.5 rounded-md border border-white/[0.08]">
               <button
-                key={r}
                 type="button"
-                onClick={() => setAspectRatio(r)}
-                className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors cursor-pointer ${
-                  aspectRatio === r
-                    ? 'bg-[#21242E] text-white font-bold border border-[#FF5500]/50 text-[#FF5500]'
-                    : 'text-zinc-400 hover:text-white'
+                onClick={() => setShowReticle(!showReticle)}
+                className={`p-1 rounded text-[10px] transition-colors cursor-pointer ${
+                  showReticle ? 'bg-[#21242E] text-[#FF5500]' : 'text-zinc-400 hover:text-white'
                 }`}
+                title="Toggle Center Optical Reticle"
               >
-                {r}
+                <Crosshair className="w-3 h-3" />
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={() => setShowGrid(!showGrid)}
+                className={`p-1 rounded text-[10px] transition-colors cursor-pointer ${
+                  showGrid ? 'bg-[#21242E] text-[#FF5500]' : 'text-zinc-400 hover:text-white'
+                }`}
+                title="Toggle Rule of Thirds Grid"
+              >
+                <Grid className="w-3 h-3" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowScopeGuides(!showScopeGuides)}
+                className={`p-1 rounded text-[10px] transition-colors cursor-pointer ${
+                  showScopeGuides ? 'bg-[#21242E] text-[#FF5500]' : 'text-zinc-400 hover:text-white'
+                }`}
+                title="Toggle 2.39:1 Cinemascope Framing Guides"
+              >
+                <Crop className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* Aspect Ratio Switcher */}
+            <div className="flex items-center gap-1 bg-[#0D0E12] p-0.5 rounded-md border border-white/[0.08]">
+              {(['16:9', '9:16', '1:1', '21:9'] as const).map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setAspectRatio(r)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono transition-colors cursor-pointer ${
+                    aspectRatio === r
+                      ? 'bg-[#21242E] text-white font-bold border border-[#FF5500]/50 text-[#FF5500]'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -172,6 +271,43 @@ export const CinemaDirectorView: React.FC = () => {
               loop
               acknowledgeRemotionLicense
             />
+
+            {/* Framing Guide Overlays */}
+            {showScopeGuides && (
+              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between">
+                <div className="h-[12.5%] bg-black/60 border-b border-white/20 flex items-end px-3 pb-1 text-[9px] font-mono text-zinc-400">
+                  <span>2.39:1 CINEMASCOPE MASK</span>
+                </div>
+                <div className="h-[12.5%] bg-black/60 border-t border-white/20" />
+              </div>
+            )}
+
+            {showGrid && (
+              <div className="pointer-events-none absolute inset-0 grid grid-cols-3 grid-rows-3">
+                <div className="border-r border-b border-white/15" />
+                <div className="border-r border-b border-white/15" />
+                <div className="border-b border-white/15" />
+                <div className="border-r border-b border-white/15" />
+                <div className="border-r border-b border-white/15" />
+                <div className="border-b border-white/15" />
+                <div className="border-r border-white/15" />
+                <div className="border-r border-white/15" />
+                <div />
+              </div>
+            )}
+
+            {showReticle && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <div className="relative w-8 h-8 flex items-center justify-center">
+                  <div className="absolute w-full h-[1px] bg-[#FF5500]/60" />
+                  <div className="absolute h-full w-[1px] bg-[#FF5500]/60" />
+                  <div className="w-3 h-3 rounded-full border border-[#FF5500]/70" />
+                  <span className="absolute top-5 font-mono text-[9px] text-[#FF5500] tracking-wider uppercase font-semibold">
+                    {activeScene?.focalLength || '35mm'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -184,7 +320,9 @@ export const CinemaDirectorView: React.FC = () => {
             </span>
             <div className="flex items-center gap-1.5 flex-1 overflow-x-auto py-0.5">
               {scenes.map((sc, idx) => (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   key={sc.id}
                   type="button"
                   onClick={() => selectScene(idx)}
@@ -202,10 +340,12 @@ export const CinemaDirectorView: React.FC = () => {
                   <span className="text-[10px] text-zinc-500">
                     {sc.duration.toFixed(1)}s
                   </span>
-                </button>
+                </motion.button>
               ))}
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.96 }}
                 type="button"
                 onClick={addScene}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#0D0E12] hover:bg-[#21242E] border border-white/[0.08] text-zinc-400 hover:text-white text-xs font-mono transition-colors shrink-0 cursor-pointer"
@@ -213,12 +353,12 @@ export const CinemaDirectorView: React.FC = () => {
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Shot</span>
-              </button>
+              </motion.button>
             </div>
           </div>
 
-          {/* Transport Controls & Timecode */}
-          <div className="h-14 px-6 flex items-center justify-between">
+          {/* Transport Controls, Timecode & Signature Tactile Jog-Shuttle Scrubber */}
+          <div className="h-16 px-6 flex items-center justify-between">
             {/* SMPTE HUD */}
             <div className="flex items-center gap-2 font-mono text-xs">
               <span className="text-zinc-100 font-semibold smpte-timecode bg-[#21242E] px-2.5 py-1 rounded-md border border-white/[0.08]">
@@ -228,34 +368,71 @@ export const CinemaDirectorView: React.FC = () => {
               <span className="text-zinc-400">{formatSMPTE(duration)}</span>
             </div>
 
-            {/* Centered Transport Controls */}
-            <div className="flex items-center gap-2">
-              <button
+            {/* Center: Tactile Jog-Shuttle Wheel & Transport Controls */}
+            <div className="flex items-center gap-4">
+              {/* Step Back Button */}
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
                 type="button"
                 onClick={() => stepFrame(-1)}
-                className="p-2 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                className="p-2.5 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
                 title="Step Back 1 Frame (Left Arrow)"
               >
-                <SkipBack className="w-3.5 h-3.5" />
-              </button>
+                <SkipBack className="w-4 h-4" />
+              </motion.button>
 
-              <button
+              {/* Signature Element: Interactive Rotary Jog-Shuttle Wheel */}
+              <div className="flex items-center gap-2 px-2 py-1 rounded-xl bg-[#0D0E12] border border-white/[0.08]">
+                <div
+                  ref={jogWheelRef}
+                  onPointerDown={handleJogPointerDown}
+                  onPointerMove={handleJogPointerMove}
+                  onPointerUp={handleJogPointerUp}
+                  className="relative w-10 h-10 rounded-full jog-dial-ring border border-white/20 flex items-center justify-center cursor-ew-resize touch-none select-none group"
+                  title="Drag left/right to rotary scrub frames with sub-frame inertia"
+                >
+                  {/* Rotary Needle Indicator */}
+                  <div
+                    className="absolute w-full h-full pointer-events-none transition-transform"
+                    style={{ transform: `rotate(${jogRotation}deg)` }}
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#FF5500] absolute top-1 left-1/2 -translate-x-1/2 shadow-[0_0_6px_#FF5500]" />
+                  </div>
+                  <div className="w-3 h-3 rounded-full bg-[#121317] border border-white/30" />
+                </div>
+                <div className="flex flex-col text-[9px] font-mono leading-tight">
+                  <span className="text-zinc-400 font-semibold uppercase">JOG SHUTTLE</span>
+                  <span className="text-[#FF5500]">
+                    {isJogDragging ? 'SCRUBBING' : 'READY'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Master Play/Pause with Glowing Signal Orange Tally */}
+              <motion.button
+                whileHover={{ scale: 1.06, boxShadow: '0 0 16px rgba(255,85,0,0.5)' }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                 type="button"
                 onClick={togglePlay}
-                className="p-2.5 rounded-full bg-[#FF5500] hover:bg-[#FF661A] text-black transition-all shadow-md active:scale-95 cursor-pointer"
+                className="p-3 rounded-full bg-[#FF5500] hover:bg-[#FF661A] text-black transition-all shadow-md cursor-pointer"
                 title="Play / Pause (Space)"
               >
                 {isPlaying ? <Pause className="w-4 h-4 fill-current stroke-[2.5]" /> : <Play className="w-4 h-4 fill-current ml-0.5 stroke-[2.5]" />}
-              </button>
+              </motion.button>
 
-              <button
+              {/* Step Forward Button */}
+              <motion.button
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
                 type="button"
                 onClick={() => stepFrame(1)}
-                className="p-2 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                className="p-2.5 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
                 title="Step Forward 1 Frame (Right Arrow)"
               >
-                <SkipForward className="w-3.5 h-3.5" />
-              </button>
+                <SkipForward className="w-4 h-4" />
+              </motion.button>
             </div>
 
             {/* Quick Stats */}
@@ -395,20 +572,41 @@ export const CinemaDirectorView: React.FC = () => {
               onChange={(e) => updateScene(activeSceneIndex, { prompt: e.target.value })}
               className="w-full bg-[#191B22] border border-white/[0.08] rounded-lg p-2.5 text-xs text-zinc-200 focus:outline-none focus:border-[#FF5500]/60 resize-none leading-relaxed"
             />
+
+            {/* Quick Cinema Modifier Chips */}
+            <div>
+              <span className="text-[9px] font-mono uppercase tracking-wider text-zinc-500 block mb-1">
+                Insert Style Chips:
+              </span>
+              <div className="flex flex-wrap gap-1">
+                {PROMPT_MODIFIERS.map((mod) => (
+                  <button
+                    key={mod}
+                    type="button"
+                    onClick={() => handleAddPromptModifier(mod)}
+                    className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    +{mod}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Generate Button Footer */}
         <div className="pt-3 border-t border-white/[0.08]">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="button"
             onClick={handleGenerateShot}
             disabled={isGeneratingVideo}
-            className="w-full py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-50 cursor-pointer active:scale-98 font-mono"
+            className="w-full py-2.5 rounded-lg bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-50 cursor-pointer font-mono"
           >
             <Sparkles className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>{isGeneratingVideo ? 'Generating Video Shot...' : 'Generate Video Shot'}</span>
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>

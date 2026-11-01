@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Upload, Sparkles, Music, Type, Film, ArrowRight, CheckCircle2, Circle } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useStudioStore } from '../../lib/store/studioStore';
 
 interface WorkflowCard {
@@ -109,7 +110,7 @@ export const WorkflowsView: React.FC = () => {
     <div className="flex-1 overflow-y-auto bg-[#121317] text-white p-6 md:p-10 font-sans select-none">
       <div className="max-w-6xl mx-auto mb-10">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-[#FF5500]" />
+          <div className="w-2 h-2 rounded-full bg-[#FF5500] shadow-[0_0_8px_#FF5500]" />
           <span className="text-[11px] font-mono tracking-widest uppercase text-zinc-400">
             CREATOR PERSONA ARCHITECTURE
           </span>
@@ -128,12 +129,14 @@ export const WorkflowsView: React.FC = () => {
           {WORKFLOWS.map((wf) => {
             const isActive = wf.id === activeWorkflowId;
             return (
-              <div
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 key={wf.id}
                 onClick={() => setActiveWorkflowId(wf.id)}
-                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                className={`p-4 rounded-xl border transition-all cursor-pointer relative ${
                   isActive
-                    ? 'bg-[#191B22] border-[#FF5500] shadow-lg shadow-[#FF5500]/5'
+                    ? 'bg-[#191B22] border-[#FF5500] shadow-lg shadow-[#FF5500]/5 ring-1 ring-[#FF5500]/30'
                     : 'bg-[#15171D] border-white/[0.06] hover:border-white/15'
                 }`}
               >
@@ -146,12 +149,12 @@ export const WorkflowsView: React.FC = () => {
                       {wf.title}
                     </span>
                   </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#FF5500]" />}
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#FF5500] shadow-[0_0_6px_#FF5500]" />}
                 </div>
                 <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 pl-9">
                   {wf.role}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -203,14 +206,16 @@ export const WorkflowsView: React.FC = () => {
             </div>
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02, boxShadow: '0 0 16px rgba(255,85,0,0.4)' }}
+            whileTap={{ scale: 0.98 }}
             type="button"
             onClick={() => setWorkspaceView(selected.viewTarget)}
-            className="w-full py-3 px-5 rounded-xl bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs font-mono transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-98"
+            className="w-full py-3 px-5 rounded-xl bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs font-mono transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
           >
             <span>{selected.actionText}</span>
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>

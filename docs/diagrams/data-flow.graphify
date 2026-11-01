@@ -1,0 +1,17 @@
+{
+  "title": "Data Flow - KinoBeat-Studio",
+  "diagramType": "data-flow",
+  "generator": "update-docs-engine",
+  "nodes": [
+    {
+      "id": "df",
+      "label": "Processing Pipeline",
+      "sub": "Input to Output",
+      "x": 50,
+      "y": 50,
+      "color": "#78350F",
+      "border": "#F59E0B"
+    }
+  ],
+  "edges": []
+}

@@ -2,7 +2,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import { Player, PlayerRef } from '@remotion/player';
-import { Radio, Music2, Activity, Volume2 } from 'lucide-react';
+import { Radio, Music2, Activity, Volume2, Sparkles, Layers } from 'lucide-react';
+import { motion } from 'motion/react';
 import { KinoComposition } from '../Player/KinoComposition';
 import { MultiTrackTimeline } from './MultiTrackTimeline';
 import { useStudioStore } from '../../lib/store/studioStore';
@@ -49,11 +50,22 @@ export const TimelineSuiteView: React.FC = () => {
     compHeight = 1920;
   }
 
+  // Format SMPTE Timecode HH:MM:SS:FF
+  const formatSMPTE = (timeSec: number) => {
+    const totalFramesCount = Math.floor(timeSec * fps);
+    const ff = totalFramesCount % fps;
+    const totalSeconds = Math.floor(timeSec);
+    const ss = totalSeconds % 60;
+    const mm = Math.floor(totalSeconds / 60) % 60;
+    const hh = Math.floor(totalSeconds / 3600);
+    return `${hh.toString().padStart(2, '0')}:${mm.toString().padStart(2, '0')}:${ss.toString().padStart(2, '0')}:${ff.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#121317] text-zinc-100 select-none">
       {/* Top Preview Stage & Audio Telemetry */}
       <div className="h-68 px-4 py-3 flex gap-4 border-b border-white/[0.08] bg-[#0E0F13]">
-        {/* Left: Program Monitor Preview */}
+        {/* Left: Program Monitor Preview with Broadcast Overlay */}
         <div className="w-[440px] bg-black rounded-xl overflow-hidden border border-white/[0.12] relative shadow-2xl shrink-0 flex items-center justify-center">
           <Player
             ref={playerRef}
@@ -77,13 +89,18 @@ export const TimelineSuiteView: React.FC = () => {
             acknowledgeRemotionLicense
           />
           {/* Subtle Monitor HUD badge */}
-          <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-300">
-            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-[#FF5500] animate-pulse' : 'bg-zinc-500'}`} />
-            <span>PROGRAM</span>
+          <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-300">
+            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-[#FF5500] animate-pulse shadow-[0_0_6px_#FF5500]' : 'bg-zinc-500'}`} />
+            <span className="font-semibold text-zinc-200">PROGRAM // DCI SCOPE</span>
+          </div>
+
+          {/* Timecode Burn-in Badge */}
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/80 border border-white/10 text-[10px] font-mono text-[#FF5500]">
+            {formatSMPTE(currentTime)}
           </div>
         </div>
 
-        {/* Right: Audio FFT Spectrogram & Master Telemetry */}
+        {/* Right: Audio FFT Spectrogram & Master Telemetry Console */}
         <div className="flex-1 rounded-xl bg-[#191B22] border border-white/[0.08] p-3.5 flex flex-col justify-between shadow-lg">
           <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
             <div className="flex items-center gap-2">
@@ -100,24 +117,35 @@ export const TimelineSuiteView: React.FC = () => {
             </div>
           </div>
 
-          {/* Real-time Spectrum Waveform */}
-          <div className="flex-1 flex items-end gap-[3px] py-3">
-            {(audioWaveform.length > 0 ? audioWaveform : Array.from({ length: 48 }).map((_, i) => Math.sin(i * 0.2) * 0.5 + 0.5)).map((val, i) => {
-              const heightPct = Math.max(8, Math.min(100, Math.round(val * 100)));
-              return (
-                <div
-                  key={i}
-                  style={{ height: `${heightPct}%` }}
-                  className={`flex-1 rounded-t-[2px] transition-all duration-75 ${
-                    val > 0.8
-                      ? 'bg-[#FF5500]'
-                      : val > 0.5
-                      ? 'bg-zinc-300'
-                      : 'bg-zinc-700'
-                  }`}
-                />
-              );
-            })}
+          {/* Real-time Spectrum Waveform with Phosphor Gradient & Transient Pulse */}
+          <div className="flex-1 flex flex-col justify-end py-2">
+            <div className="flex items-end gap-[3px] h-28">
+              {(audioWaveform.length > 0 ? audioWaveform : Array.from({ length: 54 }).map((_, i) => Math.sin(i * 0.22) * 0.45 + 0.45)).map((val, i) => {
+                const heightPct = Math.max(6, Math.min(100, Math.round(val * 100)));
+                const isTransient = val > 0.78;
+                return (
+                  <div
+                    key={i}
+                    style={{ height: `${heightPct}%` }}
+                    className={`flex-1 rounded-t-[2px] transition-all duration-75 ${
+                      isTransient
+                        ? 'bg-[#FF5500] shadow-[0_0_8px_rgba(255,85,0,0.6)]'
+                        : val > 0.45
+                        ? 'bg-zinc-200'
+                        : 'bg-zinc-700'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+            {/* Frequency Bands Marker Labels */}
+            <div className="flex justify-between text-[8px] font-mono text-zinc-500 pt-1 border-t border-white/[0.04]">
+              <span>20Hz SUB</span>
+              <span>120Hz BASS</span>
+              <span>1kHz MID</span>
+              <span>4kHz HIGH-MID</span>
+              <span>16kHz BRILLIANCE</span>
+            </div>
           </div>
 
           {/* Shot Info Footer */}

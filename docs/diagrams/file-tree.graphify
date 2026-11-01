@@ -1,0 +1,17 @@
+{
+  "title": "File Structure - KinoBeat-Studio",
+  "diagramType": "file-tree",
+  "generator": "update-docs-engine",
+  "nodes": [
+    {
+      "id": "root",
+      "label": "KinoBeat-Studio/",
+      "sub": "55 files, ~12,014 LOC",
+      "x": 50,
+      "y": 50,
+      "color": "#1E3A8A",
+      "border": "#3B82F6"
+    }
+  ],
+  "edges": []
+}

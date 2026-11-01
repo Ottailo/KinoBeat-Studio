@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import {
   Download,
-  Github,
   Key,
   Volume2,
   VolumeX,
@@ -15,7 +14,9 @@ import {
   Layers,
   Video,
   Film,
+  Sparkles,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useStudioStore } from '../../lib/store/studioStore';
 
 interface HeaderProps {
@@ -74,13 +75,25 @@ export const Header: React.FC<HeaderProps> = ({
     }, 600);
   };
 
+  const WORKSPACES = [
+    { id: 'director' as const, label: 'Director', icon: Video, title: 'Cinema Director Split Viewport & Optics' },
+    { id: 'timeline' as const, label: 'Timeline', icon: Film, title: 'Expanded NLE Multi-Track Timeline Suite' },
+    { id: 'canvas' as const, label: 'Nodes', icon: Layers, title: 'Infinite Node Workflow Canvas' },
+    { id: 'showcase' as const, label: 'Reels', badge: '★', title: 'Production Beat Sequences & Reels Archive' },
+    { id: 'workflows' as const, label: 'Personas', badge: '◈', title: '5-Persona Architecture & Workflows' },
+  ];
+
   return (
     <header className="h-14 bg-[#121317]/95 backdrop-blur-md border-b border-white/[0.08] px-4 flex items-center justify-between text-zinc-100 select-none z-50">
       {/* Brand & Identity: Refined Industrial Wordmark */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           {/* Studio Anamorphic Aperture Mark with Signal Orange Center */}
-          <div className="w-8 h-8 rounded-lg bg-[#191B22] border border-white/[0.12] flex items-center justify-center p-1 shadow-sm shrink-0">
+          <motion.div
+            whileHover={{ rotate: 90, scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="w-8 h-8 rounded-lg bg-[#191B22] border border-white/[0.12] flex items-center justify-center p-1 shadow-sm shrink-0 cursor-pointer"
+          >
             <svg
               viewBox="0 0 32 32"
               fill="none"
@@ -103,7 +116,7 @@ export const Header: React.FC<HeaderProps> = ({
               <line x1="5" y1="9" x2="16" y2="12" stroke="#64748B" strokeWidth="1.2" strokeOpacity="0.8" />
               <circle cx="16" cy="16" r="2.5" fill="#FF5500" />
             </svg>
-          </div>
+          </motion.div>
 
           {/* Clean Pro Wordmark & Project Subtitle */}
           <div className="flex flex-col">
@@ -124,77 +137,36 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Center: Tactile Workspace View Switcher & Master HUD */}
       <div className="flex items-center gap-3">
-        {/* Segmented Workspace View Switcher */}
-        <div className="flex items-center bg-[#191B22] p-1 rounded-lg border border-white/[0.08] gap-1 shadow-inner">
-          <button
-            type="button"
-            onClick={() => setWorkspaceView('director')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-              workspaceView === 'director'
-                ? 'bg-[#21242E] text-white shadow-sm border border-white/15 font-semibold text-[#FF5500]'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            title="Cinema Director Split Viewport & Optics"
-          >
-            <Video className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Director</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setWorkspaceView('timeline')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-              workspaceView === 'timeline'
-                ? 'bg-[#21242E] text-white shadow-sm border border-white/15 font-semibold text-[#FF5500]'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            title="Expanded NLE Multi-Track Timeline Suite"
-          >
-            <Film className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Timeline</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setWorkspaceView('canvas')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-              workspaceView === 'canvas'
-                ? 'bg-[#21242E] text-white shadow-sm border border-white/15 font-semibold text-[#FF5500]'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            title="Infinite Node Workflow Canvas"
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">Nodes</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setWorkspaceView('showcase')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-              workspaceView === 'showcase'
-                ? 'bg-[#21242E] text-white shadow-sm border border-white/15 font-semibold text-[#FF5500]'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            title="Production Beat Sequences & Reels Archive"
-          >
-            <span className="text-xs">★</span>
-            <span className="hidden lg:inline">Reels</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setWorkspaceView('workflows')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
-              workspaceView === 'workflows'
-                ? 'bg-[#21242E] text-white shadow-sm border border-white/15 font-semibold text-[#FF5500]'
-                : 'text-zinc-400 hover:text-zinc-200'
-            }`}
-            title="5-Persona Architecture & Workflows"
-          >
-            <span className="text-xs">◈</span>
-            <span className="hidden lg:inline">Personas</span>
-          </button>
+        {/* Segmented Workspace View Switcher with Spring Layout Transition */}
+        <div className="flex items-center bg-[#191B22] p-1 rounded-lg border border-white/[0.08] gap-1 shadow-inner relative">
+          {WORKSPACES.map((ws) => {
+            const isActive = workspaceView === ws.id;
+            const Icon = ws.icon;
+            return (
+              <button
+                key={ws.id}
+                type="button"
+                onClick={() => setWorkspaceView(ws.id)}
+                className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer z-10 ${
+                  isActive
+                    ? 'text-white font-semibold'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+                title={ws.title}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeWorkspacePill"
+                    transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+                    className="absolute inset-0 bg-[#21242E] rounded-md border border-white/15 shadow-sm -z-10"
+                  />
+                )}
+                {Icon && <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#FF5500]' : ''}`} />}
+                {ws.badge && <span className={`text-xs ${isActive ? 'text-[#FF5500]' : ''}`}>{ws.badge}</span>}
+                <span className="hidden md:inline">{ws.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Master SMPTE Broadcast Timecode HUD */}
@@ -203,7 +175,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 bg-[#191B22] border border-white/[0.08] rounded-md px-2.5 py-1">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isPlaying ? 'bg-[#FF5500] animate-pulse' : 'bg-zinc-500'
+                isPlaying ? 'bg-[#FF5500] animate-pulse shadow-[0_0_8px_#FF5500]' : 'bg-zinc-500'
               }`}
               title="Master Broadcast Clock"
             />
@@ -229,7 +201,7 @@ export const Header: React.FC<HeaderProps> = ({
               />
               <span
                 className={`w-1 rounded-xs transition-all duration-75 ${
-                  isPlaying ? 'bg-[#FF5500] h-3' : 'bg-zinc-700 h-1.5'
+                  isPlaying ? 'bg-[#FF5500] h-3 shadow-[0_0_6px_rgba(255,85,0,0.5)]' : 'bg-zinc-700 h-1.5'
                 }`}
               />
               <span
@@ -253,19 +225,23 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Action Group */}
       <div className="flex items-center gap-2">
         {/* Engine Diagnostics Button */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.96 }}
           type="button"
           onClick={() => setIsDiagnosticsOpen(true)}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
           title="Click to view Local Engine Diagnostics"
         >
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10B981]" />
           <span className="hidden sm:inline">Engine</span>
           <span className="text-zinc-100 font-medium">Ready</span>
-        </button>
+        </motion.button>
 
         {/* First-Run Onboarding Guide */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.96 }}
           type="button"
           onClick={onOpenGuide}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer"
@@ -273,10 +249,12 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <HelpCircle className="w-3.5 h-3.5 text-zinc-400" />
           <span className="hidden md:inline">Guide</span>
-        </button>
+        </motion.button>
 
         {/* Master Audio Mute Toggle */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           type="button"
           onClick={onToggleMute}
           className="p-1.5 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-zinc-300 hover:text-white transition-colors cursor-pointer"
@@ -287,10 +265,12 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             <Volume2 className="w-3.5 h-3.5 text-zinc-300" />
           )}
-        </button>
+        </motion.button>
 
         {/* BYOK API Key Vault */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.96 }}
           type="button"
           onClick={onOpenByok}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-xs font-medium text-zinc-300 hover:text-white transition-colors cursor-pointer"
@@ -298,84 +278,101 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Key className="w-3.5 h-3.5 text-zinc-400" />
           <span className="hidden sm:inline">BYOK</span>
-        </button>
+        </motion.button>
 
         {/* Primary Studio Action: Export 4K Master (Tactile Signal Orange Button) */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.03, boxShadow: '0 0 16px rgba(255,85,0,0.4)' }}
+          whileTap={{ scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
           type="button"
           onClick={onOpenExport}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs shadow-md active:scale-95 transition-all cursor-pointer font-mono"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#FF5500] hover:bg-[#FF661A] text-black font-bold text-xs shadow-md cursor-pointer font-mono"
         >
           <Download className="w-3.5 h-3.5 stroke-[2.5]" />
           <span>Export 4K</span>
           <span className="hidden md:inline text-[9px] px-1 py-0.2 bg-black/20 rounded text-black font-bold ml-0.5">
             ⌘E
           </span>
-        </button>
+        </motion.button>
       </div>
 
-      {/* Engine Diagnostics Modal */}
-      {isDiagnosticsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="w-full max-w-md rounded-xl bg-[#191B22] border border-white/[0.12] shadow-2xl overflow-hidden text-zinc-100 font-sans animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between px-4 py-3 bg-[#21242E] border-b border-white/[0.08]">
-              <div className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-[#FF5500]" />
-                <span className="text-xs font-semibold tracking-wide uppercase font-mono text-zinc-200">
-                  Local Engine Diagnostics // SYS-07
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsDiagnosticsOpen(false)}
-                className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-4 space-y-2.5 text-xs font-mono">
-              <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
-                <span className="text-zinc-400">Rendering Engine:</span>
-                <span className="text-zinc-200 font-medium">Remotion 4.x Client Pipeline</span>
-              </div>
-              <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
-                <span className="text-zinc-400">Audio FFT DSP:</span>
-                <span className="text-zinc-200 font-medium">Web Audio API 48kHz PCM</span>
-              </div>
-              <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
-                <span className="text-zinc-400">Deterministic Rasterizer:</span>
-                <span className="text-zinc-200 font-medium">Canvas 2D + MediaRecorder VP9</span>
-              </div>
-              <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
-                <span className="text-zinc-400">Cinematography Math:</span>
-                <span className="text-zinc-200 font-medium">6-DOF Matrix + Anamorphic Optics</span>
-              </div>
-              <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
-                <span className="text-zinc-400">Sandbox Isolation:</span>
-                <span className="text-zinc-200 font-medium">Zero Remote Exfiltration</span>
-              </div>
-
-              {benchmarkResult && (
-                <div className="p-2.5 rounded bg-[#21242E] border border-white/[0.12] text-zinc-200 text-[11px] flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-                  <span>{benchmarkResult}</span>
+      {/* Engine Diagnostics Modal with Spring Entrance */}
+      <AnimatePresence>
+        {isDiagnosticsOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              className="w-full max-w-md rounded-xl bg-[#191B22] border border-white/[0.12] shadow-2xl overflow-hidden text-zinc-100 font-sans"
+            >
+              <div className="flex items-center justify-between px-4 py-3 bg-[#21242E] border-b border-white/[0.08]">
+                <div className="flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-[#FF5500]" />
+                  <span className="text-xs font-semibold tracking-wide uppercase font-mono text-zinc-200">
+                    Local Engine Diagnostics // SYS-07
+                  </span>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setIsDiagnosticsOpen(false)}
+                  className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-              <button
-                type="button"
-                onClick={runBenchmark}
-                disabled={benchmarking}
-                className="w-full mt-2 py-2 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] text-zinc-100 text-xs font-medium border border-white/[0.12] flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                <Activity className="w-3.5 h-3.5 text-zinc-300" />
-                <span>{benchmarking ? 'Executing 120-Frame Raster Benchmark...' : 'Run Diagnostics Benchmark'}</span>
-              </button>
-            </div>
+              <div className="p-4 space-y-2.5 text-xs font-mono">
+                <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
+                  <span className="text-zinc-400">Rendering Engine:</span>
+                  <span className="text-zinc-200 font-medium">Remotion 4.x Client Pipeline</span>
+                </div>
+                <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
+                  <span className="text-zinc-400">Audio FFT DSP:</span>
+                  <span className="text-zinc-200 font-medium">Web Audio API 48kHz PCM</span>
+                </div>
+                <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
+                  <span className="text-zinc-400">Deterministic Rasterizer:</span>
+                  <span className="text-zinc-200 font-medium">Canvas 2D + MediaRecorder VP9</span>
+                </div>
+                <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
+                  <span className="text-zinc-400">Cinematography Math:</span>
+                  <span className="text-zinc-200 font-medium">6-DOF Matrix + Anamorphic Optics</span>
+                </div>
+                <div className="flex justify-between p-2 rounded bg-[#0D0E12] border border-white/[0.08]">
+                  <span className="text-zinc-400">Sandbox Isolation:</span>
+                  <span className="text-zinc-200 font-medium">Zero Remote Exfiltration</span>
+                </div>
+
+                {benchmarkResult && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-2.5 rounded bg-[#21242E] border border-white/[0.12] text-zinc-200 text-[11px] flex items-center gap-2"
+                  >
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <span>{benchmarkResult}</span>
+                  </motion.div>
+                )}
+
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={runBenchmark}
+                  disabled={benchmarking}
+                  className="w-full mt-2 py-2 rounded-md bg-[#21242E] hover:bg-[#2a2e3a] text-zinc-100 text-xs font-medium border border-white/[0.12] flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  <Activity className="w-3.5 h-3.5 text-zinc-300" />
+                  <span>{benchmarking ? 'Executing 120-Frame Raster Benchmark...' : 'Run Diagnostics Benchmark'}</span>
+                </motion.button>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </header>
   );
 };
