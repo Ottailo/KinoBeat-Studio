@@ -19,8 +19,10 @@ export const AudioVisualizerOverlay: React.FC<AudioVisualizerOverlayProps> = ({
     <div className="absolute top-4 left-6 right-6 flex items-center justify-between pointer-events-none z-20">
       {/* Top Left Clean Telemetry */}
       <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded border border-white/10 font-mono text-[10px] text-zinc-300">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#FF5500]" />
-        <span className="font-semibold text-zinc-100">4K DIT</span>
+        <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30">
+          [DIT]
+        </span>
+        <span className="font-semibold text-zinc-100">4K MASTER</span>
         <span className="text-zinc-500">|</span>
         <span>{bpm} BPM</span>
         <span className="text-zinc-500">|</span>

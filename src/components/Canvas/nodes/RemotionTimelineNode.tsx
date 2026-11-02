@@ -109,9 +109,8 @@ export const RemotionTimelineNode: React.FC<{
           </span>
         </div>
         <div className="flex items-center gap-1.5 font-mono text-[10px]">
-          <span className="flex items-center gap-1 text-rose-400 bg-[#0D0E12] px-1.5 py-0.5 rounded border border-white/[0.08] font-medium">
-            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-rose-500 animate-pulse' : 'bg-rose-500/80'}`} />
-            LIVE
+          <span className={`px-1.5 py-0.5 rounded border font-mono font-bold text-[9px] ${isPlaying ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-zinc-800 text-zinc-400 border-zinc-700/50'}`}>
+            {isPlaying ? '[LIVE]' : '[ARMED]'}
           </span>
           <span className="text-zinc-200 bg-[#0D0E12] px-1.5 py-0.5 rounded border border-white/[0.08] font-medium">
             Shot 0{activeSceneIndex + 1}/{scenes.length}

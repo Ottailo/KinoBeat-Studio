@@ -66,12 +66,14 @@ export const KineticTypography: React.FC<KineticTypographyProps> = ({
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-end pb-14 pointer-events-none select-none z-30">
       {/* HUD Chapter Eyebrow */}
-      <div className="flex items-center gap-2 mb-2 px-2.5 py-0.5 bg-black/75 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest text-zinc-300">
+      <div className="flex items-center gap-2 mb-2 px-2 py-0.5 bg-black/75 backdrop-blur-md rounded border border-white/10 text-[10px] font-mono tracking-widest text-zinc-300">
         <span
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: textColor }}
-        />
-        <span>CUE // {currentTime.toFixed(2)}s</span>
+          className="text-[9px] font-mono font-bold px-1 rounded bg-black/80 border border-white/10"
+          style={{ color: textColor }}
+        >
+          [CUE]
+        </span>
+        <span>{currentTime.toFixed(2)}s</span>
         <span className="text-zinc-500">[{activeCaption.style.toUpperCase()}]</span>
       </div>
 

@@ -227,9 +227,11 @@ export const CameraNode: React.FC<{
         {/* Live Miniature 3D Trajectory Viewfinder Canvas */}
         <div className="relative rounded-lg bg-[#0D0E12] border border-white/[0.08] p-2 flex flex-col items-center">
           <div className="w-full flex items-center justify-between text-[10px] text-zinc-400 font-mono mb-1.5 px-0.5">
-            <span className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500]" />
-              VIEWFINDER VECTOR
+            <span className="flex items-center gap-1.5 font-bold text-[9px] text-[#FF5500]">
+              <span className="bg-[#FF5500]/20 text-[#FF5500] px-1 py-0.2 rounded border border-[#FF5500]/30 font-mono">
+                [VECTOR]
+              </span>
+              VIEWFINDER
             </span>
             <span className="text-zinc-200 font-medium font-mono">t = {(currentTime % 3.5).toFixed(2)}s</span>
           </div>

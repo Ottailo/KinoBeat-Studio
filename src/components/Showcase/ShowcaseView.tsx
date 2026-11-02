@@ -511,7 +511,9 @@ export const ShowcaseView: React.FC = () => {
       {/* Hero Header */}
       <div className="max-w-6xl mx-auto mb-10">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-[#FF5500] animate-pulse shadow-[0_0_8px_#FF5500]" />
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30">
+            [PRESETS]
+          </span>
           <span className="text-[11px] font-mono tracking-widest uppercase text-zinc-400">
             CINEMATIC PRESETS & REELS ARCHIVE
           </span>

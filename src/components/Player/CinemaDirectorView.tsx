@@ -332,7 +332,9 @@ export const CinemaDirectorView: React.FC = () => {
                       : 'bg-[#0D0E12] border-white/[0.08] text-zinc-400 hover:text-white hover:bg-[#21242E]'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${activeSceneIndex === idx ? 'bg-[#FF5500]' : 'bg-zinc-600'}`} />
+                  <span className={`text-[9px] font-mono font-bold px-1 py-0.2 rounded ${activeSceneIndex === idx ? 'bg-[#FF5500]/20 text-[#FF5500]' : 'bg-zinc-800 text-zinc-500'}`}>
+                    {activeSceneIndex === idx ? '[ACTIVE]' : '[STANDBY]'}
+                  </span>
                   <span className="font-semibold text-zinc-200">Shot {idx + 1}</span>
                   <span className="text-[10px] text-zinc-400 border-l border-white/[0.08] pl-1.5">
                     {sc.focalLength || '35mm'}

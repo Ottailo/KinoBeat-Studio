@@ -174,11 +174,13 @@ export const Header: React.FC<HeaderProps> = ({
           {/* SMPTE Clock */}
           <div className="flex items-center gap-2 bg-[#191B22] border border-white/[0.08] rounded-md px-2.5 py-1">
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                isPlaying ? 'bg-[#FF5500] animate-pulse shadow-[0_0_8px_#FF5500]' : 'bg-zinc-500'
+              className={`text-[9px] font-mono font-bold px-1 py-0.5 rounded ${
+                isPlaying ? 'bg-[#FF5500]/20 text-[#FF5500]' : 'bg-zinc-800 text-zinc-400'
               }`}
               title="Master Broadcast Clock"
-            />
+            >
+              {isPlaying ? '[PLAY]' : '[SMPTE]'}
+            </span>
             <span className="font-mono text-xs font-medium tracking-wide text-zinc-100 smpte-timecode">
               {formatSMPTE(currentTime)}
             </span>
@@ -230,12 +232,10 @@ export const Header: React.FC<HeaderProps> = ({
           whileTap={{ scale: 0.96 }}
           type="button"
           onClick={() => setIsDiagnosticsOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#191B22] hover:bg-[#21242E] border border-white/[0.08] text-xs font-mono text-zinc-300 hover:text-white transition-colors cursor-pointer"
           title="Click to view Local Engine Diagnostics"
         >
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10B981]" />
-          <span className="hidden sm:inline">Engine</span>
-          <span className="text-zinc-100 font-medium">Ready</span>
+          <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">[RENDER·ARMED]</span>
         </motion.button>
 
         {/* First-Run Onboarding Guide */}

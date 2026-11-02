@@ -90,7 +90,9 @@ export const TimelineSuiteView: React.FC = () => {
           />
           {/* Subtle Monitor HUD badge */}
           <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[10px] font-mono text-zinc-300">
-            <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-[#FF5500] animate-pulse shadow-[0_0_6px_#FF5500]' : 'bg-zinc-500'}`} />
+            <span className={`text-[9px] font-mono font-bold px-1 py-0.5 rounded ${isPlaying ? 'bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/40' : 'bg-zinc-800 text-zinc-400'}`}>
+              {isPlaying ? '[PLAY]' : '[SMPTE]'}
+            </span>
             <span className="font-semibold text-zinc-200">PROGRAM // DCI SCOPE</span>
           </div>
 

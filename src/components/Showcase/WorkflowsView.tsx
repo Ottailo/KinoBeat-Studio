@@ -110,7 +110,9 @@ export const WorkflowsView: React.FC = () => {
     <div className="flex-1 overflow-y-auto bg-[#121317] text-white p-6 md:p-10 font-sans select-none">
       <div className="max-w-6xl mx-auto mb-10">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-2 h-2 rounded-full bg-[#FF5500] shadow-[0_0_8px_#FF5500]" />
+          <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30">
+            [PERSONAS]
+          </span>
           <span className="text-[11px] font-mono tracking-widest uppercase text-zinc-400">
             CREATOR PERSONA ARCHITECTURE
           </span>
@@ -149,7 +151,11 @@ export const WorkflowsView: React.FC = () => {
                       {wf.title}
                     </span>
                   </div>
-                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#FF5500] shadow-[0_0_6px_#FF5500]" />}
+                  {isActive && (
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/40">
+                      [ACTIVE]
+                    </span>
+                  )}
                 </div>
                 <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 pl-9">
                   {wf.role}

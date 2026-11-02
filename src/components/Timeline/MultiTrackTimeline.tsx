@@ -1036,9 +1036,11 @@ export const MultiTrackTimeline: React.FC<{ isExpanded?: boolean }> = ({ isExpan
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: cap.color || '#FFFFFF' }}
-                      />
+                        className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-black/60 border border-white/10 shrink-0"
+                        style={{ color: cap.color || '#FFFFFF' }}
+                      >
+                        [T1]
+                      </span>
                       <Move className="w-2.5 h-2.5 text-zinc-500 opacity-60 group-hover/cap:opacity-100" />
                       {isEditing ? (
                         <input
